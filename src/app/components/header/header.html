@@ -1,0 +1,35 @@
+<header class="bg-black text-white p-4">
+	<!-- Menu desktop -->
+	<nav class="flex items-center justify-between px-5">
+		<img src="logo.png" class="h-9 inline-block mr-4">
+		
+		<ul class="hidden lg:flex justify-end gap-10">
+			<li><a href="/">Home</a></li>
+			<li><a href="/registerPeople">Cadastro de Pessoas</a></li>
+			<li><a href="/contact">Cadastro de Cortesias</a></li>
+			<li><a href="/listPeople">Listagem de Pessoas</a></li>
+		</ul>
+
+		<!-- Menu mobile button -->
+    <button class="lg:hidden" (click)="toggleMenu()">
+      <img 
+        *ngIf="!menuOpen" 
+        src="menu.png" 
+        class="h-7" 
+        alt="Menu">
+      <img 
+        *ngIf="menuOpen" 
+        src="close.png" 
+        class="h-7" 
+        alt="Fechar">
+    </button>
+	</nav>
+
+	<!-- Menu mobile -->
+  <ul *ngIf="menuOpen" class="flex flex-col gap-5 p-5 pt-10 lg:hidden bg-black text-white">
+    <li><a href="/">Home</a></li>
+    <li><a href="/registerPeople">Cadastro de Pessoas</a></li>
+    <li><a href="/contact">Cadastro de Cortesias</a></li>
+    <li><a href="/listPeople">Listagem de Pessoas</a></li>
+  </ul>
+</header>
