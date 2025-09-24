@@ -5,7 +5,8 @@ import { Signin } from './public/signin/signin';
 import { RegisterPeople } from './private/register-people/register-people';
 import { ListPeople } from './private/list-people/list-people';
 import { VerifyCPF } from './public/verify-cpf/verify-cpf';
-import { FacialRegistration } from './public/facial-registration/facial-registration';
+import { RegisterFacial } from './public/register-facial/register-facial';
+import { RegisterCourtesy } from './private/register-courtesy/register-courtesy';
 
 export const routes: Routes = [
   { path: '', component: VerifyCPF },
@@ -22,7 +23,11 @@ export const routes: Routes = [
     component: ListPeople,
   },
   {
-    path: 'facial-registration',
-    component: FacialRegistration,
+    path: 'registerFacial',
+    component: RegisterFacial,
+  },
+  {
+    path: 'registerCourtesy',
+    component: RegisterCourtesy,
   },
 ];

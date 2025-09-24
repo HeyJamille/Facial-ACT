@@ -12,6 +12,7 @@
     "cep": "12345-678",
     "city": "São Paulo",
     "state": "SP",
+    "courtesy": 2,
     "edit": "pencil.png",
     "delet": "trash.png"
   },
@@ -28,6 +29,7 @@
     "cep": "12345-678",
     "city": "São Paulo",
     "state": "SP",
+    "courtesy": 1,
     "edit": "pencil.png",
     "delet": "trash.png"
   },
@@ -44,6 +46,7 @@
     "cep": "12345-678",
     "city": "São Paulo",
     "state": "SP",
+    "courtesy": 5,
     "edit": "pencil.png",
     "delet": "trash.png"
   },
@@ -60,6 +63,7 @@
     "cep": "12345-678",
     "city": "São Paulo",
     "state": "SP",
+    "courtesy": 4,
     "edit": "pencil.png",
     "delet": "trash.png"
   },
@@ -76,6 +80,7 @@
     "cep": "12345-678",
     "city": "São Paulo",
     "state": "SP",
+    "courtesy": 2,
     "edit": "pencil.png",
     "delet": "trash.png"
   },
@@ -92,6 +97,7 @@
     "cep": "12345-678",
     "city": "São Paulo",
     "state": "SP",
+    "courtesy": 2,
     "edit": "pencil.png",
     "delet": "trash.png"
   }

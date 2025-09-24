@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -28,7 +28,7 @@ export class VerifyCPF {
     } else {
       this.toastr.error('Você ainda não tem facial cadastrada', 'Erro');
       setTimeout(() => {
-        this.router.navigate(['/facial-registration']);
+        this.router.navigate(['/registerFacial']);
       }, 800);
     }
   }
