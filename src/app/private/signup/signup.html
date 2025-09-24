@@ -4,10 +4,25 @@
 
   <section class="bg-white p-10 m-5 rounded-2xl shadow-lg max-w-sm w-full">
     <!-- Title -->
-    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Seja Bem Vindo!</h1>
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Cadastre-se!</h1>
 
-    <!-- Forms -->
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="flex flex-col gap-5">
+    <!-- Forms #signUpForm="ngForm" (ngSubmit)="onSubmit(signUpForm)"-->
+    <form  class="flex flex-col gap-5">
+      <!-- Name -->
+      <div>
+        <label for="email" class="text-sm font-medium text-black">Nome Completo</label>
+        <input
+          type="name"
+          id="name"
+          name="name"
+          ngModel
+          required
+          name
+          placeholder="seu nome"
+          class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400  focus:ring focus:outline-none"
+        >
+      </div>
+
       <!-- Email -->
       <div>
         <label for="email" class="text-sm font-medium text-black">Email</label>
@@ -46,10 +61,10 @@
       </button>
     </form>
 
-    <!-- Sign Up -->
+    <!-- SignIn -->
     <p class="mt-6 text-sm text-gray-600 text-center">
-      Não tem conta?
-      <a href="#" class="text-black hover:underline font-medium">Cadastre-se!</a>
+      Já tem conta?
+      <a href="/signin" class="text-black hover:underline font-medium">Entrar!</a>
     </p>
   </section>
 </article>
