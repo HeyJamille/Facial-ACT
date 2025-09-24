@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import people from '../../data/people.json';
 import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-list-people',
@@ -17,7 +18,7 @@ export class ListPeople {
   peopleForDeletId: number | null = null;
   peopleForDeletName: string = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private toastr: ToastrService) {}
 
   deletPerson(id: number) {
     const pessoa = this.peopleList.find((p) => p.id === id);
@@ -44,11 +45,12 @@ export class ListPeople {
   }
 
   editPerson(id: number) {
-    console.log(id);
     const person = this.peopleList.find((p) => p.id === id);
     if (person) {
-      alert('Redirecionando para a página de edição de ' + person.name);
-      this.router.navigate(['/registerPeople'], { state: { person } });
+      this.toastr.success('Redirecionando para a página de edição', 'Sucesso');
+      setTimeout(() => {
+        this.router.navigate(['/registerPeople'], { state: { person } });
+      }, 500);
     }
   }
 }

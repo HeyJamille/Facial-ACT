@@ -56,7 +56,8 @@
 							[(ngModel)]="person.phone"
 							#phone="ngModel"
 							required
-							placeholder="Ex: 01/01/2000"
+							placeholder="Ex: (00) 00000-0000"
+							mask="(00) 00000-0000"
 							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': phone.invalid && registerPeopleForms.submitted}"
 							>
@@ -90,6 +91,7 @@
 							required
 							minlength="11"
 							placeholder="Ex: 123.456.789-00"
+							mask="000.000.000-00"
 							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': cpf.invalid && registerPeopleForms.submitted}"
 							>
@@ -161,6 +163,7 @@
 						required
 						minlength="8"
 						placeholder="Ex: 12345-678"
+						mask="00000-000"
 						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 						[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}"
 						>
@@ -210,7 +213,7 @@
 					type="submit"
 					class="w-full self-center bg-black text-white py-2 px-4 mt-2 text-sm rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
 				>
-					Cadastrar
+					{{buttonTitle}}
 				</button>
 			</form>
 		</div>

@@ -3,20 +3,22 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Header } from '../../components/header/header';
-
+import { ToastrService } from 'ngx-toastr';
+import { NgxMaskDirective } from 'ngx-mask';
 @Component({
   selector: 'app-register-people',
-  imports: [CommonModule, FormsModule, Header],
+  imports: [CommonModule, FormsModule, Header, NgxMaskDirective],
   templateUrl: './register-people.html',
 })
 export class RegisterPeople implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private toastr: ToastrService) {}
   pageTitle: string = 'Cadastro de Pessoas';
+  toastTitle: string = 'Cadastro';
+  buttonTitle: string = 'Cadastrar';
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      alert('Cadastro realizado com sucesso!');
-      this.router.navigate(['/success']);
+      this.toastr.success(`${this.toastTitle} realizado(a) com sucesso!`, 'Sucesso');
     }
   }
 
@@ -42,12 +44,13 @@ export class RegisterPeople implements OnInit {
   };
 
   ngOnInit() {
-    // Pega os dados passados pelo router
     const state = history.state;
 
     if (state && state.person) {
       this.person = state.person;
       this.pageTitle = 'Editar Pessoa';
+      this.toastTitle = 'Editação';
+      this.buttonTitle = 'Editar';
     }
   }
 }
