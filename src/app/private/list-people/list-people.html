@@ -9,73 +9,73 @@
 			<!-- Header -->
 			<thead class="bg-black text-white">
 				<tr>
-					<th class="px-6 py-3 text-left">Nome</th>
-					<th class="px-6 py-3 text-left">Data de Nascimento</th>
-					<th class="px-6 py-3 text-left">CPF</th>
-					<th class="px-6 py-3 text-left">Rua</th>
-					<th class="px-6 py-3 text-left">Bairro</th>
-					<th class="px-6 py-3 text-left">Número</th>
-					<th class="px-6 py-3 text-left">CEP</th>
-					<th class="px-6 py-3 text-left">Cidade</th>
-					<th class="px-6 py-3 text-left">Estado</th>
-					<th class="px-6 py-3 text-left">Ações</th>
+					<th class="py-3 px-4 text-center">ID</th>
+					<th class="py-3 px-4 text-center">Nome</th>
+					<th class="py-3 px-4 text-center">Data de Nascimento</th>
+					<th class="py-3 px-4 text-center">E-mail</th>
+					<th class="py-3 px-4 text-center">Telefone</th>
+					<th class="py-3 px-4 text-center">CPF</th>
+					<th class="py-3 px-4 text-center">Rua</th>
+					<th class="py-3 px-4 text-center">Bairro</th>
+					<th class="py-3 px-4 text-center">Número</th>
+					<th class="py-3 px-4 text-center">CEP</th>
+					<th class="py-3 px-4 text-center">Cidade</th>
+					<th class="py-3 px-4 text-center">Estado</th>
+					<th class="py-3 px-4 text-center">Ações</th>
 				</tr>
 			</thead>
 
 			<!-- Table Body -->
 			<tbody>
-				<tr class="bg-white hover:bg-gray-100">
-					<td class="px-6 py-4 border-b border-gray-200">Ana Beatriz</td>
-					<td class="px-6 py-4 border-b border-gray-200">07/10/1999</td>
-					<td class="px-6 py-4 border-b border-gray-200">456.478.523-96</td>
-					<td class="px-6 py-4 border-b border-gray-200">Rua Claudio</td>
-					<td class="px-6 py-4 border-b border-gray-200">Vicente Pizon</td>
-					<td class="px-6 py-4 border-b border-gray-200">123</td>
-					<td class="px-6 py-4 border-b border-gray-200">60.456.869</td>
-					<td class="px-6 py-4 border-b border-gray-200">Fortaleza</td>
-					<td class="px-6 py-4 border-b border-gray-200">Ceará</td>
-				</tr>
-				<tr class="bg-white hover:bg-gray-100">
-					<td class="px-6 py-4 border-b border-gray-200">Ana Beatriz</td>
-					<td class="px-6 py-4 border-b border-gray-200">07/10/1999</td>
-					<td class="px-6 py-4 border-b border-gray-200">456.478.523-96</td>
-					<td class="px-6 py-4 border-b border-gray-200">Rua Claudio</td>
-					<td class="px-6 py-4 border-b border-gray-200">Vicente Pizon</td>
-					<td class="px-6 py-4 border-b border-gray-200">123</td>
-					<td class="px-6 py-4 border-b border-gray-200">60.456.869</td>
-					<td class="px-6 py-4 border-b border-gray-200">Fortaleza</td>
-					<td class="px-6 py-4 border-b border-gray-200">Ceará</td>
-				</tr>
-				<tr class="bg-white hover:bg-gray-100">
-					<td class="px-6 py-4 border-b border-gray-200">Ana Beatriz</td>
-					<td class="px-6 py-4 border-b border-gray-200">07/10/1999</td>
-					<td class="px-6 py-4 border-b border-gray-200">456.478.523-96</td>
-					<td class="px-6 py-4 border-b border-gray-200">Rua Claudio</td>
-					<td class="px-6 py-4 border-b border-gray-200">Vicente Pizon</td>
-					<td class="px-6 py-4 border-b border-gray-200">123</td>
-					<td class="px-6 py-4 border-b border-gray-200">60.456.869</td>
-					<td class="px-6 py-4 border-b border-gray-200">Fortaleza</td>
-					<td class="px-6 py-4 border-b border-gray-200">Ceará</td>
-				</tr>
-				<tr class="bg-white hover:bg-gray-100">
-					<td class="px-6 py-4 border-b border-gray-200">Ana Beatriz</td>
-					<td class="px-6 py-4 border-b border-gray-200">07/10/1999</td>
-					<td class="px-6 py-4 border-b border-gray-200">456.478.523-96</td>
-					<td class="px-6 py-4 border-b border-gray-200">Rua Claudio</td>
-					<td class="px-6 py-4 border-b border-gray-200">Vicente Pizon</td>
-					<td class="px-6 py-4 border-b border-gray-200">123</td>
-					<td class="px-6 py-4 border-b border-gray-200">60.456.869</td>
-					<td class="px-6 py-4 border-b border-gray-200">Fortaleza</td>
-					<td class="px-6 py-4 border-b border-gray-200">Ceará</td>
-					<!-- Ações -->
-					<td class="px-6 py-4 flex gap-4 justify-center">
-						<i class="fa-solid fa-pen"></i>
-						<button class="text-red-500 hover:text-red-700">
-						<i class="fa-solid fa-trash"></i>
-						</button>
+				<tr *ngFor="let item of peopleList" class="bg-white hover:bg-gray-100 border-b border-gray-200">
+					<td class="py-2 px-4 text-sm text-center">{{ item.id }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.name }}">{{ item.name }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[120px] cursor-pointer" title="{{ item.dateOfBirth }}">{{ item.dateOfBirth }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[120px] cursor-pointer" title="{{ item.email }}">{{ item.email }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.phone }}">{{ item.phone }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.cpf }}">{{ item.cpf }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.road }}">{{ item.road }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.district }}">{{ item.district }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.number }}">{{ item.number }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.cep }}">{{ item.cep }}</td>
+					<td class="py-2 px-4 text-sm text-center truncate max-w-[120px] cursor-pointer" title="{{ item.city }}">{{ item.city }}</td>
+					<td class="py-2 px-4 text-sm text-center">{{ item.state }}</td>
+					<td class="flex items-center justify-center gap-4 px-6 py-4 z-50">
+						<div class="relative group">
+							<img 
+								[src]="item.edit" 
+								alt="{{ item.name }}" 
+								class="w-4 h-4 cursor-pointer" 
+								(click)="editPerson(item.id)" 
+							>
+							<span class="absolute bottom-full mb-1 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1">
+								Editar
+							</span>
+						</div>
+
+						<div class="relative group">
+							<img 
+								[src]="item.delet" 
+								alt="{{ item.name }}" 
+								class="w-4 h-4 cursor-pointer" 
+								(click)="deletPerson(item.id)" 
+							>
+							<span class="absolute bottom-full mb-1 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1">
+								Deletar
+							</span>
+						</div>
 					</td>
+
 				</tr>
 			</tbody>
 		</table>
+
+		<!-- Call Modal -->
+    <app-confirmation-modal
+      [showModal]="showModal"
+			[peopleForDeletName]="peopleForDeletName"
+      (confirm)="confirmDeletion()"
+      (cancel)="cancelDeletion()">
+    </app-confirmation-modal>
 	</section>
 </article>

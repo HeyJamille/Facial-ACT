@@ -5,7 +5,7 @@
 		<!-- Register People Form -->
 		<div class="w-full">
 			<!-- Title -->
-			<h1 class="text-2xl font-bold my-4">Cadastro de Pessoas</h1>
+			<h1 class="text-2xl font-bold my-4">{{ pageTitle }}</h1>
 
 			<!-- Forms -->
 			<form #registerPeopleForms="ngForm" (ngSubmit)="onSubmit(registerPeopleForms)" class="flex flex-col gap-4  bg-white rounded-xl shadow-lg p-6">
@@ -16,14 +16,14 @@
 						<label for="nome" class="text-sm font-medium text-black">Nome Completo</label>
 						<input
 							type="text"
-							id="nome"
-							name="nome"
-							ngModel
-							#nome="ngModel"
+							id="name"
+							name="name"
+							[(ngModel)]="person.name"
+							#name="ngModel"
 							required
 							placeholder="Nome completo"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': nome.invalid && registerPeopleForms.submitted}"
+							class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+							[ngClass]="{'border-red-500': name.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
 
@@ -34,30 +34,30 @@
 							type="email"
 							id="email"
 							name="email"
-							ngModel
+							[(ngModel)]="person.email"
 							#email="ngModel"
 							required
 							placeholder="email@gmail.con"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': email.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
 				</div>
 
-				<!-- Date of birth and CPF-->
+				<!-- Phone, Date of birth and CPF-->
 				<div class="flex flex-col sm:flex-row gap-4">
 					<!-- Phone -->
 					<div class="w-full">
 						<label for="phone" class="text-sm font-medium text-black">Celular</label>
 						<input
-							type="date"
+							type="text"
 							id="phone"
 							name="phone"
-							ngModel
+							[(ngModel)]="person.phone"
 							#phone="ngModel"
 							required
 							placeholder="Ex: 01/01/2000"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': phone.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
@@ -69,11 +69,11 @@
 							type="date"
 							id="dateOfBirth"
 							name="dateOfBirth"
-							ngModel
+							[(ngModel)]="person.dateOfBirth"
 							#dateOfBirth="ngModel"
 							required
 							placeholder="Ex: 01/01/2000"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': dateOfBirth.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
@@ -85,12 +85,12 @@
 							type="text"
 							id="cpf"
 							name="cpf"
-							ngModel
+							[(ngModel)]="person.cpf"
 							#cpf="ngModel"
 							required
 							minlength="11"
 							placeholder="Ex: 123.456.789-00"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': cpf.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
@@ -105,11 +105,11 @@
 							type="text"
 							id="road"
 							name="road"
-							ngModel
+							[(ngModel)]="person.road"
 							#road="ngModel"
 							required
 							placeholder="Ex: Av. Brasil"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': road.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
@@ -121,11 +121,11 @@
 							type="text"
 							id="number"
 							name="number"
-							ngModel
+							[(ngModel)]="person.number"
 							#number="ngModel"
 							required
 							placeholder="Ex: 123"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 							[ngClass]="{'border-red-500': number.invalid && registerPeopleForms.submitted}"
 							>
 					</div>
@@ -137,11 +137,11 @@
 						type="text"
 						id="district"
 						name="district"
-						ngModel
+						[(ngModel)]="person.district"
 						#district="ngModel"
 						required
 						placeholder="Ex: Centro"
-						class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 						[ngClass]="{'border-red-500': district.invalid && registerPeopleForms.submitted}"
 						>
 					</div>
@@ -156,12 +156,12 @@
 						type="text"
 						id="cep"
 						name="cep"
-						ngModel
+						[(ngModel)]="person.cep"
 						#cep="ngModel"
 						required
 						minlength="8"
 						placeholder="Ex: 12345-678"
-						class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 						[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}"
 						>
 					</div>
@@ -173,12 +173,12 @@
 						type="city"
 						id="city"
 						name="city"
-						ngModel
+						[(ngModel)]="person.city"
 						#city="ngModel"
 						required
 						minlength="6"
 						placeholder="Ex: São Paulo"
-						class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 						[ngClass]="{'border-red-500': city.invalid && registerPeopleForms.submitted}"
 						>
 					</div>
@@ -190,11 +190,11 @@
 						type="state"
 						id="state"
 						name="state"
-						ngModel
+						[(ngModel)]="person.state"
 						#state="ngModel"
 						required
 						placeholder="Ex: SP"
-						class="w-full mt-1 px-4 py-2 border rounded-lg text-gray-500 border-gray-400 focus:ring focus:outline-none"
+						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 						[ngClass]="{'border-red-500': state.invalid && registerPeopleForms.submitted}"
 						>
 					</div>
@@ -208,7 +208,7 @@
 				<!-- Button -->
 				<button
 					type="submit"
-					class="w-full self-center bg-black text-white py-2 px-4 mt-2 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
+					class="w-full self-center bg-black text-white py-2 px-4 mt-2 text-sm rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
 				>
 					Cadastrar
 				</button>
@@ -219,8 +219,8 @@
 		<div class="md:w-1/2">
 			<h2 class="text-2xl font-bold my-4">Campo Facial</h2>
 
-			<div class="bg-white rounded-xl shadow-lg p-6 h-[440px]">
-				<p class="text-black">Esta seção é reservada para o reconhecimento facial. Em breve, implementaremos essa funcionalidade.</p>
+			<div class="bg-white rounded-xl shadow-lg p-6 h-[420px]">
+				<p class="text-black text-sm">Esta seção é reservada para o reconhecimento facial. Em breve, implementaremos essa funcionalidade.</p>
 			</div>
 		</div>
 	</section>

@@ -2,10 +2,53 @@ import { Component } from '@angular/core';
 import { Header } from '../../components/header/header';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import people from '../../data/people.json';
+import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-people',
-  imports: [CommonModule, FormsModule, Header],
+  imports: [CommonModule, FormsModule, Header, ConfirmationModal],
   templateUrl: './list-people.html',
 })
-export class ListPeople {}
+export class ListPeople {
+  peopleList = people;
+  showModal = false;
+  peopleForDeletId: number | null = null;
+  peopleForDeletName: string = '';
+
+  constructor(private router: Router) {}
+
+  deletPerson(id: number) {
+    const pessoa = this.peopleList.find((p) => p.id === id);
+    if (pessoa) {
+      this.peopleForDeletId = id;
+      this.peopleForDeletName = pessoa.name;
+      this.showModal = true;
+    }
+  }
+
+  confirmDeletion() {
+    if (this.peopleForDeletId !== null) {
+      this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
+      this.peopleForDeletId = null;
+      this.peopleForDeletName = '';
+      this.showModal = false;
+    }
+  }
+
+  cancelDeletion() {
+    this.peopleForDeletId = null;
+    this.peopleForDeletName = '';
+    this.showModal = false;
+  }
+
+  editPerson(id: number) {
+    console.log(id);
+    const person = this.peopleList.find((p) => p.id === id);
+    if (person) {
+      alert('Redirecionando para a página de edição de ' + person.name);
+      this.router.navigate(['/registerPeople'], { state: { person } });
+    }
+  }
+}
