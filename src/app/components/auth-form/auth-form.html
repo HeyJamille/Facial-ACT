@@ -1,0 +1,45 @@
+<article class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-5">
+  <!-- Logo -->
+  <img src="logo.png" class="h-13 md:h-15 inline-block mr-4">
+
+  <section class="bg-white p-10 m-5 rounded-2xl shadow-lg max-w-sm w-full">
+    <!-- Title -->
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">{{ headerTitle }}</h1>
+
+    <!-- Forms -->
+    <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)" class="flex flex-col gap-5">
+
+      <div *ngFor="let field of fields">
+        <label [for]="field.name" class="text-sm font-medium text-black">
+          {{ field.label }}
+        </label>
+        <input
+          [type]="field.type"
+          [id]="field.name"
+          [name]="field.name"
+          [placeholder]="field.placeholder"
+          ngModel
+          [required]="field.required"
+          class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+        >
+      </div>
+
+      <!-- Button -->
+      <button
+        type="submit"
+        class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
+      >
+        {{ buttonText }}
+      </button>
+    </form>
+
+    <!-- Link SignUp -->
+   <p *ngIf="linkText && text" class="mt-6 text-sm text-gray-600 text-center">
+      <span>{{ text }} </span>
+      <button type="button" (click)="onLinkClick()" class="text-black hover:underline font-medium cursor-pointer">
+        {{ linkText }}
+      </button>
+    </p>
+
+  </section>
+</article>

@@ -12,7 +12,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 })
 export class RegisterPeople implements OnInit {
   constructor(private router: Router, private toastr: ToastrService) {}
-  pageTitle: string = 'Cadastro de Pessoas';
+  pageTitle: string = 'Cadastrar nova Pessoa';
   toastTitle: string = 'Cadastro';
   buttonTitle: string = 'Cadastrar';
 
@@ -22,7 +22,7 @@ export class RegisterPeople implements OnInit {
     }
   }
 
-  // Função para validar CPF (só números e 11 dígitos)
+  // CPF Validation
   isCPFValid(cpf: string): boolean {
     const cleaned = cpf.replace(/\D/g, '');
     return cleaned.length === 11;
@@ -41,6 +41,8 @@ export class RegisterPeople implements OnInit {
     cep: '',
     city: '',
     state: '',
+    fatherName: '',
+    motherName: '',
   };
 
   ngOnInit() {
@@ -52,5 +54,39 @@ export class RegisterPeople implements OnInit {
       this.toastTitle = 'Editação';
       this.buttonTitle = 'Editar';
     }
+  }
+
+  // Document Upload
+  previewUrl: string | ArrayBuffer | null = null;
+  isDragOver = false;
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    this.preview(file);
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = false;
+    if (event.dataTransfer?.files.length) {
+      const file = event.dataTransfer.files[0];
+      this.preview(file);
+    }
+  }
+
+  preview(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => (this.previewUrl = reader.result);
+    reader.readAsDataURL(file);
   }
 }

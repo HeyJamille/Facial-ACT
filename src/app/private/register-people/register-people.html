@@ -1,230 +1,242 @@
 <app-header></app-header>
 
 <article class="min-h-screen flex items-start justify-center bg-gray-100"> 
-	<section class="flex flex-col md:flex-row gap-6 m-5">
-		<!-- Register People Form -->
-		<div class="w-full">
-			<!-- Title -->
-			<h1 class="text-2xl font-bold my-4">{{ pageTitle }}</h1>
+  <section class="flex flex-col md:flex-row gap-6 m-5">
 
-			<!-- Forms -->
-			<form #registerPeopleForms="ngForm" (ngSubmit)="onSubmit(registerPeopleForms)" class="flex flex-col gap-4  bg-white rounded-xl shadow-lg p-6">
-				<!-- Name and E-mail -->
-				<div class="flex flex-col sm:flex-row gap-4">
-					<!-- Name -->
-					<div class="w-full">
-						<label for="nome" class="text-sm font-medium text-black">Nome Completo</label>
-						<input
-							type="text"
-							id="name"
-							name="name"
-							[(ngModel)]="person.name"
-							#name="ngModel"
-							required
-							placeholder="Nome completo"
-							class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': name.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
+    <!-- Register People Form -->
+    <div class="w-full">
+      <h1 class="text-2xl font-bold my-4">{{ pageTitle }}</h1>
 
-					<!-- E-mail -->
-					<div class="w-full">
-						<label for="email" class="text-sm font-medium text-black">Email</label>
-						<input
-							type="email"
-							id="email"
-							name="email"
-							[(ngModel)]="person.email"
-							#email="ngModel"
-							required
-							placeholder="email@gmail.con"
-							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': email.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
-				</div>
+      <form #registerPeopleForms="ngForm" (ngSubmit)="onSubmit(registerPeopleForms)"
+        class="flex flex-col gap-6 bg-white rounded-xl shadow-lg p-6">
 
-				<!-- Phone, Date of birth and CPF-->
-				<div class="flex flex-col sm:flex-row gap-4">
-					<!-- Phone -->
-					<div class="w-full">
-						<label for="phone" class="text-sm font-medium text-black">Celular</label>
-						<input
-							type="text"
-							id="phone"
-							name="phone"
-							[(ngModel)]="person.phone"
-							#phone="ngModel"
-							required
-							placeholder="Ex: (00) 00000-0000"
-							mask="(00) 00000-0000"
-							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': phone.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
+        <!-- Dados Pessoais -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Dados Pessoais</legend>
+          
+          <!-- Nome -->
+          <div class="w-full">
+            <label for="name" class="text-sm font-medium text-black">Nome Completo</label>
+            <input type="text" id="name" name="name" [(ngModel)]="person.name" #name="ngModel" required
+              placeholder="Nome completo"
+              class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+              [ngClass]="{'border-red-500': name.invalid && registerPeopleForms.submitted}">
+          </div>
+             
+          <!-- Other personal data -->
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <!-- Data de nascimento -->
+            <div class="w-full">
+              <label for="dateOfBirth" class="text-sm font-medium text-black">Data de Nascimento</label>
+              <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="person.dateOfBirth"
+                #dateOfBirth="ngModel" required
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': dateOfBirth.invalid && registerPeopleForms.submitted}">
+            </div>
 
-					<!-- Date of birth -->
-					<div class="w-full">
-						<label for="dateOfBirth" class="text-sm font-medium text-black">Data de Nascimento</label>
-						<input
-							type="date"
-							id="dateOfBirth"
-							name="dateOfBirth"
-							[(ngModel)]="person.dateOfBirth"
-							#dateOfBirth="ngModel"
-							required
-							placeholder="Ex: 01/01/2000"
-							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': dateOfBirth.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
+            <!-- CPF -->
+            <div class="w-full">
+              <label for="cpf" class="text-sm font-medium text-black">CPF</label>
+              <input type="text" id="cpf" name="cpf" [(ngModel)]="person.cpf" #cpf="ngModel" required minlength="11"
+                placeholder="Ex: 123.456.789-00" mask="000.000.000-00"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': cpf.invalid && registerPeopleForms.submitted}">
+            </div>
 
-					<!-- CPF -->
-					<div class="w-full">
-						<label for="cpf" class="text-sm font-medium text-black">CPF</label>
-						<input
-							type="text"
-							id="cpf"
-							name="cpf"
-							[(ngModel)]="person.cpf"
-							#cpf="ngModel"
-							required
-							minlength="11"
-							placeholder="Ex: 123.456.789-00"
-							mask="000.000.000-00"
-							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': cpf.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
-				</div>
+            <!-- Celular -->
+            <div class="w-full">
+              <label for="phone" class="text-sm font-medium text-black">Celular</label>
+              <input type="text" id="phone" name="phone" [(ngModel)]="person.phone" #phone="ngModel" required
+                placeholder="Ex: (00) 00000-0000" mask="(00) 00000-0000"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': phone.invalid && registerPeopleForms.submitted}">
+            </div>
+          </div>
+        </fieldset>
 
-				<!-- Road, Number and District -->
-				<div class="flex flex-col sm:flex-row gap-4">
-					<!-- Road -->
-					<div class="w-full">
-						<label for="road" class="text-sm font-medium text-black">Rua</label>
-						<input
-							type="text"
-							id="road"
-							name="road"
-							[(ngModel)]="person.road"
-							#road="ngModel"
-							required
-							placeholder="Ex: Av. Brasil"
-							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': road.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
+        <!-- Credentials -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Credenciais para Login</legend>
 
-					<!-- Number -->
-					<div class="w-full">
-						<label for="number" class="text-sm font-medium text-black">Número</label>
-						<input
-							type="text"
-							id="number"
-							name="number"
-							[(ngModel)]="person.number"
-							#number="ngModel"
-							required
-							placeholder="Ex: 123"
-							class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-							[ngClass]="{'border-red-500': number.invalid && registerPeopleForms.submitted}"
-							>
-					</div>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <!-- E-mail -->
+            <div class="w-full">
+              <label for="email" class="text-sm font-medium text-black">Email</label>
+              <input type="email" id="email" name="email" [(ngModel)]="person.email" #email="ngModel" required
+                placeholder="email@gmail.com"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': email.invalid && registerPeopleForms.submitted}">
+            </div>
 
-					<!-- district -->
-					<div class="w-full">
-						<label for="district" class="text-sm font-medium text-black">Bairro</label>
-						<input
-						type="text"
-						id="district"
-						name="district"
-						[(ngModel)]="person.district"
-						#district="ngModel"
-						required
-						placeholder="Ex: Centro"
-						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-						[ngClass]="{'border-red-500': district.invalid && registerPeopleForms.submitted}"
-						>
-					</div>
-				</div>
+            <!-- Password -->
+            <div class="w-full">
+              <label for="password" class="text-sm font-medium text-black">Senha</label>
+              <input type="password" id="password" name="password" [(ngModel)]="person.password" #password="ngModel" required
+                placeholder="Digite uma senha"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': password.invalid && registerPeopleForms.submitted}">
+            </div>
+          </div>
+        </fieldset>
 
-				<!-- CEP, City and State -->
-				<div class="flex flex-col sm:flex-row gap-4">
-					<!-- CEP -->
-					<div class="w-full">
-						<label for="cep" class="text-sm font-medium text-black">CEP</label>
-						<input
-						type="text"
-						id="cep"
-						name="cep"
-						[(ngModel)]="person.cep"
-						#cep="ngModel"
-						required
-						minlength="8"
-						placeholder="Ex: 12345-678"
-						mask="00000-000"
-						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-						[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}"
-						>
-					</div>
+        <!-- Dados dos Pais -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Dados dos Pais</legend>
 
-					<!-- City -->
-					<div class="w-full">
-						<label for="city" class="text-sm font-medium text-black">Cidade</label>
-						<input
-						type="city"
-						id="city"
-						name="city"
-						[(ngModel)]="person.city"
-						#city="ngModel"
-						required
-						minlength="6"
-						placeholder="Ex: São Paulo"
-						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-						[ngClass]="{'border-red-500': city.invalid && registerPeopleForms.submitted}"
-						>
-					</div>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <div class="w-full">
+              <label for="fatherName" class="text-sm font-medium text-black">Nome do Pai</label>
+              <input type="text" id="fatherName" name="fatherName" [(ngModel)]="person.fatherName" #fatherName="ngModel" required
+                placeholder="Nome do Pai"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': fatherName.invalid && registerPeopleForms.submitted}">
+							</div>
 
-					<!-- State -->
-					<div class="w-full">
-						<label for="state" class="text-sm font-medium text-black">Estado</label>
-						<input
-						type="state"
-						id="state"
-						name="state"
-						[(ngModel)]="person.state"
-						#state="ngModel"
-						required
-						placeholder="Ex: SP"
-						class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-						[ngClass]="{'border-red-500': state.invalid && registerPeopleForms.submitted}"
-						>
-					</div>
-				</div>
+            <div class="w-full">
+              <label for="motherName" class="text-sm font-medium text-black">Nome da Mãe</label>
+              <input type="text" id="motherName" name="motherName" [(ngModel)]="person.motherName" #motherName="ngModel" required
+                placeholder="Nome da Mãe"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': motherName.invalid && registerPeopleForms.submitted}">
+							</div>
+          </div>
+        </fieldset>
 
-				<!-- General error message -->
-				<p *ngIf="registerPeopleForms.submitted && registerPeopleForms.invalid" class="text-red-500 text-sm text-center mt-2">
-					Por favor, preencha todos os campos em vermelho corretamente.
-				</p>
+        <!-- Endereço -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Endereço</legend>
 
-				<!-- Button -->
-				<button
-					type="submit"
-					class="w-full self-center bg-black text-white py-2 px-4 mt-2 text-sm rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-				>
-					{{buttonTitle}}
-				</button>
-			</form>
-		</div>
-		
-		<!-- Facial Field -->
-		<div class="md:w-1/2">
-			<h2 class="text-2xl font-bold my-4">Campo Facial</h2>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <div class="w-full">
+              <label for="road" class="text-sm font-medium text-black">Rua</label>
+              <input type="text" id="road" name="road" [(ngModel)]="person.road" #road="ngModel" required
+							  placeholder="Ex: Av. Brasil" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': road.invalid && registerPeopleForms.submitted}">
+							</div>
 
-			<div class="bg-white rounded-xl shadow-lg p-6 h-[420px]">
-				<p class="text-black text-sm">Esta seção é reservada para o reconhecimento facial. Em breve, implementaremos essa funcionalidade.</p>
-			</div>
-		</div>
-	</section>
+            <div class="w-full">
+              <label for="number" class="text-sm font-medium text-black">Número</label>
+              <input type="text" id="number" name="number" [(ngModel)]="person.number" #number="ngModel" required
+							  placeholder="Ex: 123"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': number.invalid && registerPeopleForms.submitted}">
+							</div>
+
+            <div class="w-full">
+              <label for="district" class="text-sm font-medium text-black">Bairro</label>
+              <input type="text" id="district" name="district" [(ngModel)]="person.district" #district="ngModel" required
+								placeholder="Ex: Centro"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': district.invalid && registerPeopleForms.submitted}">
+							</div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <div class="w-full">
+              <label for="cep" class="text-sm font-medium text-black">CEP</label>
+              <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required
+							  placeholder="Ex: 12345-678" mask="00000-000"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}">
+							</div>
+
+            <div class="w-full">
+              <label for="city" class="text-sm font-medium text-black">Cidade</label>
+              <input type="text" id="city" name="city" [(ngModel)]="person.city" #city="ngModel" required
+							  placeholder="Ex: São Paulo"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': city.invalid && registerPeopleForms.submitted}">
+						</div>
+
+            <div class="w-full">
+              <label for="state" class="text-sm font-medium text-black">Estado</label>
+              <input type="text" id="state" name="state" [(ngModel)]="person.state" #state="ngModel" required
+							  placeholder="Ex: SP"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+								[ngClass]="{'border-red-500': state.invalid && registerPeopleForms.submitted}">
+						</div>
+          </div>
+        </fieldset>
+
+        <!-- Mensagem de erro geral -->
+        <p *ngIf="registerPeopleForms.submitted && registerPeopleForms.invalid" class="text-red-500 text-sm text-center mt-2">
+          Por favor, preencha todos os campos em vermelho corretamente.
+        </p>
+
+        <!-- Botão -->
+        <button type="submit"
+          class="w-full self-center bg-black text-white py-2 px-4 mt-2 text-sm rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition">
+          {{buttonTitle}}
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Facial Field and Document Upload -->
+    <div class="flex flex-col gap-5 md:w-1/2">
+      <div>
+        <h2 class="text-2xl font-bold my-4">Campo Facial</h2>
+        <div class="bg-white rounded-xl shadow-lg p-6 h-[400px]">
+          <p class="text-black text-sm">Esta seção é reservada para o reconhecimento facial. Em breve, implementaremos essa funcionalidade.</p>
+        </div>
+      </div>
+
+      <!-- Document Upload -->
+      <div>
+        <div class="my-4">
+          <h2 class="text-2xl font-bold">Upload de Documento</h2>
+          <p class="text-black text-sm mt-1">
+            Documentos com fotos aceitos: Passaporte, Identidade e CNH.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 h-auto flex flex-col justify-center items-center gap-4">
+          <!-- Área de Upload -->
+          <ng-container *ngIf="!previewUrl">
+            <div
+              class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              [ngClass]="{'bg-gray-100': isDragOver}"
+            >
+              <svg
+                class="w-10 h-10 text-gray-500 mb-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 16V4a2 2 0 012-2h6a2 2 0 012 2v12m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              <span class="text-gray-600 text-sm cursor-pointer" (click)="fileInput.click()">Clique ou arraste um arquivo</span>
+              <input
+                #fileInput
+                type="file"
+                accept="image/*,.pdf"
+                class="hidden"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+          </ng-container>
+
+          <!-- Preview -->
+          <div *ngIf="previewUrl" class="mt-4 w-full flex flex-col items-center">
+            <img
+              [src]="previewUrl"
+              alt="Preview"
+              class="max-h-40 rounded-lg border border-gray-300"
+            />
+            <p class="text-xs text-gray-500 mt-2">Pré-visualização do documento</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </section>
 </article>

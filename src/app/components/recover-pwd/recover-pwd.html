@@ -14,16 +14,26 @@
 
     <!-- Text -->
     <div class="space-y-2">
-      <h2 class="text-2xl font-bold text-gray-800">Confirmar exclusão</h2>
-      <p class="text-sm text-gray-600">Deseja realmente deletar o usuáro <strong>{{ peopleForDeletName }}</strong></p>
+      <h2 class="text-2xl font-bold text-gray-800">Recuperar senha</h2>
+      <p class="text-sm text-gray-600">Um e-mail de recuperação será enviado para o e-mail abaixo!</p>
     </div>
     
+    <!-- E-mail Input -->
+    <input
+      type="email"
+      ngModel
+      placeholder="Digite seu e-mail"
+      class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm text-gray-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+    />
+
     <!-- Button -->
     <button 
       class="w-full bg-black text-white px-4 py-2 mt-4 rounded-lg font-semibold hover:bg-gray-800 transition"
       (click)="confirm.emit()"
     >
-      Excluir usuário
+      Enviar
     </button>
+
+    <p class="text-sm text-gray-500 mt-2">Dúvidas? (99) 9 9999-9999</p>
   </div>
 </div>

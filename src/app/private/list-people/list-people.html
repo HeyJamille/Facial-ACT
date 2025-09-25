@@ -1,96 +1,38 @@
-<app-header></app-header> 
+<app-header></app-header>
 
 <article class="min-h-screen md:flex md:items-start md:justify-center bg-gray-100 overflow-hidden">
-	<section class="m-5 overflow-x-auto">
-		<!-- Header -->
-		<div class="flex flex-col sm:flex-row items-center justify-between mb-5 gap-4">
-			<h1 class="text-2xl font-bold text-gray-900">Lista de Pessoas</h1>
-		
-			<!-- Search bar -->
-			<div class="w-full sm:w-1/3 relative">
-				<input
-					type="text"
-					placeholder="Pesquisar pessoas..."
-					class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm text-black border-gray-300 bg-white focus:outline-none"
-				>
-				<div class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-black">
-					<img src="search.png">
-				</div>
-			</div>
-		</div>
-		
-		<!-- Table -->
-		<table class="min-w-full bg-white rounded-xl shadow-lg overflow-hidden">
-			<!-- Header -->
-			<thead class="bg-black text-white">
-				<tr>
-					<th class="py-3 px-4 text-center">ID</th>
-					<th class="py-3 px-4 text-center">Nome</th>
-					<th class="py-3 px-4 text-center">Data de Nascimento</th>
-					<th class="py-3 px-4 text-center">E-mail</th>
-					<th class="py-3 px-4 text-center">Telefone</th>
-					<th class="py-3 px-4 text-center">CPF</th>
-					<th class="py-3 px-4 text-center">Rua</th>
-					<th class="py-3 px-4 text-center">Bairro</th>
-					<th class="py-3 px-4 text-center">Número</th>
-					<th class="py-3 px-4 text-center">CEP</th>
-					<th class="py-3 px-4 text-center">Cidade</th>
-					<th class="py-3 px-4 text-center">Estado</th>
-					<th class="py-3 px-4 text-center">Ações</th>
-				</tr>
-			</thead>
+  <section class="m-5 overflow-x-auto">
+    
+    <!-- Header + Search -->
+    <div class="flex flex-col sm:flex-row items-start md:items-center justify-between mb-5 gap-4">
+      <h1 class="text-2xl font-bold text-gray-900">Lista de Pessoas</h1>
+      <div class="w-full sm:w-1/3 relative">
+        <input 
+          type="text" 
+          placeholder="Pesquisar pessoas..." 
+          class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm text-black border-gray-300 bg-white focus:outline-none"
+         
+        >
+        <div class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black">
+          <img src="search.png">
+        </div>
+      </div>
+    </div>
 
-			<!-- Table Body -->
-			<tbody>
-				<tr *ngFor="let item of peopleList" class="bg-white hover:bg-gray-100 border-b border-gray-200">
-					<td class="py-2 px-4 text-sm text-center">{{ item.id }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.name }}">{{ item.name }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[120px] cursor-pointer" title="{{ item.dateOfBirth }}">{{ item.dateOfBirth }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[120px] cursor-pointer" title="{{ item.email }}">{{ item.email }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.phone }}">{{ item.phone }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.cpf }}">{{ item.cpf }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.road }}">{{ item.road }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.district }}">{{ item.district }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.number }}">{{ item.number }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[100px] cursor-pointer" title="{{ item.cep }}">{{ item.cep }}</td>
-					<td class="py-2 px-4 text-sm text-center truncate max-w-[120px] cursor-pointer" title="{{ item.city }}">{{ item.city }}</td>
-					<td class="py-2 px-4 text-sm text-center">{{ item.state }}</td>
-					<td class="flex items-center justify-center gap-4 px-6 py-4 z-50">
-						<div class="relative group">
-							<img 
-								[src]="item.edit" 
-								alt="{{ item.name }}" 
-								class="w-4 h-4 cursor-pointer" 
-								(click)="editPerson(item.id)" 
-							>
-							<span class="absolute bottom-full mb-1 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1">
-								Editar
-							</span>
-						</div>
+    <!-- People Table -->
+    <app-table
+      [peopleList]="peopleList"
+      (editPerson)="editPerson($event)"
+      (deletePerson)="deletePerson($event)">
+    </app-table>
 
-						<div class="relative group">
-							<img 
-								[src]="item.delet" 
-								alt="{{ item.name }}" 
-								class="w-4 h-4 cursor-pointer" 
-								(click)="deletPerson(item.id)" 
-							>
-							<span class="absolute bottom-full mb-1 hidden group-hover:block bg-black text-white text-xs rounded px-2 py-1">
-								Deletar
-							</span>
-						</div>
-					</td>
-
-				</tr>
-			</tbody>
-		</table>
-
-		<!-- Call Modal -->
+    <!-- Confirmation Modal-->
     <app-confirmation-modal
       [showModal]="showModal"
-			[peopleForDeletName]="peopleForDeletName"
+      [peopleForDeletName]="peopleForDeletName"
       (confirm)="confirmDeletion()"
       (cancel)="cancelDeletion()">
     </app-confirmation-modal>
-	</section>
+
+  </section>
 </article>

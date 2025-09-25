@@ -1,55 +1,19 @@
-<article class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-  <!-- Logo -->
-  <img src="logo.png" class="h-15 inline-block mr-4">
+<app-auth-form
+  headerTitle="Seja Bem Vindo!"
+  [fields]="[
+    { label: 'Email', type: 'email', name: 'email', placeholder: 'email@gmail.com', required: true },
+    { label: 'Senha', type: 'password', name: 'password', placeholder: '••••••••', required: true }
+  ]"
+  buttonText="Entrar"
+  linkText="Recupere."
+  text="Esqueceu sua senha?"
+  (formSubmit)="onSignin($event)"
+  (forgotPassword)="openRecoverModal()">
+</app-auth-form>
 
-  <section class="bg-white p-10 m-5 rounded-2xl shadow-lg max-w-sm w-full">
-    <!-- Title -->
-    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Seja Bem Vindo!</h1>
-
-    <!-- Forms -->
-    <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" class="flex flex-col gap-5">
-      <!-- Email -->
-      <div>
-        <label for="email" class="text-sm font-medium text-black">Email</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          ngModel
-          required
-          email
-          placeholder="email@gmail.com"
-          class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400  focus:ring focus:outline-none"
-        >
-      </div>
-
-      <!-- Password -->
-      <div>
-        <label for="password" class="text-sm font-medium text-black">Senha</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          ngModel
-          required
-          placeholder="••••••••"
-          class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
-        >
-      </div>
-
-      <!-- Button -->
-      <button
-        type="submit"
-        class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-        >
-        Entrar
-      </button>
-    </form>
-
-    <!-- Sign Up -->
-    <p class="mt-6 text-sm text-gray-600 text-center">
-      Não tem conta?
-      <a href="/signup" class="text-black hover:underline font-medium">Cadastre-se!</a>
-    </p>
-  </section>
-</article>
+<!-- Recover PassWord -->
+<app-recover-pwd
+  [showModal]="showModal"
+  (confirm)="confirmDeletion()"
+  (cancel)="cancelDeletion()">
+</app-recover-pwd>

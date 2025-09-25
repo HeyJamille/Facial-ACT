@@ -1,11 +1,14 @@
+// Bibliotecas
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Signin } from '../signin/signin';
+import { AuthForm } from '../../components/auth-form/auth-form';
 
 @Component({
   selector: 'app-signup',
-  imports: [FormsModule, CommonModule],
+  imports: [CommonModule, FormsModule, AuthForm],
   templateUrl: './signup.html',
 })
-export class Signup {}
+export class Signup {
+  onSignup(data: any) {}
+}

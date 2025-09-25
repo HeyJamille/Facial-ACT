@@ -12,24 +12,40 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './verify-cpf.html',
 })
 export class VerifyCPF {
+  selectedDocument: string = '';
+
   constructor(private router: Router, private toastr: ToastrService) {}
 
   onSubmit(form: NgForm) {
-    if (!form.valid) {
-      this.toastr.warning('Preencha o campo de CPF!', 'Atenção');
+    const docType = this.selectedDocument; // 'cpf' ou 'cnh'
+    const docValue: string = form.value.documentInput?.replace(/\D/g, '') || '';
+
+    // Field Validation
+    if (!docType || !docValue) {
+      this.toastr.warning('Por gentileza, preencha todos os campos.', 'Atenção');
       return;
     }
 
-    const cpf = form.value.cpf.replace(/\D/g, ''); // limpa possíveis pontos ou traços
+    if (
+      (docType === 'cpf' && docValue.length !== 11) ||
+      (docType === 'cnh' && docValue.length !== 11)
+    ) {
+      this.toastr.warning('Número de documento inválido', 'Atenção');
+      return;
+    }
 
-    if (cpf === '06471394306') {
+    // Documents registed
+    const registeredDocs: Record<string, string> = {
+      cpf: '06471394306',
+      cnh: '12345678900',
+    };
+
+    if (registeredDocs[docType] === docValue) {
       this.toastr.success('Você já possui facial cadastrada', 'Sucesso');
-      form.reset();
+      setTimeout(() => this.router.navigate(['/signin']), 800);
     } else {
       this.toastr.error('Você ainda não tem facial cadastrada', 'Erro');
-      setTimeout(() => {
-        this.router.navigate(['/registerFacial']);
-      }, 800);
+      setTimeout(() => this.router.navigate(['/registerPeople']), 800);
     }
   }
 }

@@ -1,26 +1,47 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { AuthForm } from '../../components/auth-form/auth-form';
+import { RecoverPwd } from '../../components/recover-pwd/recover-pwd';
+import people from '../../data/people.json';
+
 @Component({
   selector: 'app-signin',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AuthForm, RecoverPwd],
   templateUrl: './signin.html',
 })
 export class Signin {
-  constructor(private router: Router, private toastr: ToastrService) {}
+  onSignin(data: any) {}
 
-  onSubmit(form: NgForm) {
-    if (!form.valid) {
-      this.toastr.warning('Preencha corretamente todos os dados!', 'Atenção');
-      return;
+  peopleList = people;
+
+  @Output() linkClick = new EventEmitter<void>();
+
+  showModal = false;
+
+  openRecoverModal() {
+    this.showModal = true;
+  }
+
+  closeRecoverModal() {
+    this.showModal = false;
+  }
+
+  peopleForDeletId: number | null = null;
+  peopleForDeletName: string = '';
+
+  confirmDeletion() {
+    if (this.peopleForDeletId !== null) {
+      this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
+      this.peopleForDeletId = null;
+      this.peopleForDeletName = '';
+      this.showModal = false;
     }
+  }
 
-    this.toastr.success('Login realizado com sucesso! Redirecionando...', 'Sucesso');
-    setTimeout(() => {
-      this.router.navigate(['/registerPeople']);
-    }, 500);
+  cancelDeletion() {
+    this.peopleForDeletId = null;
+    this.peopleForDeletName = '';
+    this.showModal = false;
   }
 }
