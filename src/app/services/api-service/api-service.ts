@@ -2,27 +2,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../auth-service/auth-service';
+import { Person } from '../../models/person.model';
 
 interface SigninResponse {
   token: string;
 }
-
-export interface Person {
-  nomeCompleto: string;
-  dataNascimento: string;
-  email: string;
-  celular: string;
-  documento: string;
-  tipo: string;
-  logradouro: string;
-  numero: number;
-  bairro: string;
-  cidade: string;
-  estado: string;
-  nomePai: string;
-  nomeMae: string;
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -37,14 +21,9 @@ export class ApiService {
   }
 
   getPeople(): Observable<Person[]> {
-    const token = this.auth.getToken();
-    if (!token) throw new Error('Usuário não autenticado');
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
-    return this.http.get<Person[]>(this.baseUrl, { headers });
+    const token = this.auth.getToken(); // pega token do admin
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get<Person[]>(`${this.baseUrl}Pessoa`, { headers });
   }
 
   // List People by ID

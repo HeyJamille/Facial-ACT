@@ -1,24 +1,25 @@
 import { Component } from '@angular/core';
-import { Header } from '../../components/header/header';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+
 import { Table } from '../../components/table/table';
-import people from '../../data/people.json';
+import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
+import { Person } from '../../models/person.model';
+import { Header } from '../../components/header/header';
 
 @Component({
   selector: 'app-list-people',
-  imports: [CommonModule, FormsModule, Header, Table, ConfirmationModal],
+  standalone: true,
+  imports: [CommonModule, FormsModule, Table, ConfirmationModal, Header],
   templateUrl: './list-people.html',
 })
 export class ListPeople {
-  peopleList = people;
-
   showModal = false;
   peopleForDeletId: number | null = null;
   peopleForDeletName: string = '';
+  peopleList: Person[] = []; // receber via Table Output se quiser sincronizar
 
   constructor(private router: Router, private toastr: ToastrService) {}
 
@@ -26,7 +27,7 @@ export class ListPeople {
     const pessoa = this.peopleList.find((p) => p.id === id);
     if (pessoa) {
       this.peopleForDeletId = id;
-      this.peopleForDeletName = pessoa.name;
+      this.peopleForDeletName = pessoa.nomeCompleto;
       this.showModal = true;
     }
   }
@@ -49,7 +50,7 @@ export class ListPeople {
   editPerson(id: number) {
     const person = this.peopleList.find((p) => p.id === id);
     if (person) {
-      this.toastr.success('Redirecionando para a página de edição', 'Sucesso');
+      this.toastr.success('Redirecionando para edição', 'Sucesso');
       setTimeout(() => {
         this.router.navigate(['/registerPeople'], { state: { person } });
       }, 500);

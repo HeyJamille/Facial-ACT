@@ -8,9 +8,6 @@ import { ToastrService } from 'ngx-toastr';
 import { AuthForm } from '../../components/auth-form/auth-form';
 import { RecoverPwd } from '../../components/recover-pwd/recover-pwd';
 
-// Data
-import people from '../../data/people.json';
-
 // Service
 import { ApiService } from '../../services/api-service/api-service';
 import { AuthService } from '../../services/auth-service/auth-service';
@@ -26,7 +23,6 @@ import { Router } from '@angular/router';
 export class Signin {
   email: string = '';
   password: string = '';
-  peopleList = people;
   @Output() linkClick = new EventEmitter<void>();
 
   constructor(

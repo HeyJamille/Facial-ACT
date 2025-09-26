@@ -1,40 +1,42 @@
-/// Bibliotecas
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ConfirmationModal } from '../confirmation-modal/confirmation-modal';
-
-export interface Person {
-  id: number;
-  name: string;
-  dateOfBirth: string;
-  email: string;
-  phone: string;
-  document: string;
-  type: string;
-  fatherName: string;
-  motherName: string;
-  road: string;
-  district: string;
-  number: number;
-  cep: string;
-  city: string;
-  state: string;
-  edit: string;
-  delet: string;
-}
+import { ApiService } from '../../services/api-service/api-service';
+import { Person } from '../../models/person.model';
 
 @Component({
   selector: 'app-table',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './table.html',
-  standalone: true,
 })
-export class Table {
-  @Input() peopleList: Person[] = []; // Data list
+export class Table implements OnInit {
+  peopleList = signal<Person[]>([]);
+  loading = signal(false);
+  error = signal('');
 
   @Output() editPerson = new EventEmitter<number>();
   @Output() deletePerson = new EventEmitter<number>();
+
+  constructor(private api: ApiService) {}
+
+  ngOnInit() {
+    this.fetchPeople();
+  }
+
+  fetchPeople() {
+    this.loading.set(true);
+    this.api.getPeople().subscribe({
+      next: (data) => {
+        this.peopleList.set(data);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('Erro ao carregar usuários');
+        this.loading.set(false);
+      },
+    });
+  }
 
   onEdit(id: number) {
     this.editPerson.emit(id);
