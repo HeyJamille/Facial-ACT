@@ -5,6 +5,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { RouterModule } from '@angular/router';
+import { Button } from '../ui/button/button';
 
 export interface AuthField {
   label: string;
@@ -16,7 +17,7 @@ export interface AuthField {
 
 @Component({
   selector: 'app-auth-form',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, Button],
   templateUrl: './auth-form.html',
   standalone: true,
 })

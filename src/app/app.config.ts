@@ -7,6 +7,7 @@ import { provideRouter } from '@angular/router';
 import { provideToastr } from 'ngx-toastr';
 import { routes } from './app.routes';
 import { provideNgxMask } from 'ngx-mask';
+import { provideHttpClient } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,5 +21,6 @@ export const appConfig: ApplicationConfig = {
       progressBar: true,
     }),
     provideNgxMask(),
+    provideHttpClient(),
   ],
 };

@@ -2,42 +2,43 @@
   <table class="min-w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
     <thead class="bg-black text-white">
       <tr>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">ID</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Nome</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Nome Completo</th>
         <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Data Nasc.</th>
         <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">E-mail</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Telefone</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">CPF</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Rua</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Bairro</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Celular</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Documento</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Tipo</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Nome do Pai</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Nome da Mãe</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Logradouro</th>
         <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Número</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">CEP</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Bairro</th>
         <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Cidade</th>
         <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Estado</th>
+        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Perfil</th>
         <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ações</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let item of peopleList" class="bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150">
-        <td class="py-2 px-4 text-sm text-center">{{ item.id }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.name }}">{{ item.name }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.dateOfBirth }}">{{ item.dateOfBirth }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.email }}">{{ item.email }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.phone }}">{{ item.phone }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.cpf }}">{{ item.cpf }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.road }}">{{ item.road }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.district }}">{{ item.district }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.number }}">{{ item.number }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.cep }}">{{ item.cep }}</td>
-        <td class="py-2 px-4 text-sm text-center" title="{{ item.city }}">{{ item.city }}</td>
-        <td class="py-2 px-4 text-sm text-center">{{ item.state }}</td>
+      <tr *ngFor="let person of peopleList" class="bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150">
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.name }}">{{ person.name }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.dateOfBirth }}">{{ person.dateOfBirth }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.email }}">{{ person.email }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.phone }}">{{ person.phone }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.cpf }}">{{ person.cpf }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.road }}">{{ person.road }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.district }}">{{ person.district }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.number }}">{{ person.number }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.cep }}">{{ person.cep }}</td>
+        <td class="py-2 px-4 text-sm text-center" title="{{ person.city }}">{{ person.city }}</td>
+        <td class="py-2 px-4 text-sm text-center">{{ person.state }}</td>
         <td class="">
           <!-- Edit Button -->
           <button 
             class="p-1 relative cursor-pointer"
-            (click)="onEdit(item.id)"
+            (click)="onEdit(person.id)"
           >
-            <img src="{{item.edit}}" alt="Editar {{item.name}}" class="w-4 h-5" />
+            <img src="{{person.edit}}" alt="Editar {{person.name}}" class="w-4 h-5" />
             <span class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
               Editar
             </span>
@@ -46,9 +47,9 @@
           <!-- Delete Button -->
           <button 
             class="p-1 relative cursor-pointer"
-            (click)="onDelete(item.id)"
+            (click)="onDelete(person.id)"
           >
-            <img src="{{item.delet}}" alt="Deletar {{item.name}}" class="w-5 h-5" />
+            <img src="{{person.delet}}" alt="Deletar {{person.name}}" class="w-5 h-5" />
             <span class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
               Deletar
             </span>

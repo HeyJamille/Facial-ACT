@@ -6,8 +6,8 @@
     
     <!-- Close Button -->
     <button
-      class="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
-      (click)="cancel.emit()"
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 cursor-pointer"
+      (click)="onClose()"
     >
       ✕
     </button>
@@ -27,12 +27,10 @@
     />
 
     <!-- Button -->
-    <button 
-      class="w-full bg-black text-white px-4 py-2 mt-4 rounded-lg font-semibold hover:bg-gray-800 transition"
-      (click)="confirm.emit()"
-    >
-      Enviar
-    </button>
+    <app-button
+      buttonText="Enviar" 
+      type="submit">
+    </app-button>
 
     <p class="text-sm text-gray-500 mt-2">Dúvidas? (99) 9 9999-9999</p>
   </div>

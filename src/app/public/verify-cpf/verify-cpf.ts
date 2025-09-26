@@ -4,11 +4,12 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ToastrService } from 'ngx-toastr';
+import { Button } from '../../components/ui/button/button';
 
 @Component({
   selector: 'app-verify-cpf',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxMaskDirective],
+  imports: [CommonModule, FormsModule, NgxMaskDirective, Button],
   templateUrl: './verify-cpf.html',
 })
 export class VerifyCPF {
@@ -42,7 +43,7 @@ export class VerifyCPF {
 
     if (registeredDocs[docType] === docValue) {
       this.toastr.success('Você já possui facial cadastrada', 'Sucesso');
-      setTimeout(() => this.router.navigate(['/signin']), 800);
+      setTimeout(() => this.router.navigate(['/Auth/login']), 800);
     } else {
       this.toastr.error('Você ainda não tem facial cadastrada', 'Erro');
       setTimeout(() => this.router.navigate(['/registerPeople']), 800);

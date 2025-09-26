@@ -5,9 +5,11 @@ import { Router } from '@angular/router';
 import { Header } from '../../components/header/header';
 import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective } from 'ngx-mask';
+import { Button } from '../../components/ui/button/button';
+
 @Component({
   selector: 'app-register-people',
-  imports: [CommonModule, FormsModule, Header, NgxMaskDirective],
+  imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button],
   templateUrl: './register-people.html',
 })
 export class RegisterPeople implements OnInit {

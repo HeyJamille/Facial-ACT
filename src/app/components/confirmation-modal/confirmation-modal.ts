@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { EventEmitter, Input, Output } from '@angular/core';
+import { Button } from '../ui/button/button';
 
 @Component({
   selector: 'app-confirmation-modal',
-  imports: [CommonModule],
+  imports: [CommonModule, Button],
   templateUrl: './confirmation-modal.html',
 })
 export class ConfirmationModal {

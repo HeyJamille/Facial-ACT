@@ -13,6 +13,7 @@
         <label [for]="field.name" class="text-sm font-medium text-black">
           {{ field.label }}
         </label>
+        
         <input
           [type]="field.type"
           [id]="field.name"
@@ -22,19 +23,18 @@
           [required]="field.required"
           class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
         >
+        
       </div>
 
       <!-- Button -->
-      <button
-        type="submit"
-        class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-      >
-        {{ buttonText }}
-      </button>
+      <app-button
+        buttonText={{buttonText}} 
+        type="submit">
+      </app-button>
     </form>
 
     <!-- Link SignUp -->
-   <p *ngIf="linkText && text" class="mt-6 text-sm text-gray-600 text-center">
+    <p *ngIf="linkText && text" class="mt-6 text-sm text-gray-600 text-center">
       <span>{{ text }} </span>
       <button type="button" (click)="onLinkClick()" class="text-black hover:underline font-medium cursor-pointer">
         {{ linkText }}

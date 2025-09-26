@@ -1,7 +1,7 @@
 <app-header></app-header>
 
 <article class="min-h-screen flex items-start justify-center bg-gray-100"> 
-  <section class="flex flex-col md:flex-row gap-6 m-5">
+  <section class="flex flex-col lg:flex-row gap-6 m-5">
 
     <!-- Register People Form -->
     <div class="w-full">
@@ -164,17 +164,16 @@
           Por favor, preencha todos os campos em vermelho corretamente.
         </p>
 
-        <!-- Botão -->
-        <button type="submit"
-          class="w-full self-center bg-black text-white py-2 px-4 mt-2 text-sm rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition">
-          {{buttonTitle}}
-        </button>
-
+        <!-- Button -->
+        <app-button
+          buttonText={{buttonTitle}}
+          type="submit">
+        </app-button>
       </form>
     </div>
 
     <!-- Facial Field and Document Upload -->
-    <div class="flex flex-col gap-5 md:w-1/2">
+    <div class="flex flex-col gap-5 lg:w-1/2">
       <div>
         <h2 class="text-2xl font-bold my-4">Campo Facial</h2>
         <div class="bg-white rounded-xl shadow-lg p-6 h-[400px]">
