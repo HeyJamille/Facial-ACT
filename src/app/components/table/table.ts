@@ -10,7 +10,10 @@ export interface Person {
   dateOfBirth: string;
   email: string;
   phone: string;
-  cpf: string;
+  document: string;
+  type: string;
+  fatherName: string;
+  motherName: string;
   road: string;
   district: string;
   number: number;
