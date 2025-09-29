@@ -8,6 +8,7 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { Button } from '../../components/ui/button/button';
 import { ApiService } from '../../services/api-service/api-service';
 import { Person } from '../../models/person.model';
+import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-register-people',
@@ -21,12 +22,28 @@ export class RegisterPeople {
   pageTitle = 'Registrar Pessoa';
   buttonTitle = 'Salvar';
   selectedDocument: string = '';
+  showEdit: boolean = false;
 
   // Token do admin (apenas como referência para testes)
   adminToken: string =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFjdGhvbW9sb2dhIiwiQ2xpZW50ZVByZWZpeG8iOiIiLCJQZXJmaWwiOiJBIiwiRW50aWRhZGUiOiIyIiwibmJmIjoxNzU5MTQ5NDY5LCJleHAiOjE3NTkxNTY2NjksImlhdCI6MTc1OTE0OTQ2OSwiaXNzIjoiYXBpZmFjaWFsLmFjaGV0aWNrZXRzLmNvbS5iciIsImF1ZCI6ImFwaWZhY2lhbC5hY2hldGlja2V0cy5jb20uYnIifQ.18xvNVwzy7WRQ1XKh2vtdoYyY_ceXCbBHQPXYMDUn1w';
 
-  constructor(private api: ApiService, private toastr: ToastrService, private router: Router) {
+  constructor(
+    private api: ApiService,
+    private toastr: ToastrService,
+    private router: Router,
+    private auth: AuthService
+  ) {
+    // Pega o usuário logado
+    const user = this.auth.getUser();
+
+    // Se usuário existe e é perfil U, habilita edição
+    if (user?.Perfil === 'U') {
+      this.showEdit = true;
+      this.pageTitle = 'Editar Pessoa';
+      this.buttonTitle = 'Atualizar';
+    }
+
     // Verifica se existe pessoa enviada via navegação
     const nav = this.router.getCurrentNavigation();
     const statePerson = nav?.extras.state?.['person'];

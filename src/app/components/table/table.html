@@ -17,10 +17,10 @@
           {{ person[col.name] }}
         </td>
         
-        <!-- Ações -->
+        <!-- Actions -->
         <td class="py-2 px-4 flex justify-center gap-2">
           
-          <!-- Botões coloridos -->
+          <!-- Buttons -->
           <ng-container *ngIf="actionType === 'buttons'">
             <button
               *ngFor="let action of actions"
@@ -34,7 +34,7 @@
             </button>
           </ng-container>
 
-          <!-- Ícones -->
+          <!-- Icons -->
           <ng-container *ngIf="actionType === 'icons'">
             <button 
               *ngIf="actions.includes('editar')" 

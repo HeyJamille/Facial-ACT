@@ -6,7 +6,6 @@ import { Injectable } from '@angular/core';
 export class AuthService {
   private tokenKey = 'token';
 
-  // ---------- TOKEN ----------
   setToken(token: string, days: number = 7) {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
@@ -24,7 +23,6 @@ export class AuthService {
     document.cookie = `${this.tokenKey}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
-  // ---------- USUÁRIO ----------
   setUser(user: any, days: number = 7) {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
@@ -35,25 +33,30 @@ export class AuthService {
 
   getUser(): any {
     const match = document.cookie.match(new RegExp('(^| )user=([^;]+)'));
-    return match ? JSON.parse(decodeURIComponent(match[2])) : null;
+    const user = match ? JSON.parse(decodeURIComponent(match[2])) : null;
+    console.log('USUÁRIO NO COOKIE:', user); // <-- aqui
+    return user;
   }
 
   clearUser() {
     document.cookie = `user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
-  // ---------- PERFIL ----------
-  getPerfilAcesso(): string {
-    const user = this.getUser();
-    return user ? user.perfilAcesso : '';
-  }
-
-  isAdmin(): boolean {
-    return this.getPerfilAcesso() === 'A';
-  }
-
-  // ---------- LOGIN ----------
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  get userRole(): string {
+    const token = this.getToken();
+    if (!token) return 'U';
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // decodifica payload
+      //console.log('PAYLOAD DO TOKEN:', payload);
+      return payload.Perfil || 'U'; // return 'A' or 'U'
+    } catch (error) {
+      //console.error('Erro ao decodificar token:', error);
+      return 'U';
+    }
   }
 }

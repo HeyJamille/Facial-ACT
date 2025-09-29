@@ -34,7 +34,7 @@ export class AuthForm {
   @Output() formSubmit = new EventEmitter<any>();
   @Output() forgotPassword = new EventEmitter<void>(); // event to open modal
 
-  // **Novo**: evento emitido ao clicar no link
+  // Event emitted when clicking the link
   @Output() linkClick = new EventEmitter<void>();
 
   onLinkClick() {

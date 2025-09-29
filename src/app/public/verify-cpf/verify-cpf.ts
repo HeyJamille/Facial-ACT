@@ -27,10 +27,10 @@ export class VerifyCPF {
   ) {}
 
   onSubmit(form: NgForm) {
-    const docType = this.selectedDocument; // 'cpf' ou 'cnh'
+    const docType = this.selectedDocument; // 'cpf' or 'cnh'
     const docValue: string = form.value.documentInput?.replace(/\D/g, '') || '';
 
-    // Validação de campos
+    // Validation fields
     if (!docType || !docValue) {
       this.toastr.warning('Por gentileza, preencha todos os campos.', 'Atenção');
       return;
@@ -44,7 +44,7 @@ export class VerifyCPF {
       return;
     }
 
-    // Chama a verificação facial
+    // Call validation face
     this.checkFaceValidation(docValue, this.selectedDocument as 'cpf' | 'cnh');
   }
 

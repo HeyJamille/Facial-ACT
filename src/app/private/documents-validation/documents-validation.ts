@@ -13,30 +13,23 @@ import { ApiService } from '../../services/api-service/api-service';
   templateUrl: './documents-validation.html',
 })
 export class DocumentsValidation {
-  // <-- 3. Implementar OnInit
   showModal = false;
   peopleForDeletId: number | null = null;
   peopleForDeletName: string = '';
-  peopleList: Person[] = []; // Onde os dados da API serão armazenados
+  peopleList: Person[] = [];
 
-  // 4. Injetar ApiService
-  constructor(
-    private router: Router,
-    private toastr: ToastrService,
-    private api: ApiService // <-- Injeção
-  ) {}
+  constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
-  // 5. Chamada de dados no ciclo de vida
+  // Call data
   ngOnInit() {
     this.fetchPeople();
   }
 
-  // 6. Método para puxar os dados da API
+  // Get data API
   fetchPeople() {
-    // Você pode adicionar uma variável 'loading = true' aqui, se desejar.
     this.api.getPeople().subscribe({
       next: (data) => {
-        this.peopleList = data; // <--- Armazena os dados aqui
+        this.peopleList = data;
         // loading = false
       },
       error: () => {
@@ -46,7 +39,6 @@ export class DocumentsValidation {
     });
   }
 
-  // O método handleEditDelete que faltava e corrige os ícones
   handleDocumentAction(event: { action: string; id: number }) {
     const { action, id } = event;
     if (action === 'editar') {
@@ -77,7 +69,6 @@ export class DocumentsValidation {
 
   confirmDeletion() {
     if (this.peopleForDeletId !== null) {
-      // 7. A exclusão também é feita aqui, atualizando a lista
       this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
       this.toastr.success('Pessoa removida com sucesso!', 'Sucesso');
 
