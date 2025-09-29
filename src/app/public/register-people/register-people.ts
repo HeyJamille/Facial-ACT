@@ -6,65 +6,63 @@ import { Header } from '../../components/header/header';
 import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Button } from '../../components/ui/button/button';
+import { ApiService } from '../../services/api-service/api-service';
+import { Person } from '../../models/person.model';
 
 @Component({
   selector: 'app-register-people',
   imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button],
   templateUrl: './register-people.html',
 })
-export class RegisterPeople implements OnInit {
-  constructor(private router: Router, private toastr: ToastrService) {}
-  pageTitle: string = 'Cadastrar nova Pessoa';
-  toastTitle: string = 'Cadastro';
-  buttonTitle: string = 'Cadastrar';
+export class RegisterPeople {
+  person: Person = {} as Person;
+  previewUrl?: string;
+  isDragOver = false;
+  pageTitle = 'Registrar Pessoa';
+  buttonTitle = 'Salvar';
+  selectedDocument: string = '';
+
+  // Token do admin (apenas como referência para testes)
+  adminToken: string =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFjdGhvbW9sb2dhIiwiQ2xpZW50ZVByZWZpeG8iOiIiLCJQZXJmaWwiOiJBIiwiRW50aWRhZGUiOiIyIiwibmJmIjoxNzU5MTQ5NDY5LCJleHAiOjE3NTkxNTY2NjksImlhdCI6MTc1OTE0OTQ2OSwiaXNzIjoiYXBpZmFjaWFsLmFjaGV0aWNrZXRzLmNvbS5iciIsImF1ZCI6ImFwaWZhY2lhbC5hY2hldGlja2V0cy5jb20uYnIifQ.18xvNVwzy7WRQ1XKh2vtdoYyY_ceXCbBHQPXYMDUn1w';
+
+  constructor(private api: ApiService, private toastr: ToastrService, private router: Router) {
+    // Verifica se existe pessoa enviada via navegação
+    const nav = this.router.getCurrentNavigation();
+    const statePerson = nav?.extras.state?.['person'];
+    if (statePerson) {
+      this.person = { ...statePerson }; // preenche o formulário com os dados existentes
+      this.pageTitle = 'Editar Pessoa';
+      this.buttonTitle = 'Atualizar';
+    }
+  }
 
   onSubmit(form: NgForm) {
-    if (form.valid) {
-      this.toastr.success(`${this.toastTitle} realizado(a) com sucesso!`, 'Sucesso');
+    console.log('Form Value:', form.value); // Show all form field
+    console.log('Person Object:', this.person); // mostra o objeto person ligado ao ngModel
+
+    if (form.invalid) {
+      this.toastr.warning('Preencha todos os campos corretamente', 'Atenção');
+      return;
     }
-  }
 
-  // CPF Validation
-  isCPFValid(cpf: string): boolean {
-    const cleaned = cpf.replace(/\D/g, '');
-    return cleaned.length === 11;
-  }
+    // Add acess perfil before send
+    this.person.perfilAcesso = 'U';
 
-  person: any = {
-    id: null,
-    name: '',
-    email: '',
-    dateOfBirth: '',
-    phone: '',
-    cpf: '',
-    road: '',
-    number: null,
-    district: '',
-    cep: '',
-    city: '',
-    state: '',
-    fatherName: '',
-    motherName: '',
-  };
+    const action$ = this.person.id
+      ? this.api.updatePerson(this.person, this.adminToken)
+      : this.api.createPerson(this.person, this.adminToken);
 
-  ngOnInit() {
-    const state = history.state;
-
-    if (state && state.person) {
-      this.person = state.person;
-      this.pageTitle = 'Editar Pessoa';
-      this.toastTitle = 'Editação';
-      this.buttonTitle = 'Editar';
-    }
-  }
-
-  // Document Upload
-  previewUrl: string | ArrayBuffer | null = null;
-  isDragOver = false;
-
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    this.preview(file);
+    action$.subscribe({
+      next: (res) => {
+        this.toastr.success('Pessoa registrada com sucesso!', 'Sucesso');
+        setTimeout(() => {
+          form.resetForm();
+          this.previewUrl = undefined;
+        }, 800);
+      },
+      error: (err) => this.toastr.error('Erro ao registrar pessoa', 'Erro'),
+    });
   }
 
   onDragOver(event: DragEvent) {
@@ -73,22 +71,6 @@ export class RegisterPeople implements OnInit {
   }
 
   onDragLeave(event: DragEvent) {
-    event.preventDefault();
     this.isDragOver = false;
-  }
-
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    this.isDragOver = false;
-    if (event.dataTransfer?.files.length) {
-      const file = event.dataTransfer.files[0];
-      this.preview(file);
-    }
-  }
-
-  preview(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => (this.previewUrl = reader.result);
-    reader.readAsDataURL(file);
   }
 }

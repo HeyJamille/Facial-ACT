@@ -14,42 +14,74 @@
         <fieldset class="border border-gray-300 rounded-lg p-4">
           <legend class="text-lg font-bold px-2">Dados Pessoais</legend>
           
-          <!-- Nome -->
-          <div class="w-full">
-            <label for="name" class="text-sm font-medium text-black">Nome Completo</label>
-            <input type="text" id="name" name="name" [(ngModel)]="person.name" #name="ngModel" required
-              placeholder="Nome completo"
-              class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
-              [ngClass]="{'border-red-500': name.invalid && registerPeopleForms.submitted}">
-          </div>
-             
-          <!-- Other personal data -->
-          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+          <!-- Nome e Data de Nascimento -->
+          <div class="flex flex-col sm:flex-row gap-4 mt-4"> 
+            <!-- Nome -->
+            <div class="w-full">
+              <label for="nomeCompleto" class="text-sm font-medium text-black">Nome Completo</label>
+              <input type="text" id="nomeCompleto" name="nomeCompleto" [(ngModel)]="person.nomeCompleto" #nomeCompleto="ngModel" required
+                placeholder="Nome completo"
+                class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': nomeCompleto.invalid && registerPeopleForms.submitted}">
+            </div>
+            
             <!-- Data de nascimento -->
             <div class="w-full">
-              <label for="dateOfBirth" class="text-sm font-medium text-black">Data de Nascimento</label>
-              <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="person.dateOfBirth"
-                #dateOfBirth="ngModel" required
+              <label for="dataNascimento" class="text-sm font-medium text-black">Data de Nascimento</label>
+              <input type="date" id="dataNascimento" name="dataNascimento" [(ngModel)]="person.dataNascimento"
+                #dataNascimento="ngModel" required
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-                [ngClass]="{'border-red-500': dateOfBirth.invalid && registerPeopleForms.submitted}">
+                [ngClass]="{'border-red-500': dataNascimento.invalid && registerPeopleForms.submitted}">
             </div>
+          </div>
 
-            <!-- CPF -->
-            <div class="w-full">
-              <label for="cpf" class="text-sm font-medium text-black">CPF</label>
-              <input type="text" id="cpf" name="cpf" [(ngModel)]="person.cpf" #cpf="ngModel" required minlength="11"
-                placeholder="Ex: 123.456.789-00" mask="000.000.000-00"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-                [ngClass]="{'border-red-500': cpf.invalid && registerPeopleForms.submitted}">
+          <!-- Other personal data -->
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <!-- Select Documents -->
+            <div>
+              <label for="tipo" class="text-sm font-medium text-black">Documento</label>
+              <select
+                id="tipo"
+                name="tipo"
+                [(ngModel)]="person.tipo"
+                #tipo="ngModel"
+                required
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': tipo.invalid && registerPeopleForms.submitted}"
+                required
+                >
+                <option value="" disabled>Escolha uma opção</option>
+                <option value="cpf">CPF</option>
+                <option value="cnh">CNH</option>
+              </select>
             </div>
-
+              
+            <!-- Input que aparece dinamicamente -->
+            <div *ngIf="person.tipo" class="w-full" >
+              <label for="documento" class="text-sm font-medium text-black">
+                Digite {{ person.tipo | uppercase }}
+              </label>
+              <input
+                type="text"
+                id="documento"
+                name="documento"
+                [(ngModel)]="person.documento"
+                #documento="ngModel"
+                [mask]="person.tipo === 'cpf' ? '000.000.000-00' : '00000000000'"
+                placeholder="{{ person.tipo === 'cpf' ? 'Ex: 123.456.789-00' : 'Ex: 12345678900' }}"
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [ngClass]="{'border-red-500': documento.invalid && registerPeopleForms.submitted}"
+                required
+              />
+            </div>
+            
             <!-- Celular -->
             <div class="w-full">
-              <label for="phone" class="text-sm font-medium text-black">Celular</label>
-              <input type="text" id="phone" name="phone" [(ngModel)]="person.phone" #phone="ngModel" required
+              <label for="celular" class="text-sm font-medium text-black">Celular</label>
+              <input type="text" id="celular" name="celular" [(ngModel)]="person.celular" #celular="ngModel" required
                 placeholder="Ex: (00) 00000-0000" mask="(00) 00000-0000"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-                [ngClass]="{'border-red-500': phone.invalid && registerPeopleForms.submitted}">
+                [ngClass]="{'border-red-500': celular.invalid && registerPeopleForms.submitted}">
             </div>
           </div>
         </fieldset>
@@ -70,11 +102,11 @@
 
             <!-- Password -->
             <div class="w-full">
-              <label for="password" class="text-sm font-medium text-black">Senha</label>
-              <input type="password" id="password" name="password" [(ngModel)]="person.password" #password="ngModel" required
+              <label for="senha" class="text-sm font-medium text-black">Senha</label>
+              <input type="password" id="senha" name="senha" [(ngModel)]="person.senha" #senha="ngModel" required
                 placeholder="Digite uma senha"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-                [ngClass]="{'border-red-500': password.invalid && registerPeopleForms.submitted}">
+                [ngClass]="{'border-red-500': senha.invalid && registerPeopleForms.submitted}">
             </div>
           </div>
         </fieldset>
@@ -85,19 +117,19 @@
 
           <div class="flex flex-col sm:flex-row gap-4">
             <div class="w-full">
-              <label for="fatherName" class="text-sm font-medium text-black">Nome do Pai</label>
-              <input type="text" id="fatherName" name="fatherName" [(ngModel)]="person.fatherName" #fatherName="ngModel" required
+              <label for="nomePai" class="text-sm font-medium text-black">Nome do Pai</label>
+              <input type="text" id="nomePai" name="nomePai" [(ngModel)]="person.nomePai" #nomePai="ngModel" required
                 placeholder="Nome do Pai"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': fatherName.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': nomePai.invalid && registerPeopleForms.submitted}">
 							</div>
 
             <div class="w-full">
-              <label for="motherName" class="text-sm font-medium text-black">Nome da Mãe</label>
-              <input type="text" id="motherName" name="motherName" [(ngModel)]="person.motherName" #motherName="ngModel" required
+              <label for="nomeMae" class="text-sm font-medium text-black">Nome da Mãe</label>
+              <input type="text" id="nomeMae" name="nomeMae" [(ngModel)]="person.nomeMae" #nomeMae="ngModel" required
                 placeholder="Nome da Mãe"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': motherName.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': nomeMae.invalid && registerPeopleForms.submitted}">
 							</div>
           </div>
         </fieldset>
@@ -108,53 +140,45 @@
 
           <div class="flex flex-col sm:flex-row gap-4">
             <div class="w-full">
-              <label for="road" class="text-sm font-medium text-black">Rua</label>
-              <input type="text" id="road" name="road" [(ngModel)]="person.road" #road="ngModel" required
+              <label for="logradouro" class="text-sm font-medium text-black">Logradouro</label>
+              <input type="text" id="logradouro" name="logradouro" [(ngModel)]="person.logradouro" #logradouro="ngModel" required
 							  placeholder="Ex: Av. Brasil" 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': road.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': logradouro.invalid && registerPeopleForms.submitted}">
 							</div>
 
             <div class="w-full">
-              <label for="number" class="text-sm font-medium text-black">Número</label>
-              <input type="text" id="number" name="number" [(ngModel)]="person.number" #number="ngModel" required
+              <label for="numero" class="text-sm font-medium text-black">Número</label>
+              <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
 							  placeholder="Ex: 123"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': number.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': numero.invalid && registerPeopleForms.submitted}">
 							</div>
 
             <div class="w-full">
-              <label for="district" class="text-sm font-medium text-black">Bairro</label>
-              <input type="text" id="district" name="district" [(ngModel)]="person.district" #district="ngModel" required
+              <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
+              <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
 								placeholder="Ex: Centro"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': district.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}">
 							</div>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-4 mt-4">
             <div class="w-full">
-              <label for="cep" class="text-sm font-medium text-black">CEP</label>
-              <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required
-							  placeholder="Ex: 12345-678" mask="00000-000"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}">
-							</div>
-
-            <div class="w-full">
-              <label for="city" class="text-sm font-medium text-black">Cidade</label>
-              <input type="text" id="city" name="city" [(ngModel)]="person.city" #city="ngModel" required
+              <label for="cidade" class="text-sm font-medium text-black">Cidade</label>
+              <input type="text" id="cidade" name="cidade" [(ngModel)]="person.cidade" #cidade="ngModel" required
 							  placeholder="Ex: São Paulo"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': city.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': cidade.invalid && registerPeopleForms.submitted}">
 						</div>
 
             <div class="w-full">
-              <label for="state" class="text-sm font-medium text-black">Estado</label>
-              <input type="text" id="state" name="state" [(ngModel)]="person.state" #state="ngModel" required
+              <label for="estado" class="text-sm font-medium text-black">Estado</label>
+              <input type="text" id="estado" name="estado" [(ngModel)]="person.estado" #estado="ngModel" required
 							  placeholder="Ex: SP"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': state.invalid && registerPeopleForms.submitted}">
+								[ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}">
 						</div>
           </div>
         </fieldset>
@@ -197,7 +221,6 @@
               class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
               (dragover)="onDragOver($event)"
               (dragleave)="onDragLeave($event)"
-              (drop)="onDrop($event)"
               [ngClass]="{'bg-gray-100': isDragOver}"
             >
               <svg
@@ -219,7 +242,6 @@
                 type="file"
                 accept="image/*,.pdf"
                 class="hidden"
-                (change)="onFileSelected($event)"
               />
             </div>
           </ng-container>

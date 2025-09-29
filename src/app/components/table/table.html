@@ -1,64 +1,56 @@
-<div class="overflow-x-auto">
-  <table class="min-w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+<div class="overflow-x-auto ">
+  <table class="min-w-full border border-gray-200 rounded-lg shadow overflow-hidden">
+    <!-- Header -->
     <thead class="bg-black text-white">
       <tr>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Nome</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Data Nasc.</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">E-mail</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Celular</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Documento</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Tipo</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Pai</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Mãe</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Logradouro</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Número</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Bairro</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Cidade</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Estado</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Perfil</th>
-        <th class="py-2 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ações</th>
+        <th *ngFor="let col of fields" class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">
+          {{ col.label }}
+        </th>
+        <th class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ações</th>
       </tr>
     </thead>
+    
+    <!-- Body Table -->
     <tbody>
-      <tr *ngFor="let person of peopleList()" class="bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150">
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.nomeCompleto}}">{{ person.nomeCompleto}}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.dataNascimento }}">{{ person.dataNascimento }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.email }}">{{ person.email }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.celular }}">{{ person.celular }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.documento }}">{{ person.documento }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.tipo }}">{{ person.tipo }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.nomePai }}">{{ person.nomePai }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.nomeMae }}">{{ person.nomeMae }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.logradouro }}">{{ person.logradouro }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.estado }}">{{ person.estado }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.numero }}">{{ person.numero }}</td>
-        <td class="py-2 px-5 text-sm text-center" title="{{ person.cidade }}">{{ person.cidade }}</td>
-        <td class="py-2 px-5 text-sm text-center">{{ person.estado }}</td>
-        <td class="py-2 px-5 text-sm text-center">{{ person.perfilAcesso }}</td>
-
-        <td class="flex gap-3 justify-center py-2">
-          <!-- Edit Button -->
-          <button 
-            class="relative cursor-pointer"
-            (click)="onEdit(person.id)"
-          >
-            <img src="/pencil.png" alt="Editar" class="w-4 h-5" />
-            <span class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-              Editar
-            </span>
-          </button>
-
-          <!-- Delete Button -->
-          <button 
-            class="relative cursor-pointer"
-            (click)="onDelete(person.id)"
-          >
-            <img src="/trash.png" alt="Deletar" class="w-5 h-5" />
-            <span class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-              Deletar
-            </span>
-          </button>
+      <tr *ngFor="let person of data" class="bg-white hover:bg-gray-100 transition-colors duration-200 border-b border-gray-200">
+        <td *ngFor="let col of fields" class="py-2 px-4 text-center text-sm text-gray-700 truncate" title="{{ person[col.name] }}">
+          {{ person[col.name] }}
         </td>
-    </tr>
-  </tbody>
-</table>
+        
+        <!-- Ações -->
+        <td class="py-2 px-4 flex justify-center gap-2">
+          
+          <!-- Botões coloridos -->
+          <ng-container *ngIf="actionType === 'buttons'">
+            <button
+              *ngFor="let action of actions"
+              [ngClass]="{
+                'bg-green-500 hover:bg-green-600': action.toLowerCase() === 'aprovar',
+                'bg-red-500 hover:bg-red-600': action.toLowerCase() === 'reprovar'
+              }"
+              class="px-3 py-1 rounded-lg text-white font-medium text-sm shadow hover:shadow-md transition-all duration-150"
+              (click)="onAction(action, person.id)">
+              {{ action | titlecase }}
+            </button>
+          </ng-container>
+
+          <!-- Ícones -->
+          <ng-container *ngIf="actionType === 'icons'">
+            <button 
+              *ngIf="actions.includes('editar')" 
+              (click)="onAction('editar', person.id)">
+              <img src="/pencil.png" alt="Editar" class="w-5 h-5">
+            </button>
+            <button 
+              *ngIf="actions.includes('deletar')" 
+              (click)="onAction('deletar', person.id)">
+              <img src="/trash.png" alt="Deletar" class="w-5 h-5">
+            </button>
+          </ng-container>
+
+        </td>
+      </tr>
+    </tbody>
+    
+  </table>
+</div>

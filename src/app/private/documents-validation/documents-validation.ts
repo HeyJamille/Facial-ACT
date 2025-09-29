@@ -1,24 +1,18 @@
-// listpeople.ts
-
-import { Component, OnInit } from '@angular/core'; // <-- 1. Importar OnInit
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-
+import { Component } from '@angular/core';
+import { Header } from '../../components/header/header';
 import { Table } from '../../components/table/table';
 import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { Person } from '../../models/person.model';
-import { Header } from '../../components/header/header';
-import { ApiService } from '../../services/api-service/api-service'; // <-- 2. Importar ApiService
+import { ApiService } from '../../services/api-service/api-service';
 
 @Component({
-  selector: 'app-list-people',
-  standalone: true,
-  imports: [CommonModule, FormsModule, Table, ConfirmationModal, Header],
-  templateUrl: './list-people.html',
+  selector: 'app-documents-validation',
+  imports: [Header, Table, ConfirmationModal],
+  templateUrl: './documents-validation.html',
 })
-export class ListPeople implements OnInit {
+export class DocumentsValidation {
   // <-- 3. Implementar OnInit
   showModal = false;
   peopleForDeletId: number | null = null;
@@ -53,7 +47,7 @@ export class ListPeople implements OnInit {
   }
 
   // O método handleEditDelete que faltava e corrige os ícones
-  handleEditDelete(event: { action: string; id: number }) {
+  handleDocumentAction(event: { action: string; id: number }) {
     const { action, id } = event;
     if (action === 'editar') {
       this.editPerson(id);

@@ -21,8 +21,27 @@
 
     <!-- People Table -->
     <app-table
-      (editPerson)="editPerson($event)"
-      (deletePerson)="deletePerson($event)">
+     [fields]="[
+        { name: 'nomeCompleto', label: 'Nome Completo' },
+        { name: 'dataNascimento', label: 'Data Nasc.' },
+        { name: 'email', label: 'Email' },
+        { name: 'celular', label: 'Celular' },
+        { name: 'documento', label: 'Documento' },
+        { name: 'tipo', label: 'Tipo' },
+        { name: 'logradouro', label: 'Logradouro' },
+        { name: 'numero', label: 'Número' },
+        { name: 'bairro', label: 'Bairro' },
+        { name: 'cidade', label: 'Cidade' },
+        { name: 'estado', label: 'Estado' },
+        { name: 'nomePai', label: 'Pai' },
+        { name: 'nomeMae', label: 'Mãe' },
+        { name: 'facial', label: 'Facial' },
+        { name: 'perfilAcesso', label: 'Perfil' },
+      ]"
+      [data]="peopleList"
+      [actions]="['editar', 'deletar']"
+      [actionType]="'icons'"
+      (actionEvent)="handleEditDelete($event)">
     </app-table>
 
     <!-- Confirmation Modal-->

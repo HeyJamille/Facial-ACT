@@ -1,36 +1,59 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root', // <- isso torna o serviço disponível globalmente
+  providedIn: 'root',
 })
 export class AuthService {
-  private tokenKey = 'token'; // chave para salvar o token no localStorage
-  private roleKey = 'userRole';
+  private tokenKey = 'token';
 
-  /*
-  setToken(token: string, role: 'user' | 'admin') {
-    localStorage.setItem(this.tokenKey, token);
-    localStorage.setItem(this.roleKey, role);
-  }
-  */
-
-  // Salvar token
-  setToken(token: string) {
-    localStorage.setItem(this.tokenKey, token);
+  // ---------- TOKEN ----------
+  setToken(token: string, days: number = 7) {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + days);
+    document.cookie = `${
+      this.tokenKey
+    }=${token};expires=${expires.toUTCString()};path=/;SameSite=Strict;Secure`;
   }
 
-  // Pegar token
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const match = document.cookie.match(new RegExp('(^| )' + this.tokenKey + '=([^;]+)'));
+    return match ? match[2] : null;
   }
 
-  // Remover token (logout)
   clearToken() {
-    localStorage.removeItem(this.tokenKey);
+    document.cookie = `${this.tokenKey}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
-  // Verificar se usuário está logado
+  // ---------- USUÁRIO ----------
+  setUser(user: any, days: number = 7) {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + days);
+    document.cookie = `user=${encodeURIComponent(
+      JSON.stringify(user)
+    )};expires=${expires.toUTCString()};path=/;SameSite=Strict;Secure`;
+  }
+
+  getUser(): any {
+    const match = document.cookie.match(new RegExp('(^| )user=([^;]+)'));
+    return match ? JSON.parse(decodeURIComponent(match[2])) : null;
+  }
+
+  clearUser() {
+    document.cookie = `user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
+  }
+
+  // ---------- PERFIL ----------
+  getPerfilAcesso(): string {
+    const user = this.getUser();
+    return user ? user.perfilAcesso : '';
+  }
+
+  isAdmin(): boolean {
+    return this.getPerfilAcesso() === 'A';
+  }
+
+  // ---------- LOGIN ----------
   isLoggedIn(): boolean {
-    return !!this.getToken(); // retorna true se houver token
+    return !!this.getToken();
   }
 }

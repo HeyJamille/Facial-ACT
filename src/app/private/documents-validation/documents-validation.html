@@ -1,0 +1,40 @@
+<app-header></app-header>
+
+<article class="min-h-screen md:flex md:items-start md:justify-center bg-gray-100 overflow-hidden">
+  <section class="m-5 overflow-x-auto">
+
+    <div class="flex flex-col sm:flex-row items-start md:items-center justify-between mb-5 gap-4">
+      <h1 class="text-2xl font-bold text-gray-900">Validação de Documentos</h1>
+      <div class="w-full sm:w-1/3 relative">
+        <input type="text" placeholder="Pesquisar pessoas..." class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm text-black border-gray-300 bg-white focus:outline-none">
+        <div class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black">
+          <img src="search.png">
+        </div>
+      </div>
+    </div>
+
+    <app-table
+      [fields]="[
+        { name: 'nomeCompleto', label: 'Nome' },
+        { name: 'email', label: 'Email' },
+        { name: 'celular', label: 'Celular' },
+        { name: 'documento', label: 'Documento' },
+        { name: 'tipo', label: 'Tipo' },
+        { name: 'dataEnvioFacial', label: 'Data de Envio da Facial' } ,
+        { name: 'arquivoFacial', label: 'Facial' } 
+      ]"
+      [data]="peopleList"
+      [actions]="['aprovar', 'reprovar']"
+      [actionType]="'buttons'"
+      (actionEvent)="handleDocumentAction($event)">
+    </app-table>
+
+    <app-confirmation-modal
+      [showModal]="showModal"
+      [peopleForDeletName]="peopleForDeletName"
+      (confirm)="confirmDeletion()"
+      (cancel)="cancelDeletion()">
+    </app-confirmation-modal>
+
+  </section>
+</article>
