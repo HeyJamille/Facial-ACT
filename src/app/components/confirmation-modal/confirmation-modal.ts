@@ -10,7 +10,8 @@ import { Button } from '../ui/button/button';
 })
 export class ConfirmationModal {
   @Input() showModal = false;
-  @Input() peopleForDeletName: string | null = null;
+  @Input() peopleForDeletId: string = '';
+  @Input() peopleForDeletName: string = '';
 
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();

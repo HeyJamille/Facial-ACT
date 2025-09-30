@@ -13,8 +13,26 @@
     <!-- Body Table -->
     <tbody>
       <tr *ngFor="let person of data" class="bg-white hover:bg-gray-100 transition-colors duration-200 border-b border-gray-200">
-        <td *ngFor="let col of fields" class="py-2 px-4 text-center text-sm text-gray-700 truncate" title="{{ person[col.name] }}">
-          {{ person[col.name] }}
+        <td *ngFor="let col of fields" 
+          class="py-2 px-4 text-center text-sm text-gray-700 truncate"
+          title="{{ person[col.name] }}">
+          
+          <!-- Verify if column is document or facial -->
+          <ng-container *ngIf="col.name === 'arquivoFacial' else normalField">
+            <a 
+              (click)="openFacial(person.id);
+              $event.preventDefault()"
+              target="_blank" 
+              class="text-blue-600 hover:underline">
+              Abrir {{ col.label }}
+            </a>
+          </ng-container>
+
+          <!-- Normal field -->
+          <ng-template #normalField>
+            {{ person[col.name] }}
+          </ng-template>
+
         </td>
         
         <!-- Actions -->

@@ -13,6 +13,7 @@ import { AccessDenied } from './public/access-denied/access-denied';
 
 // Routes protected
 import { AuthGuard } from './guards/auth-guard';
+import { FacialViewer } from './components/facial-viewer/facial-viewer';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'verify-cpf', pathMatch: 'full' },
@@ -34,6 +35,11 @@ export const routes: Routes = [
   {
     path: 'documentsValidation',
     component: DocumentsValidation,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'facial-viewer',
+    component: FacialViewer,
     canActivate: [AuthGuard],
   },
   { path: 'access-denied', component: AccessDenied },

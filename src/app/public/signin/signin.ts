@@ -65,6 +65,35 @@ export class Signin {
     });
   }
 
+  /*
+   onSignin(data: { username: string; password: string }) {
+    this.api.signin(data.username, data.password, 'Auth/token').subscribe({
+      next: (res) => {
+        // Salva o token
+        this.auth.setToken(res.token);
+
+        // Pega o perfil de acesso (A ou U)
+        const role = this.auth.userRole;
+
+        if (role === 'A') {
+          this.toastr.success('Bem-vindo, administrador!', 'Sucesso');
+          this.router.navigate(['/listPeople']); // rota admin
+        } else if (role === 'U') {
+          this.toastr.success('Bem-vindo!', 'Sucesso');
+
+          // Aqui você pode navegar para registerPeople
+          // e já passar o payload inteiro do token (se ele já contém os dados do usuário)
+          const payload = JSON.parse(atob(res.token.split('.')[1]));
+          this.router.navigate(['/registerPeople'], { state: { person: payload } });
+        } else {
+          this.toastr.warning('Perfil não reconhecido!', 'Aviso');
+        }
+      },
+      error: () => this.toastr.error('Credenciais inválidas!', 'Erro'),
+    });
+  }
+  */
+
   // Recover Password Modal
   showModal = false;
 

@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/button/button';
 import { ApiService } from '../../services/api-service/api-service';
 import { Person } from '../../models/person.model';
 import { AuthService } from '../../services/auth-service/auth-service';
+import { forkJoin, Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-register-people',
@@ -24,9 +25,9 @@ export class RegisterPeople {
   selectedDocument: string = '';
   showEdit: boolean = false;
 
-  // Token do admin (apenas como referência para testes)
-  adminToken: string =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6ImFjdGhvbW9sb2dhIiwiQ2xpZW50ZVByZWZpeG8iOiIiLCJQZXJmaWwiOiJBIiwiRW50aWRhZGUiOiIyIiwibmJmIjoxNzU5MTQ5NDY5LCJleHAiOjE3NTkxNTY2NjksImlhdCI6MTc1OTE0OTQ2OSwiaXNzIjoiYXBpZmFjaWFsLmFjaGV0aWNrZXRzLmNvbS5iciIsImF1ZCI6ImFwaWZhY2lhbC5hY2hldGlja2V0cy5jb20uYnIifQ.18xvNVwzy7WRQ1XKh2vtdoYyY_ceXCbBHQPXYMDUn1w';
+  // 👇 adicionar
+  isPdf: boolean = false;
+  fileToUpload?: File;
 
   constructor(
     private api: ApiService,
@@ -63,22 +64,76 @@ export class RegisterPeople {
       return;
     }
 
-    // Add acess perfil before send
-    this.person.perfilAcesso = 'U';
+    // Search all and check for duplicates
+    this.api.getPeople().subscribe({
+      next: (people) => {
+        const docAndTypeExists = people.some(
+          (p) =>
+            p.documento === this.person.documento &&
+            p.tipo === this.person.tipo &&
+            p.id !== this.person.id
+        );
 
-    const action$ = this.person.id
-      ? this.api.updatePerson(this.person, this.adminToken)
-      : this.api.createPerson(this.person, this.adminToken);
+        const emailExists = people.some(
+          (p) => p.email === this.person.email && p.id !== this.person.id
+        );
 
-    action$.subscribe({
-      next: (res) => {
-        this.toastr.success('Pessoa registrada com sucesso!', 'Sucesso');
-        setTimeout(() => {
-          form.resetForm();
-          this.previewUrl = undefined;
-        }, 800);
+        if (docAndTypeExists) {
+          this.toastr.error('Documento já cadastrado!', 'Erro');
+          return;
+        }
+        if (emailExists) {
+          this.toastr.error('E-mail já cadastrado!', 'Erro');
+          return;
+        }
+
+        // Add acess perfil before send
+        this.person.perfilAcesso = 'U';
+
+        const action$ = this.person.id
+          ? this.api.updatePerson(this.person)
+          : this.api.createPerson(this.person);
+
+        action$.subscribe({
+          next: (res) => {
+            // Se tiver campo facial ou documento para enviar
+            const requests = [];
+
+            /*
+            if (this.facialFile) {
+              const facialForm = new FormData();
+              facialForm.append('file', this.facialFile);
+              requests.push(this.api.uploadFacial(resPerson.id, facialForm));
+            }
+            */
+
+            if (this.fileToUpload) {
+              const docForm = new FormData();
+              docForm.append('file', this.fileToUpload);
+              requests.push(this.api.uploadFile(docForm, this.person.id));
+            }
+
+            if (requests.length) {
+              forkJoin(requests).subscribe({
+                next: () =>
+                  this.toastr.success('Pessoa e arquivos enviados com sucesso!', 'Sucesso'),
+                error: () => this.toastr.error('Erro ao enviar arquivos', 'Erro'),
+              });
+            } else {
+              this.toastr.success('Pessoa registrada com sucesso!', 'Sucesso');
+            }
+
+            // Reset
+            setTimeout(() => {
+              form.resetForm();
+              this.previewUrl = undefined;
+              //this.facialFile = undefined;
+              this.fileToUpload = undefined;
+            }, 800);
+          },
+          error: (err) => this.toastr.error('Erro ao registrar pessoa', 'Erro'),
+        });
       },
-      error: (err) => this.toastr.error('Erro ao registrar pessoa', 'Erro'),
     });
   }
 
@@ -89,5 +144,48 @@ export class RegisterPeople {
 
   onDragLeave(event: DragEvent) {
     this.isDragOver = false;
+  }
+
+  onFileDropped(event: DragEvent) {
+    event.preventDefault();
+    this.isDragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFile(files[0]);
+    }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.handleFile(input.files[0]);
+    }
+  }
+
+  private handleFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // register-people.ts
+  uploadDocument(personId: string): Observable<any> {
+    if (!this.fileToUpload) {
+      this.toastr.warning('Selecione um documento antes de enviar.', 'Atenção');
+      return new Observable((observer) => observer.complete()); // retorna um Observable vazio
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.fileToUpload);
+
+    return this.api.uploadFile(formData, personId).pipe(
+      tap({
+        next: () => this.toastr.success('Documento enviado com sucesso!', 'Sucesso'),
+        error: () => this.toastr.error('Erro ao enviar documento', 'Erro'),
+      })
+    );
   }
 }

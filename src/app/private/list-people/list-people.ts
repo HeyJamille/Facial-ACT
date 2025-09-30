@@ -20,7 +20,7 @@ import { ApiService } from '../../services/api-service/api-service'; // <-- 2. I
 })
 export class ListPeople implements OnInit {
   showModal = false;
-  peopleForDeletId: number | null = null;
+  peopleForDeletId: string = '';
   peopleForDeletName: string = '';
   peopleList: Person[] = [];
 
@@ -45,25 +45,52 @@ export class ListPeople implements OnInit {
     });
   }
 
-  handleEditDelete(event: { action: string; id: number }) {
+  handleEditDelete(event: { action: string; id: string }) {
     const { action, id } = event;
     if (action === 'editar') {
       this.editPerson(id);
     } else if (action === 'deletar') {
-      this.deletePerson(id);
+      this.deletePersonConfirmed(id);
     }
   }
 
-  deletePerson(id: number) {
+  confirmDeletion() {
+    if (!this.peopleForDeletId) return;
+
+    this.api.deletePerson(this.peopleForDeletId).subscribe({
+      next: () => {
+        this.toastr.success('Pessoa deletada com sucesso!', 'Sucesso');
+        this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
+
+        this.peopleForDeletId = '';
+        this.peopleForDeletName = '';
+        this.showModal = false;
+      },
+      error: () => this.toastr.error('Erro ao deletar pessoa', 'Erro'),
+    });
+  }
+
+  cancelDeletion() {
+    this.peopleForDeletId = '';
+    this.peopleForDeletName = '';
+    this.showModal = false;
+  }
+
+  // Chamado quando o usuário confirmar no modal
+  deletePersonConfirmed(id: string) {
     const pessoa = this.peopleList.find((p) => p.id === id);
-    if (pessoa) {
-      this.peopleForDeletId = id;
-      this.peopleForDeletName = pessoa.nomeCompleto;
-      this.showModal = true;
+    if (!pessoa) {
+      this.toastr.error('Pessoa não encontrada!', 'Erro');
+      return;
     }
+
+    // Abre o modal de confirmação
+    this.peopleForDeletId = id;
+    this.peopleForDeletName = pessoa.nomeCompleto;
+    this.showModal = true;
   }
 
-  editPerson(id: number) {
+  editPerson(id: string) {
     const person = this.peopleList.find((p) => p.id === id);
     if (person) {
       this.toastr.success('Redirecionando para edição', 'Sucesso');
@@ -71,22 +98,5 @@ export class ListPeople implements OnInit {
         this.router.navigate(['/registerPeople'], { state: { person } });
       }, 500);
     }
-  }
-
-  confirmDeletion() {
-    if (this.peopleForDeletId !== null) {
-      this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
-      this.toastr.success('Pessoa removida com sucesso!', 'Sucesso');
-
-      this.peopleForDeletId = null;
-      this.peopleForDeletName = '';
-      this.showModal = false;
-    }
-  }
-
-  cancelDeletion() {
-    this.peopleForDeletId = null;
-    this.peopleForDeletName = '';
-    this.showModal = false;
   }
 }

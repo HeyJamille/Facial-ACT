@@ -28,13 +28,13 @@ export class ApiService {
   }
 
   // List People by ID
-  getPersonById(id: number): Observable<Person> {
+  getPersonById(id: string): Observable<Person> {
     return this.http.get<Person>(`${this.baseUrl}Pessoa/${id}`);
   }
 
   // Get Face Validation via query params with token in Authorization
-  getFaceValidation(documento: string, tipo: 'cpf' | 'cnh'): Observable<Person> {
-    const token = this.auth.getToken(); // get in cookie
+  getFaceValidation(documento: string, tipo: 'cpf' | 'passaporte'): Observable<Person> {
+    const token = this.auth.getToken(); // get cookie
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('documento', documento).set('tipo', tipo);
 
@@ -42,32 +42,51 @@ export class ApiService {
   }
 
   // Create person
-  createPerson(person: Person, token?: string): Observable<Person> {
-    return this.http.post<Person>(`${this.baseUrl}Pessoa/`, person, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
+  createPerson(person: Person): Observable<Person> {
+    const token = this.auth.getToken(); // get cookie
+    const headers = token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
+
+    return this.http.post<Person>(`${this.baseUrl}Pessoa/`, person, { headers });
   }
 
   // Update person
-  updatePerson(person: Person, token?: string): Observable<Person> {
+  updatePerson(person: Person): Observable<Person> {
+    const token = this.auth.getToken(); // get cookie
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
     return this.http.put<Person>(`${this.baseUrl}Pessoa/${person.id}`, person, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers,
     });
   }
 
   // Delete person
   deletePerson(id: string): Observable<any> {
-    return this.http.delete(`${this.baseUrl}${id}`);
+    const token = this.auth.getToken(); // get cookie
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.delete(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
-  uploadFile(file: File, personId: string): Observable<{ url: string }> {
-    const formData = new FormData();
-    formData.append('file', file);
+  uploadFile(formData: FormData, personId: string): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
 
-    return this.http.post<{ url: string }>(`${this.baseUrl}Facial/${personId}`, formData, {
-      headers: new HttpHeaders({
-        Authorization: `Bearer SEU_TOKEN_AQUI`,
-      }),
+    // Endpoint que usa o id da pessoa
+    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
+  }
+
+  // Get Base64 file by ID (com token)
+  getFacialBase64(personId: string): Observable<string> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.get(`${this.baseUrl}Facial/Base64/${personId}`, {
+      headers,
+      responseType: 'text', // Importante! Base64 vem como texto
     });
   }
 }

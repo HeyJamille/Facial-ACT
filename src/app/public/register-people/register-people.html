@@ -52,7 +52,7 @@
                 >
                 <option value="" disabled>Escolha uma opção</option>
                 <option value="cpf">CPF</option>
-                <option value="cnh">CNH</option>
+                <option value="passaporte">Passaporte</option>
               </select>
             </div>
               
@@ -198,6 +198,7 @@
 
     <!-- Facial Field and Document Upload -->
     <div class="flex flex-col gap-5 lg:w-1/2">
+      <!-- Campo Facial -->
       <div>
         <h2 class="text-2xl font-bold my-4">Campo Facial</h2>
         <div class="bg-white rounded-xl shadow-lg p-6 h-[400px]">
@@ -205,7 +206,7 @@
         </div>
       </div>
 
-      <!-- Document Upload -->
+      <!-- Upload de Documento -->
       <div>
         <div class="my-4">
           <h2 class="text-2xl font-bold">Upload de Documento</h2>
@@ -218,10 +219,12 @@
           <!-- Área de Upload -->
           <ng-container *ngIf="!previewUrl">
             <div
-              class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 hover:bg-gray-100 transition"
+              class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 hover:bg-gray-100 transition cursor-pointer"
               (dragover)="onDragOver($event)"
               (dragleave)="onDragLeave($event)"
+              (drop)="onFileDropped($event)"
               [ngClass]="{'bg-gray-100': isDragOver}"
+              (click)="fileInput.click()"
             >
               <svg
                 class="w-10 h-10 text-gray-500 mb-2"
@@ -236,28 +239,50 @@
                   d="M7 16V4a2 2 0 012-2h6a2 2 0 012 2v12m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-              <span class="text-gray-600 text-sm cursor-pointer" (click)="fileInput.click()">Clique ou arraste um arquivo</span>
+              <span class="text-gray-600 text-sm">Clique ou arraste um arquivo</span>
               <input
                 #fileInput
                 type="file"
                 accept="image/*,.pdf"
                 class="hidden"
+                (change)="onFileSelected($event)"
               />
             </div>
           </ng-container>
 
           <!-- Preview -->
           <div *ngIf="previewUrl" class="mt-4 w-full flex flex-col items-center">
-            <img
-              [src]="previewUrl"
-              alt="Preview"
-              class="max-h-40 rounded-lg border border-gray-300"
-            />
+            <!-- Mostra imagem se não for PDF -->
+            <ng-container *ngIf="!isPdf; else pdfPreview">
+              <img
+                [src]="previewUrl"
+                alt="Preview"
+                class="max-h-40 rounded-lg border border-gray-300"
+              />
+            </ng-container>
+            <!-- Mostra ícone genérico se for PDF -->
+            <ng-template #pdfPreview>
+              <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7l-5-5H6z"/>
+                </svg>
+                <p class="text-sm text-gray-600 mt-1">Arquivo PDF selecionado</p>
+              </div>
+            </ng-template>
+
             <p class="text-xs text-gray-500 mt-2">Pré-visualização do documento</p>
+
+            <!-- Botão de upload -->
+            <button
+              type="button"
+              class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              
+            >
+              Enviar Documento
+            </button>
           </div>
         </div>
       </div>
     </div>
-    
   </section>
 </article>

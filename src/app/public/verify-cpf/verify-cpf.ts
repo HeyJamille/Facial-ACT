@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/button/button';
 import { catchError, of } from 'rxjs';
 import { ApiService } from '../../services/api-service/api-service';
 import { AuthGuard } from '../../guards/auth-guard';
+import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-verify-cpf',
@@ -23,11 +24,11 @@ export class VerifyCPF {
     private router: Router,
     private toastr: ToastrService,
     private api: ApiService,
-    private guard: AuthGuard
+    private auth: AuthService
   ) {}
 
   onSubmit(form: NgForm) {
-    const docType = this.selectedDocument; // 'cpf' or 'cnh'
+    const docType = this.selectedDocument; // 'cpf' or 'passaporte'
     const docValue: string = form.value.documentInput?.replace(/\D/g, '') || '';
 
     // Validation fields
@@ -38,17 +39,17 @@ export class VerifyCPF {
 
     if (
       (docType === 'cpf' && docValue.length !== 11) ||
-      (docType === 'cnh' && docValue.length !== 11)
+      (docType === 'passaporte' && docValue.length !== 11)
     ) {
       this.toastr.warning('Número de documento inválido', 'Atenção');
       return;
     }
 
     // Call validation face
-    this.checkFaceValidation(docValue, this.selectedDocument as 'cpf' | 'cnh');
+    this.checkFaceValidation(docValue, this.selectedDocument as 'cpf' | 'passaporte');
   }
 
-  checkFaceValidation(docValue: string, docType: 'cpf' | 'cnh') {
+  checkFaceValidation(docValue: string, docType: 'cpf' | 'passaporte') {
     this.loading = true;
 
     this.api

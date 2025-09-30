@@ -14,7 +14,7 @@ import { ApiService } from '../../services/api-service/api-service';
 })
 export class DocumentsValidation {
   showModal = false;
-  peopleForDeletId: number | null = null;
+  peopleForDeletId: string | null = null;
   peopleForDeletName: string = '';
   peopleList: Person[] = [];
 
@@ -39,32 +39,35 @@ export class DocumentsValidation {
     });
   }
 
-  handleDocumentAction(event: { action: string; id: number }) {
+  handleDocumentAction(event: { action: string; id: string }) {
     const { action, id } = event;
-    if (action === 'editar') {
-      this.editPerson(id);
-    } else if (action === 'deletar') {
-      this.deletePerson(id);
+    if (action === 'aprovar') {
+      this.approveDocs(id);
+    } else if (action === 'reprovar') {
+      this.disapproveDocs(id);
     }
   }
 
-  deletePerson(id: number) {
+  disapproveDocs(id: string) {
     const pessoa = this.peopleList.find((p) => p.id === id);
     if (pessoa) {
       this.peopleForDeletId = id;
       this.peopleForDeletName = pessoa.nomeCompleto;
       this.showModal = true;
     }
+
+    this.toastr.success('Em desenvolvimento.', 'Sucesso');
   }
 
-  editPerson(id: number) {
-    const person = this.peopleList.find((p) => p.id === id);
-    if (person) {
-      this.toastr.success('Redirecionando para edição', 'Sucesso');
-      setTimeout(() => {
-        this.router.navigate(['/registerPeople'], { state: { person } });
-      }, 500);
+  approveDocs(id: string) {
+    const pessoa = this.peopleList.find((p) => p.id === id);
+    if (pessoa) {
+      this.peopleForDeletId = id;
+      this.peopleForDeletName = pessoa.nomeCompleto;
+      this.showModal = true;
     }
+
+    this.toastr.success('Em desenvolvimento.', 'Sucesso');
   }
 
   confirmDeletion() {

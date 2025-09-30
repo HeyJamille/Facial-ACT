@@ -1,0 +1,8 @@
+ <div class="flex justify-center items-center min-h-screen bg-gray-100">
+  <img
+  *ngIf="imageBase64"
+  [src]="imageBase64"
+  class="max-w-full max-h-full rounded-lg shadow"
+  />
+  <p *ngIf="!imageBase64">Nenhuma imagem para exibir</p>
+</div>
