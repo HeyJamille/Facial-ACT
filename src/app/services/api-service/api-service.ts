@@ -32,15 +32,6 @@ export class ApiService {
     return this.http.get<Person>(`${this.baseUrl}Pessoa/${id}`);
   }
 
-  // Get Face Validation via query params with token in Authorization
-  getFaceValidation(documento: string, tipo: 'cpf' | 'passaporte'): Observable<Person> {
-    const token = this.auth.getToken(); // get cookie
-    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
-    const params = new HttpParams().set('documento', documento).set('tipo', tipo);
-
-    return this.http.get<Person>(`${this.baseUrl}Pessoa/FacialValidada`, { headers, params });
-  }
-
   // Create person
   createPerson(person: Person): Observable<Person> {
     const token = this.auth.getToken(); // get cookie
@@ -88,5 +79,14 @@ export class ApiService {
       headers,
       responseType: 'text', // Importante! Base64 vem como texto
     });
+  }
+
+  // Get Face Validation via query params with token in Authorization
+  getFaceValidation(documento: string, tipo: 'cpf' | 'passaporte'): Observable<Person> {
+    const token = this.auth.getToken(); // get cookie
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+    const params = new HttpParams().set('documento', documento).set('tipo', tipo);
+
+    return this.http.get<Person>(`${this.baseUrl}Pessoa/FacialValidada`, { headers, params });
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Header } from '../../components/header/header';
@@ -9,7 +9,7 @@ import { Button } from '../../components/ui/button/button';
 import { ApiService } from '../../services/api-service/api-service';
 import { Person } from '../../models/person.model';
 import { AuthService } from '../../services/auth-service/auth-service';
-import { forkJoin, Observable, tap } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-register-people',
@@ -25,9 +25,10 @@ export class RegisterPeople {
   selectedDocument: string = '';
   showEdit: boolean = false;
 
-  // 👇 adicionar
+  // Files
   isPdf: boolean = false;
-  fileToUpload?: File;
+  fileToUpload?: File; // document
+  // facialFile?: File; // facial
 
   constructor(
     private api: ApiService,
@@ -35,105 +36,88 @@ export class RegisterPeople {
     private router: Router,
     private auth: AuthService
   ) {
-    // Pega o usuário logado
     const user = this.auth.getUser();
-
-    // Se usuário existe e é perfil U, habilita edição
     if (user?.Perfil === 'U') {
       this.showEdit = true;
       this.pageTitle = 'Editar Pessoa';
       this.buttonTitle = 'Atualizar';
     }
 
-    // Verifica se existe pessoa enviada via navegação
     const nav = this.router.getCurrentNavigation();
     const statePerson = nav?.extras.state?.['person'];
     if (statePerson) {
-      this.person = { ...statePerson }; // preenche o formulário com os dados existentes
+      this.person = { ...statePerson };
       this.pageTitle = 'Editar Pessoa';
       this.buttonTitle = 'Atualizar';
     }
   }
 
   onSubmit(form: NgForm) {
-    console.log('Form Value:', form.value); // Show all form field
-    console.log('Person Object:', this.person); // mostra o objeto person ligado ao ngModel
-
     if (form.invalid) {
       this.toastr.warning('Preencha todos os campos corretamente', 'Atenção');
       return;
     }
 
-    // Search all and check for duplicates
-    this.api.getPeople().subscribe({
-      next: (people) => {
-        const docAndTypeExists = people.some(
-          (p) =>
-            p.documento === this.person.documento &&
-            p.tipo === this.person.tipo &&
-            p.id !== this.person.id
-        );
+    if (!this.fileToUpload) {
+      //|| !this.facialFile
+      this.toastr.warning('Documento e foto facial são obrigatórios!', 'Atenção');
+      return;
+    }
 
-        const emailExists = people.some(
-          (p) => p.email === this.person.email && p.id !== this.person.id
-        );
+    this.api.getPeople().subscribe((people) => {
+      const docAndTypeExists = people.some(
+        (p) =>
+          p.documento === this.person.documento &&
+          p.tipo === this.person.tipo &&
+          p.id !== this.person.id
+      );
+      const emailExists = people.some(
+        (p) => p.email === this.person.email && p.id !== this.person.id
+      );
 
-        if (docAndTypeExists) {
-          this.toastr.error('Documento já cadastrado!', 'Erro');
-          return;
-        }
-        if (emailExists) {
-          this.toastr.error('E-mail já cadastrado!', 'Erro');
-          return;
-        }
+      if (docAndTypeExists) {
+        this.toastr.error('Documento já cadastrado!', 'Erro');
+        return;
+      }
+      if (emailExists) {
+        this.toastr.error('E-mail já cadastrado!', 'Erro');
+        return;
+      }
 
-        // Add acess perfil before send
-        this.person.perfilAcesso = 'U';
+      this.person.perfilAcesso = 'U';
+      const action$ = this.person.id
+        ? this.api.updatePerson(this.person)
+        : this.api.createPerson(this.person);
 
-        const action$ = this.person.id
-          ? this.api.updatePerson(this.person)
-          : this.api.createPerson(this.person);
+      action$.subscribe({
+        next: (resPerson) => {
+          const requests: Observable<any>[] = [];
 
-        action$.subscribe({
-          next: (res) => {
-            // Se tiver campo facial ou documento para enviar
-            const requests = [];
+          // Upload documento
+          const docForm = new FormData();
+          docForm.append('file', this.fileToUpload!);
+          requests.push(this.api.uploadFile(docForm, resPerson.id));
 
-            /*
-            if (this.facialFile) {
-              const facialForm = new FormData();
-              facialForm.append('file', this.facialFile);
-              requests.push(this.api.uploadFacial(resPerson.id, facialForm));
-            }
-            */
+          //Upload facial
+          //const facialForm = new FormData();
+          //facialForm.append('file', this.facialFile!);
+          //requests.push(this.api.uploadFile(resPerson.id, facialForm));
 
-            if (this.fileToUpload) {
-              const docForm = new FormData();
-              docForm.append('file', this.fileToUpload);
-              requests.push(this.api.uploadFile(docForm, this.person.id));
-            }
+          forkJoin(requests).subscribe({
+            next: () =>
+              this.toastr.success('Pessoa e arquivos cadastrados com sucesso!', 'Sucesso'),
+            error: () => this.toastr.error('Erro ao enviar arquivos', 'Erro'),
+          });
 
-            if (requests.length) {
-              forkJoin(requests).subscribe({
-                next: () =>
-                  this.toastr.success('Pessoa e arquivos enviados com sucesso!', 'Sucesso'),
-                error: () => this.toastr.error('Erro ao enviar arquivos', 'Erro'),
-              });
-            } else {
-              this.toastr.success('Pessoa registrada com sucesso!', 'Sucesso');
-            }
-
-            // Reset
-            setTimeout(() => {
-              form.resetForm();
-              this.previewUrl = undefined;
-              //this.facialFile = undefined;
-              this.fileToUpload = undefined;
-            }, 800);
-          },
-          error: (err) => this.toastr.error('Erro ao registrar pessoa', 'Erro'),
-        });
-      },
+          setTimeout(() => {
+            form.resetForm();
+            this.previewUrl = undefined;
+            this.fileToUpload = undefined;
+            //this.facialFile = undefined;
+          }, 800);
+        },
+        error: () => this.toastr.error('Erro ao cadastrar pessoa', 'Erro'),
+      });
     });
   }
 
@@ -148,8 +132,6 @@ export class RegisterPeople {
 
   onFileDropped(event: DragEvent) {
     event.preventDefault();
-    this.isDragOver = false;
-
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       this.handleFile(files[0]);
@@ -164,28 +146,13 @@ export class RegisterPeople {
   }
 
   private handleFile(file: File) {
+    this.fileToUpload = file; // Save file
+
+    // Generate preview
     const reader = new FileReader();
     reader.onload = () => {
       this.previewUrl = reader.result as string;
     };
     reader.readAsDataURL(file);
-  }
-
-  // register-people.ts
-  uploadDocument(personId: string): Observable<any> {
-    if (!this.fileToUpload) {
-      this.toastr.warning('Selecione um documento antes de enviar.', 'Atenção');
-      return new Observable((observer) => observer.complete()); // retorna um Observable vazio
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.fileToUpload);
-
-    return this.api.uploadFile(formData, personId).pipe(
-      tap({
-        next: () => this.toastr.success('Documento enviado com sucesso!', 'Sucesso'),
-        error: () => this.toastr.error('Erro ao enviar documento', 'Erro'),
-      })
-    );
   }
 }
