@@ -21,7 +21,7 @@ export const routes: Routes = [
   { path: 'verify-cpf', component: VerifyCPF },
   { path: 'Auth/token', component: Signin },
 
-  { path: 'Auth/login', component: Signin, canActivate: [AuthGuard] },
+  { path: 'Auth/login', component: Signin, canActivate: [AuthGuard] }, //
 
   {
     path: 'registerPeople',

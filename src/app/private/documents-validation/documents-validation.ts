@@ -6,10 +6,11 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Person } from '../../models/person.model';
 import { ApiService } from '../../services/api-service/api-service';
+import { Filter } from '../../components/ui/filter/filter';
 
 @Component({
   selector: 'app-documents-validation',
-  imports: [Header, Table, ConfirmationModal],
+  imports: [Header, Table, ConfirmationModal, Filter],
   templateUrl: './documents-validation.html',
 })
 export class DocumentsValidation {
@@ -17,6 +18,7 @@ export class DocumentsValidation {
   peopleForDeletId: string | null = null;
   peopleForDeletName: string = '';
   peopleList: Person[] = [];
+  filteredPeople: Person[] = [];
 
   constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
@@ -30,12 +32,31 @@ export class DocumentsValidation {
     this.api.getPeople().subscribe({
       next: (data) => {
         this.peopleList = data;
-        // loading = false
+        this.filteredPeople = [...data];
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
         // loading = false
       },
+    });
+  }
+
+  // Receives event from Filter
+  onFilter(event: { term: string; filterBy: string }) {
+    // If there is no term, show all
+    if (!event.term || event.term.trim() === '') {
+      this.filteredPeople = [...this.peopleList];
+      return;
+    }
+
+    const termLower = event.term.toLowerCase();
+
+    this.filteredPeople = this.peopleList.filter((person) => {
+      const value = person[event.filterBy as keyof Person];
+      if (!value) return false;
+
+      // Converts any value to string and compares
+      return String(value).toLowerCase().includes(termLower);
     });
   }
 

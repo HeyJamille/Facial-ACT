@@ -183,6 +183,20 @@
           </div>
         </fieldset>
 
+        <!-- Checkbox -->
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration"/>
+          <label for="declaration" class="text-sm text-gray-700">
+            Declaro estar de acordo com o termo de 
+            <a href="#" target="_blank" rel="noopener noreferrer" class="text-blue-600">
+              política
+            </a> e 
+            <a href="#" target="_blank" rel="noopener noreferrer" class="text-blue-600">
+              privacidade
+            </a>.
+          </label>
+        </div>
+
         <!-- General error message -->
         <p *ngIf="registerPeopleForms.submitted && registerPeopleForms.invalid" class="text-red-500 text-sm text-center mt-2">
           Por favor, preencha todos os campos em vermelho corretamente.

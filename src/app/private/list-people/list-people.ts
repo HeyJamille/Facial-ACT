@@ -11,11 +11,12 @@ import { ConfirmationModal } from '../../components/confirmation-modal/confirmat
 import { Person } from '../../models/person.model';
 import { Header } from '../../components/header/header';
 import { ApiService } from '../../services/api-service/api-service'; // <-- 2. Importar ApiService
+import { Filter } from '../../components/ui/filter/filter';
 
 @Component({
   selector: 'app-list-people',
   standalone: true,
-  imports: [CommonModule, FormsModule, Table, ConfirmationModal, Header],
+  imports: [CommonModule, FormsModule, Table, ConfirmationModal, Header, Filter],
   templateUrl: './list-people.html',
 })
 export class ListPeople implements OnInit {
@@ -23,6 +24,7 @@ export class ListPeople implements OnInit {
   peopleForDeletId: string = '';
   peopleForDeletName: string = '';
   peopleList: Person[] = [];
+  filteredPeople: Person[] = [];
 
   constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
@@ -36,12 +38,32 @@ export class ListPeople implements OnInit {
     this.api.getPeople().subscribe({
       next: (data) => {
         this.peopleList = data;
+        this.filteredPeople = [...data];
         // loading = false
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
         // loading = false
       },
+    });
+  }
+
+  // Receives event from Filter
+  onFilter(event: { term: string; filterBy: string }) {
+    // If there is no term, show all
+    if (!event.term || event.term.trim() === '') {
+      this.filteredPeople = [...this.peopleList];
+      return;
+    }
+
+    const termLower = event.term.toLowerCase();
+
+    this.filteredPeople = this.peopleList.filter((person) => {
+      const value = person[event.filterBy as keyof Person];
+      if (!value) return false;
+
+      // Converts any value to string and compares
+      return String(value).toLowerCase().includes(termLower);
     });
   }
 

@@ -14,7 +14,7 @@ export interface Person {
   numero: string;
   cidade: string;
   estado: string;
-  perfilAcesso: string;
+  dataValidacaoFacial: string;
   facial: string;
   edit: string;
   delet: string;

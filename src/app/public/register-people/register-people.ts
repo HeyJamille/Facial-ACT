@@ -25,6 +25,7 @@ export class RegisterPeople {
   buttonTitle = 'Salvar';
   selectedDocument: string = '';
   showEdit: boolean = false;
+  declarationChecked: boolean = false;
 
   // Files
   isPdf: boolean = false;
@@ -56,10 +57,15 @@ export class RegisterPeople {
   }
 
   onSubmit(form: NgForm) {
-    if (form.invalid) {
-      this.toastr.warning('Preencha todos os campos corretamente', 'Atenção');
+    if (form.invalid || !this.declarationChecked) {
+      if (!this.declarationChecked) {
+        this.toastr.warning('Você deve aceitar os termos para continuar', 'Atenção');
+      } else {
+        this.toastr.warning('Preencha todos os campos corretamente', 'Atenção');
+      }
       return;
     }
+
     /*
     if (!this.fileToUpload) {
       //|| !this.facialFile
@@ -67,19 +73,37 @@ export class RegisterPeople {
       return;
     }
     */
-    this.person.perfilAcesso = 'U';
+
     const action$ = this.person.id
-      ? this.api.updatePerson(this.person)
-      : this.api.createPerson(this.person);
+      ? this.api.updatePerson(this.person) // edit
+      : this.api.createPerson(this.person); // create
+
+    console.log('ID:', this.person.id);
 
     action$.subscribe({
       next: () => {
-        this.toastr.success('Pessoa cadastrada com sucesso!', 'Sucesso'),
-          setTimeout(() => {
-            form.resetForm();
-          }, 800);
+        if (this.isEditMode) {
+          // Update
+          this.toastr.success('Pessoa atualizada com sucesso!', 'Sucesso');
+          form.resetForm();
+        } else {
+          // Create
+          this.toastr.success('Pessoa cadastrada com sucesso!', 'Sucesso');
+
+          // globally release the guard
+          this.auth.bypassNextNavigation();
+
+          setTimeout(() => this.router.navigate(['/Auth/login']), 800);
+          form.resetForm();
+        }
       },
-      error: () => this.toastr.error('Erro ao cadastrar pessoa', 'Erro'),
+      error: (err) => {
+        if (err.status === 409) {
+          this.toastr.error('Erro: já existe um registro com os mesmos dados.', 'Conflito');
+        } else {
+          this.toastr.error('Erro ao salvar usuário.', 'Erro');
+        }
+      },
     });
 
     /*
@@ -154,6 +178,14 @@ export class RegisterPeople {
       this.isEditMode = false; // disables fields and upload
       this.pageTitle = 'Cadastro';
       this.buttonTitle = 'Salvar';
+    }
+
+    const navPerson = this.router.getCurrentNavigation()?.extras.state?.['person'];
+    if (navPerson) {
+      this.person = { ...navPerson }; // id
+      this.isEditMode = true;
+      this.pageTitle = 'Editar';
+      this.buttonTitle = 'Atualizar';
     }
   }
 

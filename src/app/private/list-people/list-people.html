@@ -6,17 +6,8 @@
     <!-- Header + Search -->
     <div class="flex flex-col sm:flex-row items-start md:items-center justify-between mb-5 gap-4">
       <h1 class="text-2xl font-bold text-gray-900">Lista de Pessoas</h1>
-      <div class="w-full sm:w-1/3 relative">
-        <input 
-          type="text" 
-          placeholder="Pesquisar pessoas..." 
-          class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm text-black border-gray-300 bg-white focus:outline-none"
-         
-        >
-        <div class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-black">
-          <img src="search.png">
-        </div>
-      </div>
+     
+      <app-filter class="w-full sm:w-auto" (search)="onFilter($event)"></app-filter>
     </div>
 
     <!-- People Table -->
@@ -36,9 +27,9 @@
         { name: 'nomePai', label: 'Pai' },
         { name: 'nomeMae', label: 'Mãe' },
         { name: 'facial', label: 'Facial' },
-        { name: 'perfilAcesso', label: 'Perfil' },
+        { name: 'dataEnvioFacial', label: 'Data Facial' },
       ]"
-      [data]="peopleList"
+      [data]="filteredPeople"
       [actions]="['editar', 'deletar']"
       [actionType]="'icons'"
       (actionEvent)="handleEditDelete($event)">
