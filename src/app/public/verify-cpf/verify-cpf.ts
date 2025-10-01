@@ -51,29 +51,36 @@ export class VerifyCPF {
 
     // Call validation face
     this.checkFaceValidation(docValue, this.selectedDocument as 'cpf' | 'passaporte');
-    console.log('docValue:', docValue, 'selectedDocument:', this.selectedDocument);
+    //console.log('docValue:', docValue, 'selectedDocument:', this.selectedDocument);
   }
 
   checkFaceValidation(docValue: string, docType: 'cpf' | 'passaporte') {
     this.loading = true;
 
     this.api.getFaceValidation(docValue, docType).subscribe({
-      next: (response: FaceValidationResponse) => {
-        this.loading = false;
+      next: (response) => {
+        //console.log('Objeto retornado pela API:', response);
 
         if (response.facialValidada) {
           this.toastr.success('Documento encontrado. Você já possui facial cadastrada', 'Sucesso');
+
+          // globally release the guard
+          this.auth.bypassNextNavigation();
+
           setTimeout(() => this.router.navigate(['/Auth/login']), 800);
         } else {
           this.toastr.warning(
-            'Documento não encontrado. Você ainda não tem facial cadastrada',
+            'Documento não encontrado. Você ainda não tem facial cadastrada ou validada',
             'Atenção'
           );
+
+          // globally release the guard
+          this.auth.bypassNextNavigation();
+
           setTimeout(() => this.router.navigate(['/registerPeople']), 800);
         }
       },
       error: () => {
-        this.loading = false;
         this.toastr.error('Erro ao validar documento. Tente novamente mais tarde.', 'Erro');
       },
     });

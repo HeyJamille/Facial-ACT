@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class AuthService {
   private tokenKey = 'token';
+  private _bypassNextGuard = false;
 
   setToken(token: string, days: number = 7) {
     const expires = new Date();
@@ -34,7 +35,7 @@ export class AuthService {
   getUser(): any {
     const match = document.cookie.match(new RegExp('(^| )user=([^;]+)'));
     const user = match ? JSON.parse(decodeURIComponent(match[2])) : null;
-    console.log('USUÁRIO NO COOKIE:', user); // <-- aqui
+    //console.log('USUÁRIO NO COOKIE:', user); // <-- aqui
     return user;
   }
 
@@ -44,6 +45,8 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+    //const token = !!localStorage.getItem('token');
+    //return token;
   }
 
   get userRole(): string {
@@ -58,5 +61,18 @@ export class AuthService {
       //console.error('Erro ao decodificar token:', error);
       return 'U';
     }
+  }
+
+  // Function to temporarily release the guard
+  bypassNextNavigation() {
+    this._bypassNextGuard = true;
+  }
+
+  canBypassGuard(): boolean {
+    if (this._bypassNextGuard) {
+      this._bypassNextGuard = false; // reset after use
+      return true;
+    }
+    return false;
   }
 }

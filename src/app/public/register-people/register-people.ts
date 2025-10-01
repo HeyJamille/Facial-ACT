@@ -17,10 +17,11 @@ import { forkJoin, Observable } from 'rxjs';
   templateUrl: './register-people.html',
 })
 export class RegisterPeople {
+  isEditMode: boolean = false; // false = cadastro, true = edição
   person: Person = {} as Person;
   previewUrl?: string;
   isDragOver = false;
-  pageTitle = 'Registrar Pessoa';
+  pageTitle = 'Cadastro';
   buttonTitle = 'Salvar';
   selectedDocument: string = '';
   showEdit: boolean = false;
@@ -36,10 +37,11 @@ export class RegisterPeople {
     private router: Router,
     private auth: AuthService
   ) {
+    /*
     const user = this.auth.getUser();
     if (user?.Perfil === 'U') {
       this.showEdit = true;
-      this.pageTitle = 'Editar Pessoa';
+      this.pageTitle = 'Editar';
       this.buttonTitle = 'Atualizar';
     }
 
@@ -47,9 +49,10 @@ export class RegisterPeople {
     const statePerson = nav?.extras.state?.['person'];
     if (statePerson) {
       this.person = { ...statePerson };
-      this.pageTitle = 'Editar Pessoa';
+      this.pageTitle = 'Editar';
       this.buttonTitle = 'Atualizar';
     }
+      */
   }
 
   onSubmit(form: NgForm) {
@@ -136,6 +139,22 @@ export class RegisterPeople {
       });
     });
     */
+  }
+
+  ngOnInit(): void {
+    const token = this.auth.getToken(); // Get token
+    this.isEditMode = !!token;
+
+    // Define whether it is editing or registration
+    if (token) {
+      this.isEditMode = true; // enables fields and upload
+      this.pageTitle = 'Editar';
+      this.buttonTitle = 'Atualizar';
+    } else {
+      this.isEditMode = false; // disables fields and upload
+      this.pageTitle = 'Cadastro';
+      this.buttonTitle = 'Salvar';
+    }
   }
 
   onDragOver(event: DragEvent) {

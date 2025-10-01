@@ -12,19 +12,22 @@ export class AuthGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    // Check if the front has released navigation
+    if (this.auth.canBypassGuard()) {
+      return true;
+    }
+
+    // Normal login verification
     if (!this.auth.isLoggedIn()) {
-      // User is logged
       this.router.navigate(['/']);
       return false;
     }
 
-    // Routes admin can acess
+    // Checking admin routes
     const adminRoutes = ['listPeople', 'documentsValidation'];
-
     const url = state.url.startsWith('/') ? state.url.slice(1) : state.url;
 
     if (adminRoutes.includes(url) && this.auth.userRole !== 'A') {
-      // User is not a admin
       this.router.navigate(['/access-denied']);
       return false;
     }

@@ -14,18 +14,19 @@ import { AccessDenied } from './public/access-denied/access-denied';
 // Routes protected
 import { AuthGuard } from './guards/auth-guard';
 import { FacialViewer } from './components/facial-viewer/facial-viewer';
+import { NotFound } from './public/not-found/not-found';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'verify-cpf', pathMatch: 'full' },
   { path: 'verify-cpf', component: VerifyCPF },
   { path: 'Auth/token', component: Signin },
 
-  { path: 'Auth/login', component: Signin }, //canActivate: [AuthGuard]
+  { path: 'Auth/login', component: Signin, canActivate: [AuthGuard] },
 
   {
     path: 'registerPeople',
     component: RegisterPeople,
-    //canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'listPeople',
@@ -43,4 +44,5 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: 'access-denied', component: AccessDenied },
+  { path: '**', component: NotFound },
 ];
