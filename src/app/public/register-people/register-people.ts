@@ -57,13 +57,29 @@ export class RegisterPeople {
       this.toastr.warning('Preencha todos os campos corretamente', 'Atenção');
       return;
     }
-
+    /*
     if (!this.fileToUpload) {
       //|| !this.facialFile
       this.toastr.warning('Documento e foto facial são obrigatórios!', 'Atenção');
       return;
     }
+    */
+    this.person.perfilAcesso = 'U';
+    const action$ = this.person.id
+      ? this.api.updatePerson(this.person)
+      : this.api.createPerson(this.person);
 
+    action$.subscribe({
+      next: () => {
+        this.toastr.success('Pessoa cadastrada com sucesso!', 'Sucesso'),
+          setTimeout(() => {
+            form.resetForm();
+          }, 800);
+      },
+      error: () => this.toastr.error('Erro ao cadastrar pessoa', 'Erro'),
+    });
+
+    /*
     this.api.getPeople().subscribe((people) => {
       const docAndTypeExists = people.some(
         (p) =>
@@ -83,7 +99,7 @@ export class RegisterPeople {
         this.toastr.error('E-mail já cadastrado!', 'Erro');
         return;
       }
-
+     
       this.person.perfilAcesso = 'U';
       const action$ = this.person.id
         ? this.api.updatePerson(this.person)
@@ -96,7 +112,7 @@ export class RegisterPeople {
           // Upload documento
           const docForm = new FormData();
           docForm.append('file', this.fileToUpload!);
-          requests.push(this.api.uploadFile(docForm, resPerson.id));
+          requests.push(this.api.createFile(docForm, resPerson.id));
 
           //Upload facial
           //const facialForm = new FormData();
@@ -119,6 +135,7 @@ export class RegisterPeople {
         error: () => this.toastr.error('Erro ao cadastrar pessoa', 'Erro'),
       });
     });
+    */
   }
 
   onDragOver(event: DragEvent) {

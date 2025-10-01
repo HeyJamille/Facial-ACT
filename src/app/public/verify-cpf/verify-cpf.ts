@@ -10,6 +10,10 @@ import { ApiService } from '../../services/api-service/api-service';
 import { AuthGuard } from '../../guards/auth-guard';
 import { AuthService } from '../../services/auth-service/auth-service';
 
+export interface FaceValidationResponse {
+  facialValidada: boolean;
+}
+
 @Component({
   selector: 'app-verify-cpf',
   standalone: true,
@@ -47,33 +51,31 @@ export class VerifyCPF {
 
     // Call validation face
     this.checkFaceValidation(docValue, this.selectedDocument as 'cpf' | 'passaporte');
+    console.log('docValue:', docValue, 'selectedDocument:', this.selectedDocument);
   }
 
   checkFaceValidation(docValue: string, docType: 'cpf' | 'passaporte') {
     this.loading = true;
 
-    this.api
-      .getFaceValidation(docValue, docType)
-      .pipe(
-        catchError(() => {
-          this.toastr.error(
-            'Documento não encontrado. Você ainda não tem facial cadastrada',
-            'Erro'
-          );
-
-          setTimeout(() => this.router.navigate(['/registerPeople']), 800);
-          this.loading = false;
-
-          return of(null);
-        })
-      )
-      .subscribe((person) => {
+    this.api.getFaceValidation(docValue, docType).subscribe({
+      next: (response: FaceValidationResponse) => {
         this.loading = false;
 
-        if (person) {
+        if (response.facialValidada) {
           this.toastr.success('Documento encontrado. Você já possui facial cadastrada', 'Sucesso');
           setTimeout(() => this.router.navigate(['/Auth/login']), 800);
+        } else {
+          this.toastr.warning(
+            'Documento não encontrado. Você ainda não tem facial cadastrada',
+            'Atenção'
+          );
+          setTimeout(() => this.router.navigate(['/registerPeople']), 800);
         }
-      });
+      },
+      error: () => {
+        this.loading = false;
+        this.toastr.error('Erro ao validar documento. Tente novamente mais tarde.', 'Erro');
+      },
+    });
   }
 }

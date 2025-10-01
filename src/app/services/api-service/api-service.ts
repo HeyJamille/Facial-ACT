@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from '../auth-service/auth-service';
 import { Person } from '../../models/person.model';
+import { FaceValidationResponse } from '../../public/verify-cpf/verify-cpf';
 
 interface SigninResponse {
   token: string;
@@ -34,12 +35,12 @@ export class ApiService {
 
   // Create person
   createPerson(person: Person): Observable<Person> {
-    const token = this.auth.getToken(); // get cookie
-    const headers = token
-      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
-      : new HttpHeaders();
+    //const token = this.auth.getToken(); // get cookie
+    //const headers = token
+    //  ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+    //: new HttpHeaders();
 
-    return this.http.post<Person>(`${this.baseUrl}Pessoa/`, person, { headers });
+    return this.http.post<Person>(`${this.baseUrl}Pessoa/`, person);
   }
 
   // Update person
@@ -60,7 +61,8 @@ export class ApiService {
     return this.http.delete(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
-  uploadFile(formData: FormData, personId: string): Observable<any> {
+  //
+  createFile(formData: FormData, personId: string): Observable<any> {
     const token = this.auth.getToken();
     const headers = token
       ? new HttpHeaders({ Authorization: `Bearer ${token}` })
@@ -82,11 +84,14 @@ export class ApiService {
   }
 
   // Get Face Validation via query params with token in Authorization
-  getFaceValidation(documento: string, tipo: 'cpf' | 'passaporte'): Observable<Person> {
-    const token = this.auth.getToken(); // get cookie
-    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
-    const params = new HttpParams().set('documento', documento).set('tipo', tipo);
+  getFaceValidation(
+    docValue: string,
+    docType: 'cpf' | 'passaporte'
+  ): Observable<FaceValidationResponse> {
+    const params = new HttpParams().set('documento', docValue).set('tipo', docType);
 
-    return this.http.get<Person>(`${this.baseUrl}Pessoa/FacialValidada`, { headers, params });
+    return this.http.get<FaceValidationResponse>(`${this.baseUrl}Pessoa/FacialValidada`, {
+      params,
+    });
   }
 }
