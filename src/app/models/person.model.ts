@@ -3,7 +3,7 @@ export interface Person {
   nomeCompleto: string;
   dataNascimento: string;
   email: string;
-  senha: string;
+  senha?: string;
   celular: string;
   documento: string;
   tipo: string;

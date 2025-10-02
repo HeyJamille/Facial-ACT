@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class AuthService {
   private tokenKey = 'token';
+  infoUser = 'userInfo';
   private _bypassNextGuard = false;
   private userInfoKey = 'userInfo';
 
@@ -41,7 +42,7 @@ export class AuthService {
   }
 
   clearUser() {
-    document.cookie = `user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
+    document.cookie = `${this.infoUser}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
   isLoggedIn(): boolean {
@@ -60,7 +61,7 @@ export class AuthService {
   }
 
   clearUserInfo() {
-    document.cookie = `${this.userInfoKey}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
+    document.cookie = `user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
   // Get user informations

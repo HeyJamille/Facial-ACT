@@ -106,10 +106,12 @@
             <!-- Password -->
             <div class="w-full">
               <label for="senha" class="text-sm font-medium text-black">Senha</label>
-              <input type="password" id="senha" name="senha" [(ngModel)]="person.senha" required
+              <input type="password" id="senha" name="senha" [(ngModel)]="person.senha" #senha="ngModel"
                 placeholder="Digite uma senha"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
-              >
+                [ngClass]="{'border-red-500': senha.invalid && registerPeopleForms.submitted}"
+                [required]="!isEditMode"
+                >
             </div>
           </div>
         </fieldset>
@@ -121,10 +123,10 @@
           <div class="flex flex-col sm:flex-row gap-4">
             <div class="w-full">
               <label for="nomePai" class="text-sm font-medium text-black">Nome do Pai</label>
-              <input type="text" id="nomePai" name="nomePai" [(ngModel)]="person.nomePai" #nomePai="ngModel" required
+              <input type="text" id="nomePai" name="nomePai" [(ngModel)]="person.nomePai" 
                 placeholder="Nome do Pai"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': nomePai.invalid && registerPeopleForms.submitted}">
+              >
 							</div>
 
             <div class="w-full">
@@ -148,15 +150,15 @@
 							  placeholder="Ex: Av. Brasil" 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 								[ngClass]="{'border-red-500': logradouro.invalid && registerPeopleForms.submitted}">
-							</div>
+						</div>
 
-            <div class="w-full">
+            <div class="w-full sm:w-1/4">
               <label for="numero" class="text-sm font-medium text-black">Número</label>
               <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
-							  placeholder="Ex: 0123" mask="0000"
+							  placeholder="Ex: 123"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 								[ngClass]="{'border-red-500': numero.invalid && registerPeopleForms.submitted}">
-							</div>
+						</div>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-4 mt-4">
@@ -177,7 +179,7 @@
 								[ngClass]="{'border-red-500': cidade.invalid && registerPeopleForms.submitted}">
 						</div>
 
-            <div class="w-1/2">
+            <div class="w-full sm:w-1/2">
               <label for="estado" class="text-sm font-medium text-black">Estado</label>
               <select
                 id="estado"

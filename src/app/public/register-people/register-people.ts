@@ -79,23 +79,34 @@ export class RegisterPeople {
       return;
     }
 
-    // 1️⃣ Envia os dados da pessoa
+    // creat a copy of person
+    const personToSend = { ...this.person };
+
+    // substitute empty father name
+    if (!personToSend.nomePai || personToSend.nomePai.trim() === '') {
+      personToSend.nomePai = 'Não informado';
+    }
+
+    if (this.isEditMode && (!personToSend.senha || personToSend.senha.trim() === '')) {
+      delete personToSend.senha; // agora funciona sem precisar de cast
+    }
+
+    // sent people data
     const request$ = this.isEditMode
-      ? this.api.updatePerson(this.person) // JSON
-      : this.api.createPerson(this.person);
+      ? this.api.updatePerson(personToSend) // JSON
+      : this.api.createPerson(personToSend);
 
     request$
       .pipe(
         switchMap((resPerson: any) => {
           const personId = this.person.id || resPerson.id;
 
-          // 2️⃣ Se houver foto facial, envia separadamente
           if (!this.facialFile) return of(null);
 
           const facialForm = new FormData();
           facialForm.append('file', this.facialFile);
 
-          return this.api.uploadFacial(personId, facialForm); // envio da foto
+          return this.api.uploadFacial(personId, facialForm); // send photo
         })
       )
       .subscribe({

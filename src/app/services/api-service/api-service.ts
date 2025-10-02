@@ -74,15 +74,23 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
   }
 
-  // Get Base64 file by ID (com token)
-  getFacialBase64(personId: string): Observable<string> {
+  // ✅ Retorna Base64 puro da API
+  getFacialBase64(personId: string): Observable<{ base64: string }> {
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
-    return this.http.get(`${this.baseUrl}Facial/Base64/${personId}`, {
+    return this.http.get<{ base64: string }>(`${this.baseUrl}Facial/Base64/${personId}`, {
       headers,
-      responseType: 'text', // Importante! Base64 vem como texto
     });
+  }
+
+  uploadFacial(personId: string, formData: FormData): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
   }
 
   // Get Face Validation via query params with token in Authorization
@@ -95,15 +103,6 @@ export class ApiService {
     return this.http.get<FaceValidationResponse>(`${this.baseUrl}Pessoa/FacialValidada`, {
       params,
     });
-  }
-
-  uploadFacial(personId: string, formData: FormData): Observable<any> {
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
-    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
   }
 
   uploadDocumento(personId: string, formData: FormData): Observable<any> {
@@ -123,5 +122,15 @@ export class ApiService {
 
   createPersonWithFormData(formData: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}Pessoa`, formData);
+  }
+
+  public fetchFacialBase64(personId: string, token: string): Promise<{ base64: string }> {
+    return fetch(`${this.baseUrl}Facial/Base64/${personId}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => {
+      if (!res.ok) throw new Error('Erro ao buscar imagem da API');
+      return res.json();
+    });
   }
 }
