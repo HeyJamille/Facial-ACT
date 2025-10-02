@@ -51,8 +51,16 @@ export class AuthService {
   }
 
   // Save user informations ( Perfil and ID)
-  setUserInfo(user: any) {
-    localStorage.setItem(this.userInfoKey, JSON.stringify(user));
+  setUserInfo(user: any, days: number = 7) {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + days);
+    document.cookie = `${this.userInfoKey}=${encodeURIComponent(
+      JSON.stringify(user)
+    )};expires=${expires.toUTCString()};path=/;SameSite=Strict;Secure`;
+  }
+
+  clearUserInfo() {
+    document.cookie = `${this.userInfoKey}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
   // Get user informations

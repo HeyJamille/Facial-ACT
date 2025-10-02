@@ -31,14 +31,16 @@
               <input type="date" id="dataNascimento" name="dataNascimento" [(ngModel)]="person.dataNascimento"
                 #dataNascimento="ngModel" required
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-                [ngClass]="{'border-red-500': dataNascimento.invalid && registerPeopleForms.submitted}">
+                [ngClass]="{'border-red-500': dataNascimento.invalid && registerPeopleForms.submitted}"
+                [ngModel]="person.dataNascimento | date:'yyyy-MM-dd'"
+                > 
             </div>
           </div>
 
           <!-- Other personal data -->
           <div class="flex flex-col sm:flex-row gap-4 mt-4">
             <!-- Select Documents -->
-            <div>
+            <div class="lg:w-1/2">
               <label for="tipo" class="text-sm font-medium text-black">Documento</label>
               <select
                 id="tipo"
@@ -48,10 +50,9 @@
                 required
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': tipo.invalid && registerPeopleForms.submitted}"
-                required
                 [disabled]="isEditMode">
-                >
-                <option value="" disabled>Escolha uma opção</option>
+                
+                <option value="" disabled selected>Escolha uma opção</option>
                 <option value="cpf">CPF</option>
                 <option value="passaporte">Passaporte</option>
               </select>
@@ -60,7 +61,7 @@
             <!-- Input que aparece dinamicamente -->
             <div *ngIf="person.tipo" class="w-full" >
               <label for="documento" class="text-sm font-medium text-black">
-                Digite {{ person.tipo | uppercase }}
+                Digite {{ person.tipo === 'cpf' ? (person.tipo | uppercase) : (person.tipo | titlecase) }}
               </label>
               <input
                 type="text"
@@ -105,16 +106,15 @@
             <!-- Password -->
             <div class="w-full">
               <label for="senha" class="text-sm font-medium text-black">Senha</label>
-              <input type="password" id="senha" name="senha" [(ngModel)]="person.senha" #senha="ngModel" required
+              <input type="password" id="senha" name="senha" [(ngModel)]="person.senha" required
                 placeholder="Digite uma senha"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
-                [ngClass]="{'border-red-500': senha.invalid && registerPeopleForms.submitted}"
-                [disabled]="isEditMode">
+              >
             </div>
           </div>
         </fieldset>
 
-        <!-- parents' details -->
+        <!-- Parents' details -->
         <fieldset class="border border-gray-300 rounded-lg p-4">
           <legend class="text-lg font-bold px-2">Dados dos Pais</legend>
 
@@ -153,21 +153,22 @@
             <div class="w-full">
               <label for="numero" class="text-sm font-medium text-black">Número</label>
               <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
-							  placeholder="Ex: 123"
+							  placeholder="Ex: 0123" mask="0000"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
 								[ngClass]="{'border-red-500': numero.invalid && registerPeopleForms.submitted}">
 							</div>
+          </div>
 
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
             <div class="w-full">
               <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
               <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
 								placeholder="Ex: Centro"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}">
-							</div>
-          </div>
+								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}"
+                >
+						</div>
 
-          <div class="flex flex-col sm:flex-row gap-4 mt-4">
             <div class="w-full">
               <label for="cidade" class="text-sm font-medium text-black">Cidade</label>
               <input type="text" id="cidade" name="cidade" [(ngModel)]="person.cidade" #cidade="ngModel" required
@@ -176,13 +177,47 @@
 								[ngClass]="{'border-red-500': cidade.invalid && registerPeopleForms.submitted}">
 						</div>
 
-            <div class="w-full">
+            <div class="w-1/2">
               <label for="estado" class="text-sm font-medium text-black">Estado</label>
-              <input type="text" id="estado" name="estado" [(ngModel)]="person.estado" #estado="ngModel" required
-							  placeholder="Ex: SP"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
-								[ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}">
-						</div>
+              <select
+                id="estado"
+                name="estado"
+                [(ngModel)]="person.estado"
+                #estado="ngModel"
+                required
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}">
+                
+                <option value="" disabled selected>Selecione</option>
+                <option value="AC">AC</option>
+                <option value="AL">AL</option>
+                <option value="AP">AP</option>
+                <option value="AM">AM</option>
+                <option value="BA">BA</option>
+                <option value="CE">CE</option>
+                <option value="DF">DF</option>
+                <option value="ES">ES</option>
+                <option value="GO">GO</option>
+                <option value="MA">MA</option>
+                <option value="MT">MT</option>
+                <option value="MS">MS</option>
+                <option value="MG">MG</option>
+                <option value="PA">PA</option>
+                <option value="PB">PB</option>
+                <option value="PR">PR</option>
+                <option value="PE">PE</option>
+                <option value="PI">PI</option>
+                <option value="RJ">RJ</option>
+                <option value="RN">RN</option>
+                <option value="RS">RS</option>
+                <option value="RO">RO</option>
+                <option value="RR">RR</option>
+                <option value="SC">SC</option>
+                <option value="SP">SP</option>
+                <option value="SE">SE</option>
+                <option value="TO">TO</option>
+              </select>
+            </div>
           </div>
         </fieldset>
 
@@ -190,12 +225,12 @@
         <div class="flex items-center gap-2">
           <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration"/>
           <label for="declaration" class="text-sm text-gray-700">
-            Declaro estar de acordo com o termo de 
-            <a href="#" target="_blank" rel="noopener noreferrer" class="text-blue-600">
-              política
-            </a> e 
-            <a href="#" target="_blank" rel="noopener noreferrer" class="text-blue-600">
-              privacidade
+            Declaro estar ciente e de acordo com a 
+            <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+              Política de Uso
+            </a> e
+            <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+              Privacidade
             </a>.
           </label>
         </div>
@@ -219,7 +254,7 @@
         <h2 class="text-2xl font-bold my-4">Captura Facial</h2>
 
         <!-- Active Capture -->
-        <div
+        <div 
             *ngIf="showFaceCapture; else disabledCapture">
           <app-face-capture></app-face-capture>
         </div>
@@ -228,9 +263,7 @@
         <ng-template #disabledCapture>
           <div class="bg-white rounded-xl shadow-lg h-[400px] flex flex-col justify-center items-center gap-2">
             <!-- Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-4.553a1 1 0 00-1.414-1.414L13.586 8l-4.553-4.553a1 1 0 00-1.414 1.414L11.172 10l-4.553 4.553a1 1 0 001.414 1.414L13.586 12l4.553 4.553a1 1 0 001.414-1.414L15 10z" />
-            </svg>
+            <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
             <span class="text-gray-400 text-sm font-medium text-center">
               Captura facial desativada
             </span>
@@ -256,10 +289,7 @@
             <div
               class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 opacity-50 cursor-not-allowed"
             >
-              <svg class="w-10 h-10 text-gray-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M7 16V4a2 2 0 012-2h6a2 2 0 012 2v12m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-              </svg>
+              <img src="exit.png" alt="Upload Icon" class="w-9 h-9 text-gray-500 mb-2"/>
               <span class="text-gray-600 text-sm font-medium">Envio de documentos desativado</span>
               <span class="text-gray-600 text-sm">Campo em desenvolvimento</span> <!--Cadastre-se primeiro para poder enviar o documento.-->
 

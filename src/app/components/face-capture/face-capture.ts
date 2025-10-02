@@ -15,10 +15,9 @@ import { AuthService } from '../../services/auth-service/auth-service';
 export class FaceCapture implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
 
-  //cpf: string = '12345678900'; // Exemplo ou receber via rota/serviço
   imagemCapturada: string | null = null;
 
-  // Controle de estado
+  // State control
   inicioCaptura: boolean = true;
   showCamera: boolean = false;
 
@@ -31,6 +30,16 @@ export class FaceCapture implements AfterViewInit {
     private toastr: ToastrService,
     private auth: AuthService
   ) {}
+
+  ngOnInit(): void {
+    // Recupera a imagem do localStorage, se existir
+    const imagemSalva = localStorage.getItem('imagemCapturada');
+    if (imagemSalva) {
+      this.imagemCapturada = imagemSalva;
+      this.showCamera = false; // Esconde a câmera se já tiver imagem
+      this.inicioCaptura = false;
+    }
+  }
 
   ngAfterViewInit(): void {
     this.canvas = document.createElement('canvas');
@@ -64,6 +73,9 @@ export class FaceCapture implements AfterViewInit {
     ctx?.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
 
     this.imagemCapturada = this.canvas.toDataURL('image/jpeg');
+
+    // Save in localStorage
+    localStorage.setItem('imagemCapturada', this.imagemCapturada);
   }
 
   enviarImagem() {

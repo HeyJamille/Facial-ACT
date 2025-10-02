@@ -11,15 +11,19 @@ import { Person } from '../../models/person.model';
 import { AuthService } from '../../services/auth-service/auth-service';
 import { forkJoin, Observable, of, switchMap } from 'rxjs';
 import { FaceCapture } from '../../components/face-capture/face-capture';
-
 @Component({
   selector: 'app-register-people',
   imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button, FaceCapture],
   templateUrl: './register-people.html',
 })
 export class RegisterPeople {
+  person: Person = {
+    tipo: '',
+    estado: '',
+  } as Person;
+
   isEditMode: boolean = false; // false = cadastro, true = edição
-  person: Person = {} as Person;
+  //person: Person = {} as Person;
   previewUrl?: string;
   isDragOver = false;
   pageTitle = 'Cadastro';
@@ -130,7 +134,7 @@ export class RegisterPeople {
 
     if (token) {
       this.isEditMode = true;
-      this.pageTitle = 'Editar';
+      this.pageTitle = 'Alterar Dados Cadastrais';
       this.buttonTitle = 'Atualizar';
       this.showFaceCapture = true; // show capture facial
       this.showDocumentFile = false; // document disabled
@@ -145,7 +149,9 @@ export class RegisterPeople {
       if (userId) {
         this.api.getPersonById(userId).subscribe({
           next: (data) => {
-            this.person = { ...data };
+            // remove password
+            const { senha, ...personWithoutPassword } = data;
+            this.person = { ...personWithoutPassword };
           },
           error: () => {
             this.toastr.error('Erro ao carregar dados do usuário.', 'Erro');
