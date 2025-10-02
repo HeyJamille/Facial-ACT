@@ -1,19 +1,69 @@
 <header class="sticky top-0 w-full bg-black text-white p-4 z-20">
-  <nav class="flex items-center justify-between lg:px-5">
+  <!-- Menu desktop -->
+  <nav class="flex items-center justify-between px-5">
     <img src="logo.png" class="h-9 inline-block mr-4" />
 
-    <ul class="lg:flex justify-end items-center gap-10">
+    <ul class="hidden lg:flex justify-end items-center gap-10">
+      <li><a href="/">Página Inicial</a></li>
+      <li><a href="/registerPeople">Cadastro</a></li>
+
       <!-- Links just to admin -->
-      <li><a *ngIf="isAdmin" href="/">Página Inicial</a></li>
-      <li><a *ngIf="isAdmin" href="/registerPeople">Cadastro</a></li>
       <li *ngIf="isAdmin"><a href="/listPeople">Listagem</a></li>
       <li *ngIf="isAdmin"><a href="/documentsValidation">Validação de Documentos</a></li>
 
       <a href="/verify-cpf" 
         (click)="logout()" 
-        class="bg-white p-2 rounded-xl w-20 inline-block text-center text-black hover:bg-gray-100 transition">
+        class="hidden lg:block bg-white p-2 rounded-xl w-20 text-center text-black hover:bg-gray-100 transition">
+        Sair
+      </a>
+    </ul>
+
+    <!-- Menu mobile button -->
+    <button class="lg:hidden" (click)="toggleMenu()">
+      <img *ngIf="!menuOpen" src="menu.png" class="h-7" alt="Menu" />
+      <img *ngIf="menuOpen" src="close.png" class="h-7" alt="Fechar" />
+    </button>
+
+    
+  </nav>
+</header>
+
+<!-- Overlay escuro no fundo -->
+<div
+  *ngIf="menuOpen"
+  class="fixed inset-0 bg-black/50 bg-opacity-50 z-40"
+  (click)="toggleMenu()"
+>
+</div>
+
+<!-- Menu mobile (aside with logo + nav) -->
+<aside
+  *ngIf="menuOpen"
+  class="fixed top-0 right-0 flex flex-col gap-8 p-5 w-[60%] sm:w-[35%] h-screen lg:hidden bg-black text-white z-50"
+>
+  <!-- Topo do menu (logo + close button) -->
+  <div class="flex justify-between items-center">
+    <img src="logo.png" class="h-7 sm:h-8 md:h-9" />
+    <button (click)="toggleMenu()">
+      <img src="close.png" class="h-6" alt="Fechar" />
+    </button>
+  </div>
+
+  <!-- Links -->
+  <nav class="flex-1">
+    <ul class="flex flex-col gap-7 mt-5">
+      <li><a href="/">Página Inicial</a></li>
+      <li><a href="/registerPeople">Cadastro</a></li>
+
+      <!-- Links just to admin -->
+      <li *ngIf="isAdmin"><a href="/listPeople">Listagem</a></li>
+      <li *ngIf="isAdmin"><a href="/documentsValidation">Validação de Documentos</a></li>
+
+      <a href="/verify-cpf" 
+        (click)="logout()" 
+        class="w-full inline-block bg-white p-2 rounded-xl text-center text-black hover:bg-gray-100 transition">
         Sair
       </a>
     </ul>
   </nav>
-</header>
+</aside>
