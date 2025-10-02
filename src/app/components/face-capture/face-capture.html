@@ -1,0 +1,36 @@
+<div class="flex justify-center mt-6">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
+
+    <!-- Start Button -->
+    <div *ngIf="inicioCaptura" class="flex justify-center">
+      <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
+              (click)="iniciarCaptura()">
+        Iniciar Captura
+      </button>
+    </div>
+
+    <!-- Camera -->
+    <div *ngIf="showCamera" class="flex flex-col items-center">
+      <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
+      <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
+              (click)="capturarImagem()">
+        Capturar
+      </button>
+    </div>
+
+    <!-- Captured image -->
+    <div *ngIf="imagemCapturada" class="flex flex-col items-center mt-4 space-y-2">
+      <img [src]="imagemCapturada" class="w-full max-w-sm rounded-lg" />
+      <button class="w-full bg-green-600 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-green-700 transition"
+              (click)="enviarImagem()">
+        Enviar
+      </button>
+    
+      <button class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
+              (click)="repetirCaptura()">
+        Repetir Captura
+      </button>
+    </div>
+
+  </div>
+</div>

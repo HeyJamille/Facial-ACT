@@ -9,11 +9,12 @@ import { Button } from '../../components/ui/button/button';
 import { ApiService } from '../../services/api-service/api-service';
 import { Person } from '../../models/person.model';
 import { AuthService } from '../../services/auth-service/auth-service';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, of, switchMap } from 'rxjs';
+import { FaceCapture } from '../../components/face-capture/face-capture';
 
 @Component({
   selector: 'app-register-people',
-  imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button],
+  imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button, FaceCapture],
   templateUrl: './register-people.html',
 })
 export class RegisterPeople {
@@ -26,6 +27,14 @@ export class RegisterPeople {
   selectedDocument: string = '';
   showEdit: boolean = false;
   declarationChecked: boolean = false;
+
+  // Documento
+  showDocumentFile: boolean = false;
+  documentPreviewUrl?: string;
+
+  // Facial
+  facialFile?: File;
+  showFaceCapture: boolean = false;
 
   // Files
   isPdf: boolean = false;
@@ -66,126 +75,89 @@ export class RegisterPeople {
       return;
     }
 
-    /*
-    if (!this.fileToUpload) {
-      //|| !this.facialFile
-      this.toastr.warning('Documento e foto facial são obrigatórios!', 'Atenção');
-      return;
-    }
-    */
+    // 1️⃣ Envia os dados da pessoa
+    const request$ = this.isEditMode
+      ? this.api.updatePerson(this.person) // JSON
+      : this.api.createPerson(this.person);
 
-    const action$ = this.person.id
-      ? this.api.updatePerson(this.person) // edit
-      : this.api.createPerson(this.person); // create
+    request$
+      .pipe(
+        switchMap((resPerson: any) => {
+          const personId = this.person.id || resPerson.id;
 
-    console.log('ID:', this.person.id);
+          // 2️⃣ Se houver foto facial, envia separadamente
+          if (!this.facialFile) return of(null);
 
-    action$.subscribe({
-      next: () => {
-        if (this.isEditMode) {
-          // Update
-          this.toastr.success('Pessoa atualizada com sucesso!', 'Sucesso');
+          const facialForm = new FormData();
+          facialForm.append('file', this.facialFile);
+
+          return this.api.uploadFacial(personId, facialForm); // envio da foto
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.toastr.success(
+            this.isEditMode ? 'Pessoa atualizada com sucesso!' : 'Pessoa cadastrada com sucesso!',
+            'Sucesso'
+          );
+
+          // Additional message com tempo de exibição de 5 segundos
+          this.toastr.info(
+            'Por favor, também envie a captura facial.',
+            'Atenção',
+            { timeOut: 8000 } // time
+          );
+
           form.resetForm();
-        } else {
-          // Create
-          this.toastr.success('Pessoa cadastrada com sucesso!', 'Sucesso');
+          this.previewUrl = undefined;
+          this.facialFile = undefined;
 
-          // globally release the guard
-          this.auth.bypassNextNavigation();
-
-          setTimeout(() => this.router.navigate(['/Auth/login']), 800);
-          form.resetForm();
-        }
-      },
-      error: (err) => {
-        if (err.status === 409) {
-          this.toastr.error('Erro: já existe um registro com os mesmos dados.', 'Conflito');
-        } else {
-          this.toastr.error('Erro ao salvar usuário.', 'Erro');
-        }
-      },
-    });
-
-    /*
-    this.api.getPeople().subscribe((people) => {
-      const docAndTypeExists = people.some(
-        (p) =>
-          p.documento === this.person.documento &&
-          p.tipo === this.person.tipo &&
-          p.id !== this.person.id
-      );
-      const emailExists = people.some(
-        (p) => p.email === this.person.email && p.id !== this.person.id
-      );
-
-      if (docAndTypeExists) {
-        this.toastr.error('Documento já cadastrado!', 'Erro');
-        return;
-      }
-      if (emailExists) {
-        this.toastr.error('E-mail já cadastrado!', 'Erro');
-        return;
-      }
-     
-      this.person.perfilAcesso = 'U';
-      const action$ = this.person.id
-        ? this.api.updatePerson(this.person)
-        : this.api.createPerson(this.person);
-
-      action$.subscribe({
-        next: (resPerson) => {
-          const requests: Observable<any>[] = [];
-
-          // Upload documento
-          const docForm = new FormData();
-          docForm.append('file', this.fileToUpload!);
-          requests.push(this.api.createFile(docForm, resPerson.id));
-
-          //Upload facial
-          //const facialForm = new FormData();
-          //facialForm.append('file', this.facialFile!);
-          //requests.push(this.api.uploadFile(resPerson.id, facialForm));
-
-          forkJoin(requests).subscribe({
-            next: () =>
-              this.toastr.success('Pessoa e arquivos cadastrados com sucesso!', 'Sucesso'),
-            error: () => this.toastr.error('Erro ao enviar arquivos', 'Erro'),
-          });
-
-          setTimeout(() => {
-            form.resetForm();
-            this.previewUrl = undefined;
-            this.fileToUpload = undefined;
-            //this.facialFile = undefined;
-          }, 800);
+          if (!this.isEditMode) {
+            this.auth.bypassNextNavigation();
+            setTimeout(() => this.router.navigate(['/Auth/login']), 800);
+          }
         },
-        error: () => this.toastr.error('Erro ao cadastrar pessoa', 'Erro'),
+        error: (err) => {
+          //console.error('ERRO AO SALVAR:', err);
+          this.toastr.error('Erro ao salvar dados ou arquivos.', 'Erro');
+        },
       });
-    });
-    */
   }
 
   ngOnInit(): void {
-    const token = this.auth.getToken(); // Get token
-    this.isEditMode = !!token;
+    const token = this.auth.getToken();
+    this.isEditMode = !!token; // true if token = true (edit)
 
-    // Define whether it is editing or registration
     if (token) {
-      this.isEditMode = true; // enables fields and upload
-      this.pageTitle = 'Editar';
-      this.buttonTitle = 'Atualizar';
-    } else {
-      this.isEditMode = false; // disables fields and upload
-      this.pageTitle = 'Cadastro';
-      this.buttonTitle = 'Salvar';
-    }
-
-    const navPerson = this.router.getCurrentNavigation()?.extras.state?.['person'];
-    if (navPerson) {
-      this.person = { ...navPerson }; // id
       this.isEditMode = true;
       this.pageTitle = 'Editar';
       this.buttonTitle = 'Atualizar';
+      this.showFaceCapture = true; // show capture facial
+      this.showDocumentFile = false; // document disabled
+
+      // Get user Id
+      const userInfo = this.auth.getUserInfo();
+      const userId = userInfo?.id;
+
+      //console.log('USERID:', userId);
+      //console.log('USERINFO:', userInfo);
+
+      if (userId) {
+        this.api.getPersonById(userId).subscribe({
+          next: (data) => {
+            this.person = { ...data };
+          },
+          error: () => {
+            this.toastr.error('Erro ao carregar dados do usuário.', 'Erro');
+          },
+        });
+      }
+    } else {
+      this.isEditMode = false;
+      this.showFaceCapture = false; // captura facial desativada
+      this.showDocumentFile = false;
+      this.pageTitle = 'Cadastro';
+      this.buttonTitle = 'Salvar';
     }
   }
 
@@ -209,7 +181,8 @@ export class RegisterPeople {
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.handleFile(input.files[0]);
+      this.facialFile = input.files[0]; // save file
+      this.handleFile(this.facialFile);
     }
   }
 

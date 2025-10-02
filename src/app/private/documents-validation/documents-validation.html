@@ -26,11 +26,13 @@
       (actionEvent)="handleDocumentAction($event)">
     </app-table>
 
-    <app-confirmation-modal
+     <app-confirmation-modal
       [showModal]="showModal"
       [peopleForDeletName]="peopleForDeletName"
       (confirm)="confirmDeletion()"
-      (cancel)="cancelDeletion()">
+      (cancel)="cancelDeletion()"
+      [title] = "'Confirmar Aprovação'"
+      [subtitle] = "'Deseja realmente aprovar o usuáro'">
     </app-confirmation-modal>
 
   </section>

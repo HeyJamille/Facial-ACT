@@ -34,6 +34,7 @@ export class Signin {
 
   onSignin(data: { username: string; password: string }) {
     const currentRoute = this.router.url;
+    const userInfo = this.auth.getUserInfo(); // call method
     let apiEndpoint = '';
     let redirectUrl = '';
 
@@ -53,6 +54,13 @@ export class Signin {
     this.api.signin(data.username, data.password, apiEndpoint).subscribe({
       next: (res) => {
         this.auth.setToken(res.token); // Save token
+
+        // get User ID
+        const userInfo = this.auth.getUserInfo(); // call method
+        const userID = userInfo?.id;
+        const perfil = userInfo?.role;
+
+        this.auth.setUserInfo({ userID, perfil });
 
         // Sucess toast
         this.toastr.success('Login realizado com sucesso! Redirecionando...', 'Sucesso');

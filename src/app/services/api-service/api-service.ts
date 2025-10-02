@@ -29,8 +29,10 @@ export class ApiService {
   }
 
   // List People by ID
-  getPersonById(id: string): Observable<Person> {
-    return this.http.get<Person>(`${this.baseUrl}Pessoa/${id}`);
+  getPersonById(id: string) {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.get<any>(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
   // Create person
@@ -93,5 +95,33 @@ export class ApiService {
     return this.http.get<FaceValidationResponse>(`${this.baseUrl}Pessoa/FacialValidada`, {
       params,
     });
+  }
+
+  uploadFacial(personId: string, formData: FormData): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
+  }
+
+  uploadDocumento(personId: string, formData: FormData): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.post(`${this.baseUrl}Pessoa/${personId}/UploadDocumento`, formData, {
+      headers,
+    });
+  }
+
+  updatePersonWithFormData(formData: FormData, id: string): Observable<any> {
+    return this.http.put(`${this.baseUrl}Pessoa/${id}`, formData);
+  }
+
+  createPersonWithFormData(formData: FormData): Observable<any> {
+    return this.http.post(`${this.baseUrl}Pessoa`, formData);
   }
 }

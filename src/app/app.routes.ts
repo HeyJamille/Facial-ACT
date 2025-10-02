@@ -15,6 +15,7 @@ import { AccessDenied } from './public/access-denied/access-denied';
 import { AuthGuard } from './guards/auth-guard';
 import { FacialViewer } from './components/facial-viewer/facial-viewer';
 import { NotFound } from './public/not-found/not-found';
+import { FaceCapture } from './components/face-capture/face-capture';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'verify-cpf', pathMatch: 'full' },
@@ -44,5 +45,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   { path: 'access-denied', component: AccessDenied },
+  { path: 'face-capture', component: FaceCapture },
   { path: '**', component: NotFound },
 ];

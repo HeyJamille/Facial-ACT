@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 export class AuthService {
   private tokenKey = 'token';
   private _bypassNextGuard = false;
+  private userInfoKey = 'userInfo';
 
   setToken(token: string, days: number = 7) {
     const expires = new Date();
@@ -49,17 +50,25 @@ export class AuthService {
     //return token;
   }
 
-  get userRole(): string {
+  // Save user informations ( Perfil and ID)
+  setUserInfo(user: any) {
+    localStorage.setItem(this.userInfoKey, JSON.stringify(user));
+  }
+
+  // Get user informations
+  getUserInfo() {
     const token = this.getToken();
-    if (!token) return 'U';
+    if (!token) return null;
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // decodifica payload
-      //console.log('PAYLOAD DO TOKEN:', payload);
-      return payload.Perfil || 'U'; // return 'A' or 'U'
-    } catch (error) {
-      //console.error('Erro ao decodificar token:', error);
-      return 'U';
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      //console.log('PAYLOAD JWT:', payload); // veja aqui o que vem
+      return {
+        id: payload.UsuarioID, // talvez não seja esse nome
+        role: payload.Perfil,
+      };
+    } catch {
+      return null;
     }
   }
 

@@ -23,15 +23,16 @@ export class AuthGuard implements CanActivate {
       return false;
     }
 
+    const userInfo = this.auth.getUserInfo();
+
     // Checking admin routes
     const adminRoutes = ['listPeople', 'documentsValidation'];
     const url = state.url.startsWith('/') ? state.url.slice(1) : state.url;
 
-    if (adminRoutes.includes(url) && this.auth.userRole !== 'A') {
+    if (adminRoutes.includes(url) && userInfo?.role !== 'A') {
       this.router.navigate(['/access-denied']);
       return false;
     }
-
     return true;
   }
 }

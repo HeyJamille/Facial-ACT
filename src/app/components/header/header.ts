@@ -12,7 +12,8 @@ export class Header {
   isAdmin = false;
 
   constructor(private auth: AuthService) {
-    this.isAdmin = this.auth.userRole === 'A';
+    const userInfo = this.auth.getUserInfo();
+    this.isAdmin = userInfo?.role === 'A';
     //console.log('IS ADMIN:', this.isAdmin);
   }
 
