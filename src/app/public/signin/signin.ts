@@ -41,10 +41,10 @@ export class Signin {
     // Define endpoint and redirect route
     if (currentRoute.includes('/Auth/token')) {
       apiEndpoint = 'Auth/token';
-      redirectUrl = '/listPeople';
+      redirectUrl = '/ListarPessoa';
     } else if (currentRoute.includes('/Auth/login')) {
       apiEndpoint = 'Auth/login';
-      redirectUrl = '/registerPeople';
+      redirectUrl = '/RegistrarPessoa';
     } else {
       apiEndpoint = 'Auth/login'; // fallback
       redirectUrl = '/';

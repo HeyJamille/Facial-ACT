@@ -3,13 +3,13 @@
     <img src="logo.png" class="h-9 inline-block mr-4" />
 
     <ul class="flex justify-end items-center gap-5 lg:gap-10">
-      <li *ngIf="isAdmin"><a href="/registerPeople">Cadastro</a></li>
+      <li *ngIf="isAdmin"><a href="/RegistrarPessoa">Cadastro</a></li>
 
       <!-- Links just to admin -->
-      <li *ngIf="isAdmin"><a href="/listPeople">Listagem</a></li>
-      <li *ngIf="isAdmin"><a href="/documentsValidation">Validação de Documentos</a></li>
+      <li *ngIf="isAdmin"><a href="/ListarPessoa">Listagem</a></li>
+      <li *ngIf="isAdmin"><a href="/ValidacaoDocumentos">Validação de Documentos</a></li>
 
-      <a href="/verify-cpf" 
+      <a href="/VerificarFacial" 
         (click)="logout()" 
         class="bg-white p-2 rounded-xl w-20 text-center text-black hover:bg-gray-100 transition">
         Sair

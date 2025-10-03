@@ -123,7 +123,7 @@ export class ApiService {
   createPersonWithFormData(formData: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}Pessoa`, formData);
   }
-
+  /*
   public fetchFacialBase64(personId: string, token: string): Promise<{ base64: string }> {
     return fetch(`${this.baseUrl}Facial/Base64/${personId}`, {
       method: 'GET',
@@ -132,5 +132,30 @@ export class ApiService {
       if (!res.ok) throw new Error('Erro ao buscar imagem da API');
       return res.json();
     });
+  }
+    */
+  public async fetchFacialBase64(
+    personId: string,
+    token: string
+  ): Promise<{ base64: string | null }> {
+    try {
+      const res = await fetch(`${this.baseUrl}Facial/Base64/${personId}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          // Não encontrou imagem
+          return { base64: null };
+        }
+        throw new Error('Erro ao buscar imagem da API');
+      }
+
+      return res.json();
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 }

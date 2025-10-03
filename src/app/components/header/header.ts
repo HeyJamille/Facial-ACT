@@ -24,7 +24,7 @@ export class Header {
 
   logout() {
     this.auth.clearToken();
-    this.auth.clearUserInfo;
+    this.auth.clearUserInfo();
     this.router.navigate(['/']);
   }
 }

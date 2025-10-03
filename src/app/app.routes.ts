@@ -18,33 +18,32 @@ import { NotFound } from './public/not-found/not-found';
 import { FaceCapture } from './components/face-capture/face-capture';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'verify-cpf', pathMatch: 'full' },
-  { path: 'verify-cpf', component: VerifyCPF },
+  { path: '', redirectTo: 'VerificarFacial', pathMatch: 'full' },
+  { path: 'VerificarFacial', component: VerifyCPF },
   { path: 'Auth/token', component: Signin },
 
   { path: 'Auth/login', component: Signin }, //
 
   {
-    path: 'registerPeople',
+    path: 'RegistrarPessoa',
     component: RegisterPeople,
     canActivate: [AuthGuard],
   },
   {
-    path: 'listPeople',
+    path: 'ListarPessoa',
     component: ListPeople,
     canActivate: [AuthGuard],
   },
   {
-    path: 'documentsValidation',
+    path: 'ValidacaoDocumentos',
     component: DocumentsValidation,
     canActivate: [AuthGuard],
   },
   {
-    path: 'facial-viewer',
+    path: 'VisualizarFacial',
     component: FacialViewer,
     canActivate: [AuthGuard],
   },
-  { path: 'access-denied', component: AccessDenied },
-  { path: 'face-capture', component: FaceCapture },
+  { path: 'AcessoBloqueado', component: AccessDenied },
   { path: '**', component: NotFound },
 ];

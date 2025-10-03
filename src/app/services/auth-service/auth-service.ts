@@ -61,7 +61,7 @@ export class AuthService {
   }
 
   clearUserInfo() {
-    document.cookie = `user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
+    document.cookie = 'user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
   }
 
   // Get user informations

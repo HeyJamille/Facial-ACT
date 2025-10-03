@@ -1,32 +1,29 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  Output,
-  EventEmitter,
-} from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { AuthService } from '../../services/auth-service/auth-service';
 import { ApiService } from '../../services/api-service/api-service';
 import { ToastrService } from 'ngx-toastr';
-import { NgModel } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-face-capture',
   templateUrl: './face-capture.html',
+  standalone: true, // <--- importante
   imports: [CommonModule],
 })
 export class FaceCapture implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
+
   imagemCapturada: string | null = null;
   imagemSegura: SafeUrl | null = null;
 
   inicioCaptura: boolean = true;
   showCamera: boolean = false;
+  isLoading: boolean = false;
+  imagemJaEnviada: boolean = false; // <- novo estado
 
   private canvas!: HTMLCanvasElement;
+  private stream: MediaStream | null = null;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -36,7 +33,6 @@ export class FaceCapture implements AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    //console.log('FaceCapture iniciado');
     this.carregarImagem();
   }
 
@@ -45,6 +41,11 @@ export class FaceCapture implements AfterViewInit {
   }
 
   iniciarCaptura() {
+    if (this.imagemJaEnviada) {
+      this.toastr.info('Imagem já cadastrada. Não é possível enviar outra.');
+      return;
+    }
+
     this.inicioCaptura = false;
     this.showCamera = true;
 
@@ -55,88 +56,123 @@ export class FaceCapture implements AfterViewInit {
 
     navigator.mediaDevices
       .getUserMedia({ video: true })
-      .then((stream) => (this.videoRef.nativeElement.srcObject = stream))
+      .then((stream) => {
+        this.stream = stream;
+        this.videoRef.nativeElement.srcObject = stream;
+      })
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
-  // Função utilitária para converter base64 em File
   capturarImagem() {
-    const video = this.videoRef.nativeElement;
-    this.showCamera = false;
+    if (this.imagemJaEnviada) return;
 
-    // Captura a imagem
+    const video = this.videoRef.nativeElement;
+
     this.canvas.width = video.videoWidth;
     this.canvas.height = video.videoHeight;
+
     const ctx = this.canvas.getContext('2d');
     ctx?.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
 
     this.imagemCapturada = this.canvas.toDataURL('image/jpeg');
 
-    // Para a câmera
-    const stream = video.srcObject as MediaStream;
-    stream.getTracks().forEach((track) => track.stop());
-    video.srcObject = null;
+    this.stopCamera();
 
-    // Salva no localStorage
     localStorage.setItem('imagemCapturada', this.imagemCapturada);
+  }
 
-    // ✅ Recupera o ID do usuário
+  enviarImagem() {
+    if (this.imagemJaEnviada) {
+      this.toastr.info('Imagem já cadastrada. Não é possível enviar outra.');
+      return;
+    }
+
+    if (!this.imagemCapturada) {
+      this.toastr.warning('Nenhuma imagem capturada.');
+      return;
+    }
+
+    this.isLoading = true;
+
     const userId = this.auth.getUserInfo()?.id;
     if (!userId) {
       this.toastr.error('Usuário não encontrado.', 'Erro');
+      this.isLoading = false;
       return;
     }
 
-    // ✅ Converte a base64 em File
     const file = this.dataURLtoFile(this.imagemCapturada, 'facial.jpg');
-
-    // ✅ Coloca no FormData
     const formData = new FormData();
     formData.append('file', file);
 
-    // ✅ Chama API passando ID e FormData
     this.api.uploadFacial(userId, formData).subscribe({
-      next: () => this.toastr.success('Imagem enviada com sucesso!', 'Sucesso'),
-      error: () => this.toastr.error('Erro ao enviar imagem.', 'Erro'),
+      next: () => {
+        this.toastr.success('Imagem enviada com sucesso!', 'Sucesso');
+        this.isLoading = false;
+        this.imagemJaEnviada = true; // bloqueia novos envios
+        this.showCamera = false;
+      },
+      error: () => {
+        this.toastr.error('Erro ao enviar imagem.', 'Erro');
+        this.isLoading = false;
+      },
     });
   }
 
-  // ✅ Carrega imagem da API ou do localStorage
-  async carregarImagem() {
-    //console.log('Carregando imagem (AJAX via ApiService)...');
+  repetirCaptura() {
+    if (this.imagemJaEnviada) return;
 
+    this.imagemCapturada = null;
+    this.inicioCaptura = false;
+    this.iniciarCaptura();
+  }
+
+  async carregarImagem() {
     const userId = this.auth.getUserInfo()?.id;
-    if (!userId) {
-      this.toastr.error('Usuário não encontrado');
-      return;
-    }
+    if (!userId) return;
 
     const token = this.auth.getToken();
-    //console.log('Token:', token);
-    if (!token) {
-      // console.log('Token não encontrado');
+    if (!token) return;
+
+    const storedImage = localStorage.getItem('imagemCapturada');
+
+    if (storedImage) {
+      // Se já tem imagem no localStorage, usa ela
+      this.imagemCapturada = storedImage;
+      this.showCamera = false;
+      this.imagemJaEnviada = true;
       return;
     }
 
     try {
       const data = await this.api.fetchFacialBase64(userId, token);
-      //console.log('Base64 retornado da API:', data);
 
       if (data.base64) {
-        this.imagemCapturada = data.base64; // já vem pronto para <img src="">
+        this.imagemCapturada = data.base64;
         localStorage.setItem('imagemCapturada', this.imagemCapturada);
         this.showCamera = false;
+        this.imagemJaEnviada = true;
       } else {
-        this.toastr.warning('Nenhuma imagem facial encontrada na API.');
+        this.imagemJaEnviada = false;
+        this.toastr.info(
+          'Nenhuma imagem facial encontrada. Por favor, faça o cadastro da sua foto.'
+        );
       }
-    } catch (err) {
-      //console.error('Erro ao carregar imagem:', err);
+    } catch {
       this.toastr.error('Falha ao carregar imagem');
     }
   }
 
-  // Função utilitária para converter base64 em File
-  dataURLtoFile(dataurl: string, filename: string) {
+  private stopCamera() {
+    if (this.stream) {
+      this.stream.getTracks().forEach((track) => track.stop());
+      this.stream = null;
+    }
+    this.videoRef.nativeElement.srcObject = null;
+    this.showCamera = false;
+  }
+
+  private dataURLtoFile(dataurl: string, filename: string) {
     const arr = dataurl.split(',');
     const mime = arr[0].match(/:(.*?);/)![1];
     const bstr = atob(arr[1]);

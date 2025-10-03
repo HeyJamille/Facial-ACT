@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Header } from '../../components/header/header';
 import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -22,7 +22,7 @@ export class RegisterPeople {
     estado: '',
   } as Person;
 
-  isEditMode: boolean = false; // false = cadastro, true = edição
+  isEditMode: boolean = false; // false = register, true = edit
   //person: Person = {} as Person;
   previewUrl?: string;
   isDragOver = false;
@@ -32,7 +32,7 @@ export class RegisterPeople {
   showEdit: boolean = false;
   declarationChecked: boolean = false;
 
-  // Documento
+  // Document
   showDocumentFile: boolean = false;
   documentPreviewUrl?: string;
 
@@ -49,7 +49,8 @@ export class RegisterPeople {
     private api: ApiService,
     private toastr: ToastrService,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private route: ActivatedRoute
   ) {
     /*
     const user = this.auth.getUser();
@@ -116,17 +117,6 @@ export class RegisterPeople {
             'Sucesso'
           );
 
-          // Additional message com tempo de exibição de 5 segundos
-          this.toastr.info(
-            'Por favor, também envie a captura facial.',
-            'Atenção',
-            { timeOut: 8000 } // time
-          );
-
-          form.resetForm();
-          this.previewUrl = undefined;
-          this.facialFile = undefined;
-
           if (!this.isEditMode) {
             this.auth.bypassNextNavigation();
             setTimeout(() => this.router.navigate(['/Auth/login']), 800);
@@ -141,9 +131,9 @@ export class RegisterPeople {
 
   ngOnInit(): void {
     const token = this.auth.getToken();
-    this.isEditMode = !!token; // true if token = true (edit)
+    this.isEditMode = !!token; // token = edit
 
-    if (token) {
+    if (this.isEditMode) {
       this.isEditMode = true;
       this.pageTitle = 'Alterar Dados Cadastrais';
       this.buttonTitle = 'Atualizar';

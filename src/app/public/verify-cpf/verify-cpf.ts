@@ -77,7 +77,7 @@ export class VerifyCPF {
           // globally release the guard
           this.auth.bypassNextNavigation();
 
-          setTimeout(() => this.router.navigate(['/registerPeople']), 800);
+          setTimeout(() => this.router.navigate(['/RegistrarPessoa']), 800);
         }
       },
       error: () => {

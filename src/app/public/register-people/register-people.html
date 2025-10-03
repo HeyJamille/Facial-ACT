@@ -58,7 +58,7 @@
               </select>
             </div>
               
-            <!-- Input que aparece dinamicamente -->
+            <!-- Input -->
             <div *ngIf="person.tipo" class="w-full" >
               <label for="documento" class="text-sm font-medium text-black">
                 Digite {{ person.tipo === 'cpf' ? (person.tipo | uppercase) : (person.tipo | titlecase) }}
@@ -69,8 +69,10 @@
                 name="documento"
                 [(ngModel)]="person.documento"
                 #documento="ngModel"
-                [mask]="person.tipo === 'cpf' ? '000.000.000-00' : '00000000000'"
-                placeholder="{{ person.tipo === 'cpf' ? 'Ex: 123.456.789-00' : 'Ex: 12345678900' }}"
+                [mask]="person.tipo === 'cpf' ? '000.000.000-00' : ''"
+                [pattern]="person.tipo === 'passaporte' ? '^[A-Za-z]{2}[0-9]{6}$' : ''"
+                placeholder="{{ person.tipo === 'cpf' ? 'Ex: 123.456.789-00' : 'Ex: AB123456' }}"
+                maxlength="{{ person.tipo === 'passaporte' ? 8 : null }}"
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': documento.invalid && registerPeopleForms.submitted}"
                 required
