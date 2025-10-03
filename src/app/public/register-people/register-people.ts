@@ -113,7 +113,9 @@ export class RegisterPeople {
       .subscribe({
         next: () => {
           this.toastr.success(
-            this.isEditMode ? 'Pessoa atualizada com sucesso!' : 'Pessoa cadastrada com sucesso!',
+            this.isEditMode
+              ? 'Cadastro atualizado com sucesso!'
+              : 'Cadastro realizado com sucesso!',
             'Sucesso'
           );
 

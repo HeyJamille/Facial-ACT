@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideToastr({
-      positionClass: 'toast-top-right',
+      positionClass: 'toast-center-screen',
       timeOut: 2000,
       closeButton: true,
       progressBar: true,
