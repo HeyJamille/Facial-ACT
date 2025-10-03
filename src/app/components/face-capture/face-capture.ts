@@ -134,30 +134,39 @@ export class FaceCapture implements AfterViewInit {
     const token = this.auth.getToken();
     if (!token) return;
 
-    const storedImage = localStorage.getItem('imagemCapturada');
-
-    if (storedImage) {
-      // Se já tem imagem no localStorage, usa ela
-      this.imagemCapturada = storedImage;
-      this.showCamera = false;
-      this.imagemJaEnviada = true;
-      return;
-    }
-
     try {
+      // 1️⃣ Tenta buscar do banco
       const data = await this.api.fetchFacialBase64(userId, token);
 
       if (data.base64) {
+        // Imagem do banco encontrada → bloqueia botões
         this.imagemCapturada = data.base64;
         localStorage.setItem('imagemCapturada', this.imagemCapturada);
+        this.imagemJaEnviada = true; // bloqueia todos os botões
+        this.inicioCaptura = false;
         this.showCamera = false;
-        this.imagemJaEnviada = true;
-      } else {
-        this.imagemJaEnviada = false;
-        this.toastr.info(
-          'Nenhuma imagem facial encontrada. Por favor, faça o cadastro da sua foto.'
-        );
+        return;
       }
+
+      // 2️⃣ Se não encontrou no banco, verifica localStorage
+      const storedImage = localStorage.getItem('imagemCapturada');
+      if (storedImage) {
+        this.imagemCapturada = storedImage;
+        this.imagemJaEnviada = false; // permite enviar/recapturar
+        this.inicioCaptura = false; // não mostrar botão iniciar
+        this.showCamera = false;
+        this.toastr.info(
+          'Imagem carregada do armazenamento local. Você pode enviar para o banco ou recapturar.'
+        );
+        return;
+      }
+
+      // 3️⃣ Se não encontrou em nenhum lugar → permite captura
+      this.imagemCapturada = null;
+      this.imagemJaEnviada = false;
+      this.inicioCaptura = true;
+      this.showCamera = false;
+      this.toastr.info('Nenhuma imagem facial encontrada. Por favor, faça o cadastro da sua foto.');
     } catch {
       this.toastr.error('Falha ao carregar imagem');
     }

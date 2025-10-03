@@ -25,6 +25,9 @@ export class Header {
   logout() {
     this.auth.clearToken();
     this.auth.clearUserInfo();
+    // Limpa localStorage (incluindo imagem facial)
+    localStorage.removeItem('imagemCapturada');
+
     this.router.navigate(['/']);
   }
 }
