@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth-service/auth-service';
 
 // Router
 import { Router } from '@angular/router';
+import { Button } from '../../components/ui/button/button';
 
 @Component({
   selector: 'app-signin',
@@ -23,6 +24,8 @@ import { Router } from '@angular/router';
 export class Signin {
   email: string = '';
   password: string = '';
+  loading: boolean = false;
+
   @Output() linkClick = new EventEmitter<void>();
 
   constructor(
@@ -37,6 +40,7 @@ export class Signin {
     const userInfo = this.auth.getUserInfo(); // call method
     let apiEndpoint = '';
     let redirectUrl = '';
+    this.loading = true;
 
     // Define endpoint and redirect route
     if (currentRoute.includes('/Auth/token')) {
