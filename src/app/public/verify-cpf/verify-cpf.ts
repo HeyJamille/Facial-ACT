@@ -68,7 +68,7 @@ export class VerifyCPF {
         //console.log('Objeto retornado pela API:', response);
 
         if (response.facialValidada) {
-          this.toastr.success('Documento encontrado. Você já possui facial cadastrada', 'Sucesso');
+          this.toastr.success('Você já possui facial cadastrada. Redirecionando...', 'Sucesso');
 
           // globally release the guard
           this.auth.bypassNextNavigation();
@@ -76,7 +76,7 @@ export class VerifyCPF {
           setTimeout(() => this.router.navigate(['/Auth/login']), 800);
         } else {
           this.toastr.warning(
-            'Documento não encontrado. Você ainda não tem facial cadastrada ou validada',
+            'Você ainda não tem facial cadastrada ou validada, realize seu cadastro.',
             'Atenção'
           );
 
