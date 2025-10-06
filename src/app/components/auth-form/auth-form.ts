@@ -38,6 +38,7 @@ export class AuthForm {
   @Output() linkClick = new EventEmitter<void>();
 
   loading = false;
+  showPassword = false;
 
   onLinkClick() {
     this.forgotPassword.emit();
@@ -69,5 +70,9 @@ export class AuthForm {
 
       this.loading = false;
     }, 500);
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }

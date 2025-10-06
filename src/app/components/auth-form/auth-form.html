@@ -14,16 +14,44 @@
           {{ field.label }}
         </label>
         
-        <input
-          [type]="field.type"
-          [id]="field.name"
-          [name]="field.name"
-          [placeholder]="field.placeholder"
-          ngModel
-          [required]="field.required"
-          class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
-        >
-        
+        <ng-container *ngIf="field.type !== 'password'; else passwordField">
+          <input
+            [type]="field.type"
+            [id]="field.name"
+            [name]="field.name"
+            [placeholder]="field.placeholder"
+            ngModel
+            [required]="field.required"
+            class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+          >
+        </ng-container>
+
+        <ng-template #passwordField>
+          <div class="relative">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [id]="field.name"
+              [name]="field.name"
+              [placeholder]="field.placeholder"
+              ngModel
+              [required]="field.required"
+              class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none pr-10"
+            />
+
+            <!-- Ícone olho -->
+            <button
+              type="button"
+              (click)="togglePassword()"
+              class="absolute right-3 top-6 transform -translate-y-1/2 text-gray-500 hover:text-black"
+            >
+              <img
+                [src]="showPassword ? '/hide.png' : '/view.png'"
+                alt="Mostrar senha"
+                class="w-5 h-5"
+              />
+            </button>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Button -->

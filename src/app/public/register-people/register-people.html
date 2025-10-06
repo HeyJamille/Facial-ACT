@@ -106,15 +106,35 @@
             </div>
 
             <!-- Password -->
-            <div class="w-full">
+            <div class="w-full relative">
               <label for="senha" class="text-sm font-medium text-black">Senha</label>
-              <input type="password" id="senha" name="senha" [(ngModel)]="person.senha" #senha="ngModel"
+
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="senha"
+                name="senha"
+                [(ngModel)]="person.senha"
+                #senha="ngModel"
                 placeholder="Digite uma senha"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
                 [ngClass]="{'border-red-500': senha.invalid && registerPeopleForms.submitted}"
                 [required]="!isEditMode"
-                >
+              />
+
+              <!-- Ícone olho -->
+              <button
+                type="button"
+                (click)="togglePassword()"
+                class="absolute right-3 top-12 transform -translate-y-1/2 text-gray-500 hover:text-black"
+              >
+                <img
+                  [src]="showPassword ? '/hide.png' : '/view.png'"
+                  alt="Mostrar senha"
+                  class="w-5 h-5"
+                />
+              </button>
             </div>
+
           </div>
         </fieldset>
 

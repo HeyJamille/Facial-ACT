@@ -46,6 +46,8 @@ export class RegisterPeople {
   fileToUpload?: File; // document
   // facialFile?: File; // facial
 
+  showPassword: boolean = false;
+
   constructor(
     private api: ApiService,
     private toastr: ToastrService,
@@ -201,6 +203,10 @@ export class RegisterPeople {
       this.facialFile = input.files[0]; // save file
       this.handleFile(this.facialFile);
     }
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   private handleFile(file: File) {
