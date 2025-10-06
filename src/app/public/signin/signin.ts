@@ -48,7 +48,7 @@ export class Signin {
       redirectUrl = '/ListarPessoa';
     } else if (currentRoute.includes('/Auth/login')) {
       apiEndpoint = 'Auth/login';
-      redirectUrl = '/RegistrarPessoa';
+      redirectUrl = '/EditarPessoa';
     } else {
       apiEndpoint = 'Auth/login'; // fallback
       redirectUrl = '/';

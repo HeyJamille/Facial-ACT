@@ -30,6 +30,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'EditarPessoa',
+    component: RegisterPeople,
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'ListarPessoa',
     component: ListPeople,
     canActivate: [AuthGuard],

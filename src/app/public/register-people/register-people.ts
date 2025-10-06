@@ -120,10 +120,10 @@ export class RegisterPeople {
 
           this.loading = false;
 
-          // Reload the page after 800ms
+          // Redirect to EditarPessoa after 1 second
           setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+            this.router.navigate(['/EditarPessoa']);
+          }, 1000);
 
           /*
           if (!this.isEditMode) {

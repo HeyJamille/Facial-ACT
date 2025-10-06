@@ -31,6 +31,12 @@ export class VerifyCPF {
     private auth: AuthService
   ) {}
 
+  ngOnInit() {
+    this.auth.clearToken();
+    this.auth.clearUser();
+    this.auth.clearLocalStorage();
+  }
+
   onSubmit(form: NgForm) {
     const docType = this.selectedDocument; // 'cpf' or 'passaporte'
     const docValue: string = form.value.documentInput?.replace(/\D/g, '') || '';
