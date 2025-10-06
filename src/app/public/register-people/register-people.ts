@@ -123,7 +123,7 @@ export class RegisterPeople {
           // Reload the page after 800ms
           setTimeout(() => {
             window.location.reload();
-          }, 3000);
+          }, 2000);
 
           /*
           if (!this.isEditMode) {
