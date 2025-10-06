@@ -9,6 +9,7 @@ export class AuthService {
   private _bypassNextGuard = false;
   private userInfoKey = 'userInfo';
 
+  // Token management
   setToken(token: string, days: number = 7) {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
@@ -26,6 +27,7 @@ export class AuthService {
     document.cookie = `${this.tokenKey}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Strict;Secure`;
   }
 
+  // User management
   setUser(user: any, days: number = 7) {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
@@ -51,7 +53,7 @@ export class AuthService {
     //return token;
   }
 
-  // Save user informations ( Perfil and ID)
+  // User info management
   setUserInfo(user: any, days: number = 7) {
     const expires = new Date();
     expires.setDate(expires.getDate() + days);
@@ -60,11 +62,6 @@ export class AuthService {
     )};expires=${expires.toUTCString()};path=/;SameSite=Strict;Secure`;
   }
 
-  clearUserInfo() {
-    document.cookie = 'user=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
-  }
-
-  // Get user informations
   getUserInfo() {
     const token = this.getToken();
     if (!token) return null;
@@ -92,5 +89,11 @@ export class AuthService {
       return true;
     }
     return false;
+  }
+
+  // Clear all localStorage data
+  clearLocalStorage() {
+    localStorage.clear();
+    console.log('LocalStorage limpo!');
   }
 }

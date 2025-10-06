@@ -5,8 +5,7 @@
 
     <div class="flex flex-col sm:flex-row items-start md:items-center justify-between mb-5 gap-4">
       <h1 class="text-2xl font-bold text-gray-900">Validação de Documentos</h1>
-      
-       <app-filter class="w-full sm:w-auto" (search)="onFilter($event)"></app-filter>
+      <app-filter class="w-full sm:w-auto" (search)="onFilter($event)"></app-filter>
     </div>
 
     <app-table
@@ -16,24 +15,38 @@
         { name: 'celular', label: 'Celular' },
         { name: 'documento', label: 'Documento' },
         { name: 'tipo', label: 'Tipo' },
-        { name: 'dataEnvioFacial', label: 'Data de Envio da Facial' } ,
-        { name: 'arquivoFacial', label: 'Facial' },
-        { name: 'arquivoFacial', label: 'Documento' } 
+        { name: 'dataEnvioFacial', label: 'Data de Envio da Facial' },
       ]"
       [data]="filteredPeople"
       [actions]="['aprovar', 'reprovar']"
-      [actionType]="'buttons'"
+      [actionType]="'select'"
       (actionEvent)="handleDocumentAction($event)">
     </app-table>
 
-     <app-confirmation-modal
+  
+    <!-- Aprove Modal 
+   <app-confirmation-modal
       [showModal]="showModal"
-      [peopleForDeletName]="peopleForDeletName"
-      (confirm)="confirmDeletion()"
-      (cancel)="cancelDeletion()"
-      [title] = "'Confirmar Aprovação'"
-      [subtitle] = "'Deseja realmente aprovar o usuáro'">
+      title="Aprovar Validação Facial"
+      subtitle="Tem certeza que deseja aprovar o usuário"
+      [personName]="personName"
+      actionText="Aprovar"
+      (confirm)="confirmApprove()"
+      (cancel)="closeApproveModal()"
+    >
     </app-confirmation-modal>
 
+    <!-- Desaprove Modal 
+    <app-confirmation-modal
+      [showModal]="showModal"
+      title="Reprovar Validação Facial"
+      subtitle="Tem certeza que deseja reprovar o usuário"
+      [personName]="personName"
+      actionText="Reprovar"
+      (confirm)="confirmDisapprove()"
+      (cancel)="closeDisapproveModal()"
+    >
+    </app-confirmation-modal>
+    -->
   </section>
 </article>

@@ -4,11 +4,12 @@ import { ApiService } from '../../services/api-service/api-service';
 import { ToastrService } from 'ngx-toastr';
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Button } from '../ui/button/button';
 
 @Component({
   selector: 'app-face-capture',
   templateUrl: './face-capture.html',
-  standalone: true, // <--- importante
+  standalone: true,
   imports: [CommonModule],
 })
 export class FaceCapture implements AfterViewInit {
@@ -21,6 +22,7 @@ export class FaceCapture implements AfterViewInit {
   showCamera: boolean = false;
   isLoading: boolean = false;
   imagemJaEnviada: boolean = false; // <- novo estado
+  loading: boolean = false;
 
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
@@ -42,7 +44,7 @@ export class FaceCapture implements AfterViewInit {
 
   iniciarCaptura() {
     if (this.imagemJaEnviada) {
-      this.toastr.info('Imagem já cadastrada. Não é possível enviar outra.');
+      this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
       return;
     }
 
@@ -83,21 +85,21 @@ export class FaceCapture implements AfterViewInit {
 
   enviarImagem() {
     if (this.imagemJaEnviada) {
-      this.toastr.info('Imagem já cadastrada. Não é possível enviar outra.');
+      this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
       return;
     }
 
     if (!this.imagemCapturada) {
-      this.toastr.warning('Nenhuma imagem capturada.');
+      this.toastr.warning('Nenhuma captura facial capturada.');
       return;
     }
 
-    this.isLoading = true;
+    this.loading = true;
 
     const userId = this.auth.getUserInfo()?.id;
     if (!userId) {
       this.toastr.error('Usuário não encontrado.', 'Erro');
-      this.isLoading = false;
+      this.loading = false;
       return;
     }
 
@@ -107,14 +109,14 @@ export class FaceCapture implements AfterViewInit {
 
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
-        this.toastr.success('Imagem enviada com sucesso!', 'Sucesso');
-        this.isLoading = false;
+        this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
+        this.loading = false;
         this.imagemJaEnviada = true; // bloqueia novos envios
         this.showCamera = false;
       },
       error: () => {
-        this.toastr.error('Erro ao enviar imagem.', 'Erro');
-        this.isLoading = false;
+        this.toastr.error('Erro ao enviar captura facial.', 'Erro');
+        this.loading = false;
       },
     });
   }
@@ -166,7 +168,7 @@ export class FaceCapture implements AfterViewInit {
       this.imagemJaEnviada = false;
       this.inicioCaptura = true;
       this.showCamera = false;
-      this.toastr.info('Nenhuma imagem facial encontrada. Por favor, faça o cadastro da sua foto.');
+      this.toastr.info('Facial liberada para cadastro.');
     } catch {
       this.toastr.error('Falha ao carregar imagem');
     }

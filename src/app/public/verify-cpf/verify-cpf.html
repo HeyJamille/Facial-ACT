@@ -47,9 +47,8 @@
       </div>
 
       <!-- Button -->
-      <app-button
-        buttonText="Verificar" 
-        type="submit">
+      <app-button type="submit" [loading]="loading">
+        {{ loading ? 'Salvando...' : 'Verificar' }}
       </app-button>
 
       <p class="text-sm text-gray-600 text-center">

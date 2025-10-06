@@ -1,0 +1,28 @@
+<div class="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
+  <div class="relative bg-white p-4 rounded-lg shadow-lg max-w-3xl mx-5 my-6 w-full">
+    
+    <!-- Close Button -->
+    <button
+      class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl font-bold"
+      (click)="closeModal()"
+      aria-label="Fechar modal"
+    >
+      ✕
+    </button>
+    
+    <!-- Facial Image -->
+    <div class="flex justify-center items-center">
+      <img
+        *ngIf="imageBase64"
+        [src]="imageBase64"
+        alt="Captura Facial"
+        class="max-h-[80vh] w-auto object-contain rounded"
+      />
+    </div>
+
+    <!-- Mensagem se não houver imagem -->
+    <p *ngIf="!imageBase64" class="text-center text-gray-500 mt-4">
+      Nenhuma imagem disponível
+    </p>
+  </div>
+</div>

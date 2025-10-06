@@ -8,7 +8,9 @@ import { Component, Input } from '@angular/core';
   standalone: true,
 })
 export class Button {
-  @Input() buttonText: string = 'Botão';
-  @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() className: string = '';
+  @Input() type: 'button' | 'submit' = 'button';
+  @Input() loading: boolean = false;
+  @Input() disabled: boolean = false;
+
+  @Input() buttonText: string = 'Button';
 }

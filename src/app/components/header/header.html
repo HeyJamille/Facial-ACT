@@ -2,18 +2,62 @@
   <nav class="flex items-center justify-between lg:px-5">
     <img src="logo.png" class="h-9 inline-block mr-4" />
 
-    <ul class="flex justify-end items-center gap-5 lg:gap-10">
+    <!-- Menu desktop -->
+    <ul class="hidden lg:flex justify-end items-center gap-5 lg:gap-10">
       <li *ngIf="isAdmin"><a href="/RegistrarPessoa">Cadastro</a></li>
-
-      <!-- Links just to admin -->
       <li *ngIf="isAdmin"><a href="/ListarPessoa">Listagem</a></li>
       <li *ngIf="isAdmin"><a href="/ValidacaoDocumentos">Validação de Documentos</a></li>
 
       <a href="/VerificarFacial" 
-        (click)="logout()" 
-        class="bg-white p-2 rounded-xl w-20 text-center text-black hover:bg-gray-100 transition">
+         (click)="logout()" 
+         class="bg-white p-2 rounded-xl w-20 text-center text-black hover:bg-gray-100 transition">
+        Sair
+      </a>
+    </ul>
+
+    <!-- Mobile -->
+    <div class="lg:hidden">
+      <!-- Admin: open button menu admin-->
+      <button *ngIf="isAdmin" (click)="toggleMenu()">
+        <img *ngIf="!menuOpen" src="menu.png" class="h-7" alt="Menu" />
+        <img *ngIf="menuOpen" src="close.png" class="h-7" alt="Fechar" />
+      </button>
+
+      <!-- Cliente: just go out button -->
+      <a *ngIf="!isAdmin" 
+         href="/VerificarFacial" 
+         (click)="logout()"
+         class="bg-white p-2 px-7 rounded-xl w-full text-center text-black hover:bg-gray-100 transition">
+        Sair
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- Overlay and menu mobile -->
+<div *ngIf="menuOpen && isAdmin" class="fixed inset-0 bg-black/50 z-40" (click)="toggleMenu()"></div>
+
+<!-- Admin Menu mobile -->
+<aside *ngIf="menuOpen && isAdmin" class="fixed top-0 right-0 flex flex-col gap-8 p-5 w-[60%] sm:w-[35%] h-screen lg:hidden bg-black text-white z-50">
+  <div class="flex justify-between items-center">
+    <img src="logo.png" class="h-7 sm:h-8 md:h-9" />
+    <button (click)="toggleMenu()">
+      <img src="close.png" class="h-6" alt="Fechar" />
+    </button>
+  </div>
+
+  <nav>
+    <ul class="flex flex-col justify-start w-full mt-5 gap-6 lg:gap-10">
+      <li><a href="/RegistrarPessoa">Cadastro</a></li>
+      <li><a href="/ListarPessoa">Listagem</a></li>
+      <li><a href="/ValidacaoDocumentos">Validação de Documentos</a></li>
+
+      <a 
+         href="/VerificarFacial" 
+         (click)="logout()"
+         class="bg-white p-2 mt-5 rounded-xl w-full text-center text-black hover:bg-gray-100 transition">
         Sair
       </a>
     </ul>
   </nav>
-</header>
+</aside>

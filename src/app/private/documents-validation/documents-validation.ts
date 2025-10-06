@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Header } from '../../components/header/header';
 import { Table } from '../../components/table/table';
 import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
@@ -10,24 +10,24 @@ import { Filter } from '../../components/ui/filter/filter';
 
 @Component({
   selector: 'app-documents-validation',
-  imports: [Header, Table, ConfirmationModal, Filter],
+  standalone: true,
+  imports: [Header, Table, Filter],
   templateUrl: './documents-validation.html',
 })
-export class DocumentsValidation {
+export class DocumentsValidation implements OnInit {
   showModal = false;
-  peopleForDeletId: string | null = null;
-  peopleForDeletName: string = '';
+  //showModal = false;
+  personID: string | null = null;
+  personName: string = '';
   peopleList: Person[] = [];
   filteredPeople: Person[] = [];
 
   constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
-  // Call data
   ngOnInit() {
     this.fetchPeople();
   }
 
-  // Get data API
   fetchPeople() {
     this.api.getPeople().subscribe({
       next: (data) => {
@@ -36,75 +36,85 @@ export class DocumentsValidation {
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
-        // loading = false
       },
     });
   }
 
-  // Receives event from Filter
   onFilter(event: { term: string; filterBy: string }) {
-    // If there is no term, show all
     if (!event.term || event.term.trim() === '') {
       this.filteredPeople = [...this.peopleList];
       return;
     }
 
     const termLower = event.term.toLowerCase();
-
     this.filteredPeople = this.peopleList.filter((person) => {
       const value = person[event.filterBy as keyof Person];
       if (!value) return false;
-
-      // Converts any value to string and compares
       return String(value).toLowerCase().includes(termLower);
     });
   }
 
   handleDocumentAction(event: { action: string; id: string }) {
-    const { action, id } = event;
-    if (action === 'aprovar') {
-      this.approveDocs(id);
-    } else if (action === 'reprovar') {
-      this.disapproveDocs(id);
-    }
-  }
+    const pessoa = this.peopleList.find((p) => p.id === event.id);
+    if (!pessoa) return;
 
-  disapproveDocs(id: string) {
-    const pessoa = this.peopleList.find((p) => p.id === id);
-    if (pessoa) {
-      this.peopleForDeletId = id;
-      this.peopleForDeletName = pessoa.nomeCompleto;
+    this.personID = event.id;
+    this.personName = pessoa.nomeCompleto;
+
+    if (event.action === 'aprovar') {
+      this.showModal = true;
+    } else if (event.action === 'reprovar') {
       this.showModal = true;
     }
-
-    this.toastr.success('Em desenvolvimento.', 'Sucesso');
   }
 
-  approveDocs(id: string) {
-    const pessoa = this.peopleList.find((p) => p.id === id);
-    if (pessoa) {
-      this.peopleForDeletId = id;
-      this.peopleForDeletName = pessoa.nomeCompleto;
-      this.showModal = true;
-    }
+  confirmApprove() {
+    if (!this.personID) return;
 
-    this.toastr.success('Em desenvolvimento.', 'Sucesso');
+    const pessoa = this.peopleList.find((p) => p.id === this.personID);
+    if (!pessoa) return;
+
+    const updatedPerson: Person = {
+      ...pessoa,
+      statusValidacao: 'Aprovado',
+    };
+
+    this.api.updatePerson(updatedPerson).subscribe({
+      next: () => this.toastr.success('Usuário aprovado!', 'Sucesso'),
+      error: () => this.toastr.error('Erro ao aprovar usuário.', 'Erro'),
+    });
+
+    this.closeApproveModal();
   }
 
-  confirmDeletion() {
-    if (this.peopleForDeletId !== null) {
-      this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
-      this.toastr.success('Pessoa removida com sucesso!', 'Sucesso');
+  confirmDisapprove() {
+    if (!this.personID) return;
 
-      this.peopleForDeletId = null;
-      this.peopleForDeletName = '';
-      this.showModal = false;
-    }
+    const pessoa = this.peopleList.find((p) => p.id === this.personID);
+    if (!pessoa) return;
+
+    const updatedPerson: Person = {
+      ...pessoa,
+      statusValidacao: 'Reprovado',
+    };
+
+    this.api.updatePerson(updatedPerson).subscribe({
+      next: () => this.toastr.success('Usuário reprovado!', 'Sucesso'),
+      error: () => this.toastr.error('Erro ao reprovar usuário.', 'Erro'),
+    });
+
+    this.closeDisapproveModal();
   }
 
-  cancelDeletion() {
-    this.peopleForDeletId = null;
-    this.peopleForDeletName = '';
+  closeApproveModal() {
     this.showModal = false;
+    this.personID = null;
+    this.personName = '';
+  }
+
+  closeDisapproveModal() {
+    this.showModal = false;
+    this.personID = null;
+    this.personName = '';
   }
 }

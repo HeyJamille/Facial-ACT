@@ -105,6 +105,17 @@ export class ApiService {
     });
   }
 
+  updateFacialStatus(personId: string, status: 'Aprovado' | 'Reprovado'): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.patch(
+      `${this.baseUrl}Facial/Validar${personId}`,
+      { statusValidacao: status },
+      { headers }
+    );
+  }
+
   uploadDocumento(personId: string, formData: FormData): Observable<any> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({
@@ -123,17 +134,7 @@ export class ApiService {
   createPersonWithFormData(formData: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}Pessoa`, formData);
   }
-  /*
-  public fetchFacialBase64(personId: string, token: string): Promise<{ base64: string }> {
-    return fetch(`${this.baseUrl}Facial/Base64/${personId}`, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${token}` },
-    }).then((res) => {
-      if (!res.ok) throw new Error('Erro ao buscar imagem da API');
-      return res.json();
-    });
-  }
-    */
+
   public async fetchFacialBase64(
     personId: string,
     token: string

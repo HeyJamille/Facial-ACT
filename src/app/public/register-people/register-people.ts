@@ -31,6 +31,7 @@ export class RegisterPeople {
   selectedDocument: string = '';
   showEdit: boolean = false;
   declarationChecked: boolean = false;
+  loading: boolean = false;
 
   // Document
   showDocumentFile: boolean = false;
@@ -49,25 +50,17 @@ export class RegisterPeople {
     private api: ApiService,
     private toastr: ToastrService,
     private router: Router,
-    private auth: AuthService,
-    private route: ActivatedRoute
+    private auth: AuthService
   ) {
-    /*
-    const user = this.auth.getUser();
-    if (user?.Perfil === 'U') {
-      this.showEdit = true;
-      this.pageTitle = 'Editar';
-      this.buttonTitle = 'Atualizar';
-    }
-
+    // Check if there's state passed from navigation
     const nav = this.router.getCurrentNavigation();
-    const statePerson = nav?.extras.state?.['person'];
-    if (statePerson) {
-      this.person = { ...statePerson };
-      this.pageTitle = 'Editar';
+    const state = nav?.extras?.state;
+
+    if (state && state['person']) {
+      this.person = state['person']; // complet object
+      this.pageTitle = 'Editar Pessoa';
       this.buttonTitle = 'Atualizar';
     }
-      */
   }
 
   onSubmit(form: NgForm) {
@@ -80,34 +73,40 @@ export class RegisterPeople {
       return;
     }
 
-    // creat a copy of person
+    this.loading = true;
+
     const personToSend = { ...this.person };
 
-    // substitute empty father name
+    // Ajuste de campos vazios
     if (!personToSend.nomePai || personToSend.nomePai.trim() === '') {
       personToSend.nomePai = 'Não informado';
     }
 
     if (this.isEditMode && (!personToSend.senha || personToSend.senha.trim() === '')) {
-      delete personToSend.senha; // agora funciona sem precisar de cast
+      delete personToSend.senha;
     }
 
-    // sent people data
     const request$ = this.isEditMode
-      ? this.api.updatePerson(personToSend) // JSON
-      : this.api.createPerson(personToSend);
+      ? this.api.updatePerson(personToSend)
+      : this.api.createPerson(personToSend); // Cadastro
 
     request$
       .pipe(
         switchMap((resPerson: any) => {
-          const personId = this.person.id || resPerson.id;
+          // Somente no cadastro
+          if (!this.isEditMode && resPerson.token) {
+            this.auth.setToken(resPerson.token);
+            this.showFaceCapture = true; // habilita captura facial
+          }
 
-          if (!this.facialFile) return of(null);
+          // Se tiver foto facial, envia
+          if (this.facialFile) {
+            const facialForm = new FormData();
+            facialForm.append('file', this.facialFile);
+            return this.api.uploadFacial(resPerson.id, facialForm);
+          }
 
-          const facialForm = new FormData();
-          facialForm.append('file', this.facialFile);
-
-          return this.api.uploadFacial(personId, facialForm); // send photo
+          return of(null);
         })
       )
       .subscribe({
@@ -119,14 +118,23 @@ export class RegisterPeople {
             'Sucesso'
           );
 
+          this.loading = false;
+
+          // Reload the page after 800ms
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+
+          /*
           if (!this.isEditMode) {
             this.auth.bypassNextNavigation();
             setTimeout(() => this.router.navigate(['/Auth/login']), 800);
           }
+            */
         },
-        error: (err) => {
-          //console.error('ERRO AO SALVAR:', err);
-          this.toastr.error('Erro ao salvar dados ou arquivos.', 'Erro');
+        error: () => {
+          this.toastr.error('Dados pessoas já salvos.', 'Erro');
+          this.loading = false;
         },
       });
   }

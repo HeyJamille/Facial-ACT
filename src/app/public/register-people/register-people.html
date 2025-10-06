@@ -245,17 +245,36 @@
         </p>
 
         <!-- Button -->
-        <app-button
-          buttonText={{buttonTitle}}
-          type="submit">
+        <app-button type="submit" [loading]="loading" buttonText={{buttonTitle}}>
+          {{ loading ? 'Salvando...' : 'Salvar' }}
         </app-button>
+
       </form>
     </div>
+
 
     <!-- Facial Field -->
     <div class="flex flex-col gap-5 lg:w-1/2">
       <div>
         <h2 class="text-2xl font-bold my-4">Captura Facial</h2>
+
+        <!-- Status Validation -->
+        <div *ngIf="isEditMode" class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700">
+            Status da Validação:
+          </label>
+          
+          <p
+            class="text-sm font-semibold"
+            [ngClass]="{
+              'text-green-600': person.statusValidacao === 'Aprovado',
+              'text-red-600': person.statusValidacao === 'Reprovado',
+              'text-gray-500': !person.statusValidacao || person.statusValidacao === 'Pendente'
+            }"
+          >
+            {{ person.statusValidacao || 'Pendente' }}
+          </p>
+        </div>
 
         <!-- Active Capture -->
         <div 
@@ -268,11 +287,11 @@
           <div class="bg-white rounded-xl shadow-lg h-[400px] flex flex-col justify-center items-center gap-2">
             <!-- Icon -->
             <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
-            <span class="text-gray-400 text-sm font-medium text-center">
+            <span class="text-gray-600 text-sm font-medium text-center">
               Captura facial desativada
             </span>
-            <span class="text-gray-300 text-xs text-center px-4">
-              Cadastre-se primeiro para poder enviar o documento
+            <span class="text-gray-400 text-sm">
+              Envie os dados primeiro para liberar a captura facial.
             </span>
           </div>
         </ng-template>
@@ -281,7 +300,7 @@
       <!-- Document Upload -->
       <div>
         <div class="my-4">
-          <h2 class="text-2xl font-bold">Anexar de Documento</h2>
+          <h2 class="text-2xl font-bold">Anexar Documento</h2>
           <p class="text-black text-sm mt-1">
             Documentos com fotos aceitos: Passaporte, Identidade e CNH.
           </p>

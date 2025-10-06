@@ -15,15 +15,14 @@
     <!-- Text -->
     <div class="space-y-2">
       <h2 class="text-2xl font-bold text-gray-800">{{ title }}</h2> 
-      <p class="text-sm text-gray-600">{{ subtitle }} <strong>{{ peopleForDeletName }}</strong></p>
+      <p class="text-sm text-gray-600">{{ subtitle }} <strong>{{ personName }}</strong></p>
     </div>
     
     <!-- Button -->
-    <app-button
-      buttonText="Excluir usuário" 
-      type="submit"
-      (click)="confirm.emit()">
+    <app-button type="submit" [loading]="loading" (click)="confirm.emit()">
+      {{ loading ? 'Salvando...' : 'Excluir' }}
     </app-button>
+
   </div>
 </div>
 

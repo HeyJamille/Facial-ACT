@@ -27,9 +27,8 @@
       </div>
 
       <!-- Button -->
-      <app-button
-        buttonText={{buttonText}} 
-        type="submit">
+      <app-button type="submit" [loading]="loading">
+        {{ loading ? 'Salvando...' : 'Entrar' }}
       </app-button>
     </form>
 

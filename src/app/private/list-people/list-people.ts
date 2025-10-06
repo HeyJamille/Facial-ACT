@@ -25,6 +25,7 @@ export class ListPeople implements OnInit {
   peopleForDeletName: string = '';
   peopleList: Person[] = [];
   filteredPeople: Person[] = [];
+  loading: boolean = false;
 
   constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
@@ -39,11 +40,9 @@ export class ListPeople implements OnInit {
       next: (data) => {
         this.peopleList = data;
         this.filteredPeople = [...data];
-        // loading = false
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
-        // loading = false
       },
     });
   }
@@ -77,28 +76,34 @@ export class ListPeople implements OnInit {
   }
 
   confirmDeletion() {
+    this.loading = true;
     if (!this.peopleForDeletId) return;
 
     this.api.deletePerson(this.peopleForDeletId).subscribe({
       next: () => {
         this.toastr.success('Pessoa deletada com sucesso!', 'Sucesso');
+        this.loading = false;
         this.peopleList = this.peopleList.filter((p) => p.id !== this.peopleForDeletId);
 
         this.peopleForDeletId = '';
         this.peopleForDeletName = '';
         this.showModal = false;
+        this.fetchPeople();
       },
-      error: () => this.toastr.error('Erro ao deletar pessoa', 'Erro'),
+      error: () => {
+        this.toastr.error('Erro ao deletar pessoa', 'Erro');
+        this.loading = false;
+      },
     });
   }
 
-  cancelDeletion() {
+  closeModal() {
     this.peopleForDeletId = '';
     this.peopleForDeletName = '';
     this.showModal = false;
   }
 
-  // Chamado quando o usuário confirmar no modal
+  // Called when the user confirms in the modal
   deletePersonConfirmed(id: string) {
     const pessoa = this.peopleList.find((p) => p.id === id);
     if (!pessoa) {
@@ -112,13 +117,22 @@ export class ListPeople implements OnInit {
     this.showModal = true;
   }
 
-  editPerson(id: string) {
-    const person = this.peopleList.find((p) => p.id === id);
-    if (person) {
-      this.toastr.success('Redirecionando para edição', 'Sucesso');
-      setTimeout(() => {
-        this.router.navigate(['/registerPeople'], { state: { person } });
-      }, 500);
+  editPerson(personId: string) {
+    const person = this.peopleList.find((p) => p.id === personId);
+    if (!person) {
+      this.toastr.error('Uusário não encontrado', 'Erro');
+      return;
     }
+
+    // simple deep copy
+    const copy = JSON.parse(JSON.stringify(person));
+
+    // remove sensitive fields if they exist
+    delete copy.senha;
+
+    this.toastr.success('Redirecionando para edição...', 'Sucesso');
+    setTimeout(() => {
+      this.router.navigate(['/RegistrarPessoa'], { state: { person: copy, personId } });
+    }, 500);
   }
 }

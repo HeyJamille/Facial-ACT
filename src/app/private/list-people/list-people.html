@@ -38,9 +38,14 @@
     <!-- Confirmation Modal-->
     <app-confirmation-modal
       [showModal]="showModal"
-      [peopleForDeletName]="peopleForDeletName"
+      title="Excluir Usuário"
+      subtitle="Deseja excluir o usuário"
+      [personName]="peopleForDeletName"
+      actionText="Excluir"
+      [loading]="loading"
       (confirm)="confirmDeletion()"
-      (cancel)="cancelDeletion()">
+      (cancel)="closeModal()"
+    >
     </app-confirmation-modal>
 
   </section>

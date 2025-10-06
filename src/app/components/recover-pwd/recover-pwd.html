@@ -31,11 +31,10 @@
     />
 
     <!-- Button -->
-    <app-button
-      buttonText="Enviar" 
-      type="submit">
+    <app-button type="submit" [loading]="loading">
+      {{ loading ? 'Salvando...' : 'Enviar' }}
     </app-button>
-
+    
     <p class="text-sm text-gray-500 mt-2">Dúvidas? (99) 9 9999-9999</p>
   </div>
 </form>

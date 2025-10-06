@@ -19,6 +19,7 @@ export class RecoverPwd {
   }
 
   email: string = '';
+  loading: boolean = false;
 
   constructor(private toastr: ToastrService) {}
 
@@ -28,14 +29,18 @@ export class RecoverPwd {
       return;
     }
 
+    this.loading = true;
+
     try {
       // Simulate shipping
       this.sendEmail(this.email);
 
       this.toastr.success('E-mail enviado com sucesso!');
+      this.loading = false;
       form.resetForm();
     } catch (err) {
       this.toastr.error('Erro ao enviar e-mail.', 'Erro');
+      this.loading = false;
     }
   }
 

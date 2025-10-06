@@ -1,4 +1,4 @@
-<div class="overflow-x-auto ">
+<div class="overflow-x-auto">
   <table class="min-w-full border border-gray-200 rounded-lg shadow overflow-hidden">
     <!-- Header -->
     <thead class="bg-black text-white">
@@ -9,66 +9,59 @@
         <th class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ações</th>
       </tr>
     </thead>
-    
+
     <!-- Body Table -->
     <tbody>
       <tr *ngFor="let person of data" class="bg-white hover:bg-gray-100 transition-colors duration-200 border-b border-gray-200">
+        <!-- People list -->
         <td *ngFor="let col of fields" 
-          class="py-2 px-4 text-center text-sm text-gray-700 truncate"
-          title="{{ person[col.name] }}">
-          
-          <!-- Verify if column is document or facial -->
-          <ng-container *ngIf="col.name === 'arquivoFacial' else normalField">
-            <a 
-              (click)="openFacial(person.id);
-              $event.preventDefault()"
-              target="_blank" 
-              class="text-blue-600 hover:underline">
-              Abrir {{ col.label }}
-            </a>
-          </ng-container>
-
-          <!-- Normal field -->
-          <ng-template #normalField>
-            {{ person[col.name] }}
-          </ng-template>
-
+            class="py-2 px-4 text-center text-sm text-gray-700 truncate"
+            title="{{ person[col.name] }}">
+          {{ person[col.name] }}
         </td>
-        
+
         <!-- Actions -->
-        <td class="py-2 px-4 flex justify-center gap-2">
-          
-          <!-- Buttons -->
-          <ng-container *ngIf="actionType === 'buttons'">
-            <button
-              *ngFor="let action of actions"
-              [ngClass]="{
-                'bg-green-500 hover:bg-green-600': action.toLowerCase() === 'aprovar',
-                'bg-red-500 hover:bg-red-600': action.toLowerCase() === 'reprovar'
-              }"
-              class="px-3 py-1 rounded-lg text-white font-medium text-sm shadow hover:shadow-md transition-all duration-150"
-              (click)="onAction(action, person.id)">
-              {{ action | titlecase }}
-            </button>
+        <td class="py-2 px-4 text-center">
+          <!-- Select -->
+          <ng-container *ngIf="actionType === 'select'">
+            <div>
+              <select
+                class="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                [(ngModel)]="selectedAction[person.id]"
+                (change)="onActionChange($event, person)"
+              >
+                <option value="" disabled>Selecionar</option> <!-- initial placeholder -->
+                <option value="visualizar-facial">Visualizar Facial</option>
+                <option value="visualizar-documento">Visualizar Documento</option>
+                <option value="aprovar-facial">Aprovar Facial</option>
+                <option value="reprovar-facial">Reprovar Facial</option>
+              </select>
+            </div>
           </ng-container>
 
-          <!-- Icons -->
+
+          <!-- Ícones (opcional) -->
           <ng-container *ngIf="actionType === 'icons'">
-            <button 
-              *ngIf="actions.includes('editar')" 
-              (click)="onAction('editar', person.id)">
-              <img src="/pencil.png" alt="Editar" class="w-5 h-5">
-            </button>
-            <button 
-              *ngIf="actions.includes('deletar')" 
-              (click)="onAction('deletar', person.id)">
-              <img src="/trash.png" alt="Deletar" class="w-5 h-5">
-            </button>
+            <div class="flex flex-row justify-center gap-2 mt-1">
+              <button *ngIf="actions.includes('editar')" (click)="onAction('editar', person.id)">
+                <img src="/pencil.png" alt="Editar" class="w-5 h-5">
+              </button>
+              <button *ngIf="actions.includes('deletar')" (click)="onAction('deletar', person.id)">
+                <img src="/trash.png" alt="Deletar" class="w-5 h-5">
+              </button>
+            </div>
           </ng-container>
-
         </td>
       </tr>
     </tbody>
-    
   </table>
 </div>
+
+<app-modal-facial
+  *ngIf="showFacial && currentFacialId"
+  [imageBase64]="facialData[currentFacialId!]"
+  (close)="showFacial = false"
+></app-modal-facial>
+
+
+
