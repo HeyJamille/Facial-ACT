@@ -30,15 +30,15 @@
 
           <!-- Buttons only appear after capturing image -->
           <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
-            <!-- Enviar -->
-            <button *ngIf="imageQuality === 'boa' && !imageSent"
+            <!-- Enviar (aparece somente se for 'S') -->
+            <button *ngIf="facialIntegrada === 'S' && !imageSent"
                     class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
                     (click)="sendImage()">
               Enviar
             </button>
 
             <!-- Repetir Captura -->
-            <button *ngIf="!imageSent && facialIntegrada !== 'S'"
+            <button *ngIf="!imageSent && !isButtonBlocked()"
                     class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
                     (click)="repeatCapture()">
               Repetir Captura
@@ -46,7 +46,7 @@
           </div>
 
           <!-- Validation Status -->
-          <div *ngIf="isEditMode && facialIntegrada !== 'S'" class="flex items-center gap-2">
+          <div *ngIf="isEditMode" class="flex items-center  gap-2">
             <label class="text-sm font-medium text-gray-700">
               Status:
             </label>

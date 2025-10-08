@@ -38,7 +38,7 @@ export class FaceCapture implements AfterViewInit {
   imageQuality: 'boa' | 'escura' | 'clara' | null = null;
 
   integracaoOcorrencia?: string;
-  facialIntegrada?: string;
+  facialIntegrada?: string | number;
 
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
@@ -88,6 +88,14 @@ export class FaceCapture implements AfterViewInit {
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
+  isButtonBlocked(): boolean {
+    // Se a facial já foi integrada com sucesso, bloqueia
+    if (this.facialIntegrada === 'S') return true;
+
+    // Qualquer outro caso, libera o botão
+    return false;
+  }
+
   captureImage() {
     if (this.imageSent) return;
 
@@ -103,20 +111,37 @@ export class FaceCapture implements AfterViewInit {
     localStorage.setItem('imagecaptured', this.imagecaptured);
 
     this.checkImageBrightness(this.imagecaptured).then((result: 'boa' | 'escura' | 'clara') => {
-      this.imageQuality = result; // importante setar primeiro
+      this.imageQuality = result;
+      let facialValue: string | number;
+      let integracaoMensagem: string;
+
+      if (result === 'boa') {
+        // Good Photo
+        facialValue = 'S';
+        integracaoMensagem = 'Rosto integrado com sucesso.';
+      } else {
+        // Foto ruim → pega valor atual da API
+        facialValue = this.facialIntegrada || 'N';
+
+        // Se for 'N', mostra "Aguardando Avaliação"
+        if (facialValue === 'N') {
+          integracaoMensagem = 'Aguardando Avaliação';
+        } else {
+          // Caso seja número ou outro valor, usa a mensagem retornada da API
+          integracaoMensagem = this.integracaoOcorrencia || 'Erro na captura';
+        }
+      }
+
+      // ✅ Aqui você confere o valor
+      console.log('Facial Integrada:', facialValue, 'Integracao Ocorrencia:', integracaoMensagem);
 
       const payload = {
-        facialIntegrada: result === 'boa' ? 'S' : 'N',
-        integracaoOcorrencia:
-          result === 'boa'
-            ? 'Rosto integrado com sucesso.'
-            : result === 'escura'
-            ? 'Imagem muito escura. Tente em um ambiente mais iluminado.'
-            : 'Imagem muito clara. Evite luz direta.',
+        facialIntegrada: facialValue,
+        integracaoOcorrencia: integracaoMensagem,
       };
 
       this.api.updateIntegration(this.person.id, payload).subscribe({
-        next: () => {
+        next: (res: any) => {
           this.facialIntegrada = payload.facialIntegrada;
           this.integracaoOcorrencia = payload.integracaoOcorrencia;
         },
@@ -222,15 +247,19 @@ export class FaceCapture implements AfterViewInit {
       const data = await this.api.fetchFacialBase64(userId, token);
 
       if (data.base64) {
-        // Stock image found, lock buttons
         this.imagecaptured = data.base64;
         localStorage.setItem('imagecaptured', this.imagecaptured);
-        this.imageSent = true; // locks all buttons
-        this.homeCapture = false;
-        this.showCamera = false;
 
-        // Não bloqueia envio; apenas mostra que já existe
-        //this.imageSent = false;
+        // Bloqueia apenas se for 'S'
+        if (this.facialIntegrada === 'S') {
+          this.imageSent = true; // bloqueia enviar/recapturar
+          this.showCamera = false;
+        } else {
+          this.imageSent = false; // permite recapturar
+          this.showCamera = false;
+        }
+
+        this.homeCapture = false;
         return;
       }
 
