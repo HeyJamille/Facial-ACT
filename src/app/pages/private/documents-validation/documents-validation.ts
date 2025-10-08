@@ -4,15 +4,15 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
 // Componentes
-import { Header } from '../../components/header/header';
-import { Table } from '../../components/table/table';
-import { Filter } from '../../components/ui/filter/filter';
+import { Header } from '../../../components/header/header';
+import { Table } from '../../../components/table/table';
+import { Filter } from '../../../components/ui/filter/filter';
 
 // Models
-import { Person } from '../../models/person.model';
+import { Person } from '../../../models/person.model';
 
 // Services
-import { ApiService } from '../../services/api-service/api-service';
+import { ApiService } from '../../../services/api-service/api-service';
 
 @Component({
   selector: 'app-documents-validation',

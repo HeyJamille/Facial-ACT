@@ -1,6 +1,13 @@
 import { SafeUrl } from '@angular/platform-browser';
 import { ToastrService } from 'ngx-toastr';
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  Input,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Services
@@ -28,11 +35,27 @@ export class FaceCapture implements AfterViewInit {
   isLoading: boolean = false;
   imageSent: boolean = false;
   loading: boolean = false;
+  imageQuality: 'boa' | 'escura' | 'clara' | null = null;
+
+  integracaoOcorrencia?: string;
+  facialIntegrada?: string;
 
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
 
   constructor(private auth: AuthService, private api: ApiService, private toastr: ToastrService) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['person'] && this.person?.id) {
+      this.api.getPersonById(this.person.id).subscribe({
+        next: (res: any) => {
+          this.integracaoOcorrencia = res.integracaoOcorrencia;
+          this.facialIntegrada = res.facialIntegrada; // S ou outro valor
+        },
+        error: (err) => console.error('Erro ao buscar usuário:', err),
+      });
+    }
+  }
 
   ngOnInit(): void {
     this.showImage();
@@ -69,7 +92,6 @@ export class FaceCapture implements AfterViewInit {
     if (this.imageSent) return;
 
     const video = this.videoRef.nativeElement;
-
     this.canvas.width = video.videoWidth;
     this.canvas.height = video.videoHeight;
 
@@ -77,10 +99,30 @@ export class FaceCapture implements AfterViewInit {
     ctx?.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
 
     this.imagecaptured = this.canvas.toDataURL('image/jpeg');
-
     this.stopCamera();
-
     localStorage.setItem('imagecaptured', this.imagecaptured);
+
+    this.checkImageBrightness(this.imagecaptured).then((result: 'boa' | 'escura' | 'clara') => {
+      this.imageQuality = result; // importante setar primeiro
+
+      const payload = {
+        facialIntegrada: result === 'boa' ? 'S' : 'N',
+        integracaoOcorrencia:
+          result === 'boa'
+            ? 'Rosto integrado com sucesso.'
+            : result === 'escura'
+            ? 'Imagem muito escura. Tente em um ambiente mais iluminado.'
+            : 'Imagem muito clara. Evite luz direta.',
+      };
+
+      this.api.updateIntegration(this.person.id, payload).subscribe({
+        next: () => {
+          this.facialIntegrada = payload.facialIntegrada;
+          this.integracaoOcorrencia = payload.integracaoOcorrencia;
+        },
+        error: (err) => console.error('Erro ao atualizar integração', err),
+      });
+    });
   }
 
   sendImage() {
@@ -127,6 +169,45 @@ export class FaceCapture implements AfterViewInit {
     this.imagecaptured = null;
     this.homeCapture = false;
     this.startCapture();
+  }
+
+  checkImageBrightness(imageDataUrl: string): Promise<'boa' | 'escura' | 'clara'> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = imageDataUrl;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve('boa');
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        const data = imageData.data;
+
+        let brightnessSum = 0;
+        const totalPixels = data.length / 4;
+
+        for (let i = 0; i < data.length; i += 4) {
+          // Média do brilho de cada pixel (RGB)
+          const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          brightnessSum += brightness;
+        }
+
+        const avgBrightness = brightnessSum / totalPixels;
+
+        // Define faixas de luminosidade
+        if (avgBrightness < 60) {
+          resolve('escura');
+        } else if (avgBrightness > 200) {
+          resolve('clara');
+        } else {
+          resolve('boa');
+        }
+      };
+    });
   }
 
   async showImage() {

@@ -1,24 +1,6 @@
 <div >
   <h2 class="text-2xl font-bold my-4">Captura Facial</h2>
-
-  <!-- Validation Status -->
-  <div *ngIf="isEditMode" class="flex items-center gap-2">
-    <label class="text-sm font-medium text-gray-700">
-      Status da Validação Facial:
-    </label>
-    
-    <p
-      class="text-sm font-semibold"
-      [ngClass]="{
-        'text-green-600': person.statusValidacao === 'Aprovado',
-        'text-red-600': person.statusValidacao === 'Reprovado',
-        'text-gray-500': !person.statusValidacao || person.statusValidacao === 'Pendente'
-      }"
-    >
-      {{ person.statusValidacao || 'Pendente' }}
-    </p>
-  </div>
-
+  
   <!-- Active Capture -->
   <div 
     *ngIf="showFaceCapture; else disabledCapture"
@@ -46,18 +28,39 @@
         <div *ngIf="imagecaptured" class="flex flex-col items-center mt-4 space-y-2">
           <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" />
 
-          <!-- Buttons only appear if the image has NOT been sent to the bank -->
-          <div *ngIf="!imageSent" class="flex flex-col w-full space-y-2">
-            <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition disabled:opacity-70 disabled:cursor-not-allowed"
+          <!-- Buttons only appear after capturing image -->
+          <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
+            <!-- Enviar -->
+            <button *ngIf="imageQuality === 'boa' && !imageSent"
+                    class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
                     (click)="sendImage()">
               Enviar
             </button>
-            <button class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
+
+            <!-- Repetir Captura -->
+            <button *ngIf="!imageSent"
+                    class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
                     (click)="repeatCapture()">
               Repetir Captura
             </button>
           </div>
-          
+
+          <!-- Validation Status -->
+          <div *ngIf="isEditMode && facialIntegrada !== 'S'" class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-700">
+              Status:
+            </label>
+            
+            <p
+              class="text-sm font-semibold"
+              [ngClass]="{
+                'text-green-600': facialIntegrada === 'S',
+                'text-red-600': facialIntegrada !== 'S'
+              }"
+            >
+              {{ integracaoOcorrencia }}
+            </p>
+          </div>
         </div>
       </div>
   </div>

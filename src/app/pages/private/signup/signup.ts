@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AuthForm } from '../../components/auth-form/auth-form';
+import { AuthForm } from '../../../components/auth-form/auth-form';
 
 @Component({
   selector: 'app-signup',

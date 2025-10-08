@@ -1,9 +1,16 @@
+// Bilbiotecas
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+
+// Services
 import { AuthService } from '../auth-service/auth-service';
+
+// Models
 import { Person } from '../../models/person.model';
-import { FaceValidationResponse } from '../../public/verify-cpf/verify-cpf';
+
+// Pages
+import { FaceValidationResponse } from '../../pages/public/verify-cpf/verify-cpf';
 
 interface SigninResponse {
   token: string;
@@ -21,7 +28,7 @@ export class ApiService {
     return this.http.post<SigninResponse>(`${this.baseUrl}${endpoint}`, { username, password });
   }
 
-  // List People
+  /* ========================= PERSON ============================ */
   getPeople(): Observable<Person[]> {
     const token = this.auth.getToken(); // pega token do admin
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -63,59 +70,7 @@ export class ApiService {
     return this.http.delete(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
-  //
-  createFile(formData: FormData, personId: string): Observable<any> {
-    const token = this.auth.getToken();
-    const headers = token
-      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
-      : new HttpHeaders();
-
-    // Endpoint que usa o id da pessoa
-    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
-  }
-
-  // Return base64 string of facial image
-  getFacialBase64(personId: string): Observable<{ base64: string }> {
-    const token = this.auth.getToken();
-    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
-
-    return this.http.get<{ base64: string }>(`${this.baseUrl}Facial/Base64/${personId}`, {
-      headers,
-    });
-  }
-
-  uploadFacial(personId: string, formData: FormData): Observable<any> {
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
-    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
-  }
-
-  // Get Face Validation via query params with token in Authorization
-  getFaceValidation(
-    docValue: string,
-    docType: 'cpf' | 'passaporte'
-  ): Observable<FaceValidationResponse> {
-    const params = new HttpParams().set('documento', docValue).set('tipo', docType);
-
-    return this.http.get<FaceValidationResponse>(`${this.baseUrl}Pessoa/FacialValidada`, {
-      params,
-    });
-  }
-
-  updateFacialStatus(personId: string, status: 'Aprovado' | 'Reprovado'): Observable<any> {
-    const token = this.auth.getToken();
-    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
-
-    return this.http.patch(
-      `${this.baseUrl}Facial/Validar${personId}`,
-      { statusValidacao: status },
-      { headers }
-    );
-  }
-
+  /* ========================= FILE ============================ */
   uploadFile(personId: string, formData: FormData): Observable<any> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({
@@ -127,6 +82,7 @@ export class ApiService {
     });
   }
 
+  // Download File
   downloadFile(personId: string, token: string): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -138,15 +94,56 @@ export class ApiService {
     });
   }
 
-  /*
-  updatePersonWithFormData(formData: FormData, id: string): Observable<any> {
-    return this.http.put(`${this.baseUrl}Pessoa/${id}`, formData);
+  /* ========================= FACIAL ============================ */
+  getFacialBase64(personId: string): Observable<{ base64: string }> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.get<{ base64: string }>(`${this.baseUrl}Facial/Base64/${personId}`, {
+      headers,
+    });
   }
 
-  createPersonWithFormData(formData: FormData): Observable<any> {
-    return this.http.post(`${this.baseUrl}Pessoa`, formData);
+  // Upload Facial
+  uploadFacial(personId: string, formData: FormData): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
   }
- */
+
+  // Get Face Validation
+  getFaceValidation(
+    docValue: string,
+    docType: 'cpf' | 'passaporte'
+  ): Observable<FaceValidationResponse> {
+    const params = new HttpParams().set('documento', docValue).set('tipo', docType);
+
+    return this.http.get<FaceValidationResponse>(`${this.baseUrl}Pessoa/FacialValidada`, {
+      params,
+    });
+  }
+
+  // Update Facial Status
+  updateFacialStatus(personId: string, status: 'Aprovado' | 'Reprovado'): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.patch(
+      `${this.baseUrl}Facial/Validar${personId}`,
+      { statusValidacao: status },
+      { headers }
+    );
+  }
+
+  // Update Integration Facial
+  updateIntegration(id: string, data: any) {
+    return this.http.put(`${this.baseUrl}Pessoa/${id}/atualizar-integracao`, data);
+  }
+
+  // Fetch Facial Base64
   public async fetchFacialBase64(
     personId: string,
     token: string

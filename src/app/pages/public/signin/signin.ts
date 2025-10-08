@@ -5,16 +5,15 @@ import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
 // Components
-import { AuthForm } from '../../components/auth-form/auth-form';
-import { RecoverPwd } from '../../components/recover-pwd/recover-pwd';
+import { AuthForm } from '../../../components/auth-form/auth-form';
+import { RecoverPwd } from '../../../components/recover-pwd/recover-pwd';
 
 // Service
-import { ApiService } from '../../services/api-service/api-service';
-import { AuthService } from '../../services/auth-service/auth-service';
+import { ApiService } from '../../../services/api-service/api-service';
+import { AuthService } from '../../../services/auth-service/auth-service';
 
 // Router
 import { Router } from '@angular/router';
-import { Button } from '../../components/ui/button/button';
 
 @Component({
   selector: 'app-signin',

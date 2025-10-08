@@ -2,19 +2,19 @@
 import { Routes } from '@angular/router';
 
 // Routes
-import { Signin } from './public/signin/signin';
+import { Signin } from './pages/public/signin/signin';
 
 // Pages
-import { RegisterPeople } from './public/register-people/register-people';
-import { ListPeople } from './private/list-people/list-people';
-import { DocumentsValidation } from './private/documents-validation/documents-validation';
-import { VerifyCPF } from './public/verify-cpf/verify-cpf';
-import { AccessDenied } from './public/access-denied/access-denied';
+import { RegisterPeople } from './pages/public/register-people/register-people';
+import { ListPeople } from './pages/private/list-people/list-people';
+import { DocumentsValidation } from './pages/private/documents-validation/documents-validation';
+import { VerifyCPF } from './pages/public/verify-cpf/verify-cpf';
+import { AccessDenied } from './pages/public/access-denied/access-denied';
 
 // Routes protected
 import { AuthGuard } from './guards/auth-guard';
 import { FacialViewer } from './components/facial-viewer/facial-viewer';
-import { NotFound } from './public/not-found/not-found';
+import { NotFound } from './pages/public/not-found/not-found';
 import { FaceCapture } from './components/face-capture/face-capture';
 
 export const routes: Routes = [

@@ -6,16 +6,16 @@ import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
 
 // Components
-import { Table } from '../../components/table/table';
-import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
-import { Header } from '../../components/header/header';
-import { Filter } from '../../components/ui/filter/filter';
+import { Table } from '../../../components/table/table';
+import { ConfirmationModal } from '../../../components/confirmation-modal/confirmation-modal';
+import { Header } from '../../../components/header/header';
+import { Filter } from '../../../components/ui/filter/filter';
 
 // Models
-import { Person } from '../../models/person.model';
+import { Person } from '../../../models/person.model';
 
 // Services
-import { ApiService } from '../../services/api-service/api-service';
+import { ApiService } from '../../../services/api-service/api-service';
 
 @Component({
   selector: 'app-list-people',

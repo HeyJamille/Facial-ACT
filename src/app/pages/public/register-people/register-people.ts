@@ -8,17 +8,17 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { forkJoin, Observable, of, switchMap } from 'rxjs';
 
 // Components
-import { Header } from '../../components/header/header';
-import { Button } from '../../components/ui/button/button';
-import { FaceCapture } from '../../components/face-capture/face-capture';
-import { FileUpload } from '../../components/file-upload/file-upload';
+import { Header } from '../../../components/header/header';
+import { Button } from '../../../components/ui/button/button';
+import { FaceCapture } from '../../../components/face-capture/face-capture';
+import { FileUpload } from '../../../components/file-upload/file-upload';
 
 // Services
-import { ApiService } from '../../services/api-service/api-service';
-import { AuthService } from '../../services/auth-service/auth-service';
+import { ApiService } from '../../../services/api-service/api-service';
+import { AuthService } from '../../../services/auth-service/auth-service';
 
 // Modals
-import { Person } from '../../models/person.model';
+import { Person } from '../../../models/person.model';
 
 @Component({
   selector: 'app-register-people',

@@ -7,11 +7,11 @@ import { NgxMaskDirective } from 'ngx-mask';
 import { ToastrService } from 'ngx-toastr';
 
 // Components
-import { Button } from '../../components/ui/button/button';
+import { Button } from '../../../components/ui/button/button';
 
 // Services
-import { ApiService } from '../../services/api-service/api-service';
-import { AuthService } from '../../services/auth-service/auth-service';
+import { ApiService } from '../../../services/api-service/api-service';
+import { AuthService } from '../../../services/auth-service/auth-service';
 
 export interface FaceValidationResponse {
   facialValidada: boolean;

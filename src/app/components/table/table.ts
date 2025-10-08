@@ -1,11 +1,17 @@
+// Bibliotecas
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, Input } from '@angular/core'; // Removed OnInit and signals
 import { FormsModule } from '@angular/forms';
-import { Person } from '../../models/person.model';
-import { ApiService } from '../../services/api-service/api-service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+
+// Models
+import { Person } from '../../models/person.model';
 import { ModalFacial } from '../modal-facial/modal-facial';
+
+// Services
+import { ApiService } from '../../services/api-service/api-service';
+
 import { AuthService } from '../../services/auth-service/auth-service';
 
 export interface AuthField {
