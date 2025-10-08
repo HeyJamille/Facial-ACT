@@ -104,4 +104,11 @@ export class FileUpload implements OnChanges {
       error: () => this.toastr.error('Erro ao enviar documento.'),
     });
   }
+
+  resetUpload() {
+    this.fileUploaded = false;
+    this.isEditMode = true;
+    this.previewUrl = undefined;
+    this.fileToUpload = undefined;
+  }
 }
