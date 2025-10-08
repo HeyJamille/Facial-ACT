@@ -38,7 +38,7 @@
             </button>
 
             <!-- Repetir Captura -->
-            <button *ngIf="!imageSent"
+            <button *ngIf="!imageSent && facialIntegrada !== 'S'"
                     class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
                     (click)="repeatCapture()">
               Repetir Captura

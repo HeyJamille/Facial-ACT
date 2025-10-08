@@ -228,6 +228,9 @@ export class FaceCapture implements AfterViewInit {
         this.imageSent = true; // locks all buttons
         this.homeCapture = false;
         this.showCamera = false;
+
+        // Não bloqueia envio; apenas mostra que já existe
+        //this.imageSent = false;
         return;
       }
 
