@@ -125,7 +125,7 @@ export class FaceCapture implements AfterViewInit {
 
         // Se for 'N', mostra "Aguardando Avaliação"
         if (facialValue === 'N') {
-          integracaoMensagem = 'Aguardando Avaliação';
+          integracaoMensagem = 'Pendente Envio';
         } else {
           // Caso seja número ou outro valor, usa a mensagem retornada da API
           integracaoMensagem = this.integracaoOcorrencia || 'Erro na captura';
@@ -133,7 +133,7 @@ export class FaceCapture implements AfterViewInit {
       }
 
       // ✅ Aqui você confere o valor
-      console.log('Facial Integrada:', facialValue, 'Integracao Ocorrencia:', integracaoMensagem);
+      //console.log('Facial Integrada:', facialValue, 'Integracao Ocorrencia:', integracaoMensagem);
 
       const payload = {
         facialIntegrada: facialValue,
