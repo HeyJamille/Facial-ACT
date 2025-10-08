@@ -1,0 +1,71 @@
+<div>
+  <div class="my-4">
+    <h2 class="text-2xl font-bold">Anexar Documento</h2>
+    <p class="text-black text-sm mt-1">
+      Documentos com fotos aceitos: Passaporte, Identidade e CNH.
+    </p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-lg p-6 h-auto flex flex-col justify-center items-center gap-4">
+
+    <!-- If document already sent -->
+    <div *ngIf="fileUploaded" class="text-center">
+      <p class="text-green-600 font-medium text-sm">Documento já enviado!</p>
+    </div>
+
+    <!-- Upload Area -->
+    <ng-container *ngIf="!fileUploaded && !previewUrl">
+      <div
+        class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg"
+        [ngClass]="{
+          'border-gray-400 bg-gray-50 opacity-50 cursor-not-allowed': !isEditMode,
+          'border-gray-300 bg-white cursor-pointer': isEditMode
+        }"
+        (click)="isEditMode ? fileInput.click() : null"
+      >
+        <img src="exit.png" alt="Upload Icon" class="w-9 h-9 mb-2"/>
+        <span class="text-gray-600 text-sm font-medium text-center" *ngIf="!isEditMode">
+          Salve os seus dados primeiro para liberar o envio do documento. 
+        </span>
+        <span class="text-gray-600 text-sm font-medium text-center" *ngIf="isEditMode">
+          Clique ou arraste o arquivo aqui
+        </span>
+
+        <input
+          #fileInput
+          type="file"
+          accept="image/*,.pdf"
+          class="hidden"
+          [disabled]="!isEditMode"
+          (change)="onFileSelected($event)"
+        />
+      </div>
+    </ng-container>
+
+    <!-- Preview -->
+    <div *ngIf="previewUrl && !fileUploaded" class="mt-4 w-full flex flex-col items-center">
+      <ng-container *ngIf="!isPdf; else pdfPreview">
+        <img [src]="previewUrl" alt="Preview" class="max-h-40 rounded-lg border border-gray-300"/>
+      </ng-container>
+      <ng-template #pdfPreview>
+        <div class="flex flex-col items-center">
+          <svg class="w-12 h-12 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7l-5-5H6z"/>
+          </svg>
+          <p class="text-sm text-gray-600 mt-1">Arquivo PDF selecionado</p>
+        </div>
+      </ng-template>
+
+      <p class="text-xs text-gray-500 mt-2">Pré-visualização do documento</p>
+
+      <app-button
+        *ngIf="fileToUpload"
+        type="button"
+        (click)="sendImage()"
+        class="mt-4"
+      >
+        Enviar Documento
+      </app-button>
+    </div>
+  </div>
+</div>

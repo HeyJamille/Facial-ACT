@@ -16,8 +16,7 @@ export interface AuthField {
 export interface Table {
   id: number;
   name: string;
-  // outras propriedades...
-  showFacialModal?: boolean; // "?" significa que é opcional
+  showFacialModal?: boolean;
 }
 
 @Component({
@@ -36,10 +35,13 @@ export class Table {
   @Output() editPerson = new EventEmitter<string>();
   @Output() deletePerson = new EventEmitter<string>();
 
-  // Mantém o estado de qual captura facial mostrar
   showFacial = false;
   currentFacialId: string | null = null;
   facialData: { [key: string]: string } = {};
+
+  showDocument = false;
+  currentDocumentId?: string;
+  documentData: Record<string, string> = {};
 
   selectedAction: { [key: string]: string } = {};
 
@@ -110,7 +112,7 @@ export class Table {
       console.log('Chamando API para pegar facial de', person.id);
 
       try {
-        // Pega o token do AuthService
+        // Get Token
         const token = this.auth.getToken();
 
         if (!token) {
@@ -125,20 +127,20 @@ export class Table {
           return;
         }
 
-        // Armazena no localStorage
+        // Store LocalStorage
         localStorage.setItem(`facial_${person.id}`, data.base64);
 
-        // Lê do localStorage
+        // Read localStorage
         const base64FromStorage = localStorage.getItem(`facial_${person.id}`);
         if (!base64FromStorage) {
           this.toastr.error('Erro ao recuperar a imagem do armazenamento', 'Erro');
           return;
         }
 
-        // Guarda no objeto para controle interno (opcional)
+        // Store no objects for internal control (optional)
         this.facialData[person.id] = base64FromStorage;
 
-        // Abre o modal
+        // Open the modal
         this.openFacialModal(person.id);
       } catch (err) {
         console.error('Erro ao carregar a captura facial', err);
@@ -147,14 +149,43 @@ export class Table {
     }
 
     if (value === 'visualizar-documento') {
-      console.log('Visualizar documento de', person.id);
+      const token = this.auth.getToken();
+      if (!token) {
+        this.toastr.error('Usuário não autenticado', 'Erro');
+        return;
+      }
+
+      this.api.downloadFile(person.id, token).subscribe({
+        next: (blob: Blob) => {
+          if (!blob) {
+            this.toastr.warning('Nenhum documento encontrado.');
+            return;
+          }
+
+          const extension = blob.type.split('/')[1] || 'pdf';
+          const fileName = `documento_${person.id}.${extension}`;
+
+          const link = document.createElement('a');
+          const url = window.URL.createObjectURL(blob);
+          link.href = url;
+          link.download = fileName;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          this.toastr.success('Baixando documento!');
+        },
+        error: (err) => {
+          console.error('Erro ao baixar documento:', err);
+          this.toastr.error('Erro ao baixar documento.');
+        },
+      });
     }
 
     // Reset select
     this.selectedAction[person.id] = '';
   }
 
-  // Função opcional para ícones
+  // Optional function for icons
   onAction(action: string, id: string) {
     this.actionEvent.emit({ action, id });
   }
@@ -171,5 +202,10 @@ export class Table {
     console.log('Abrindo modal para pessoa:', personId);
     this.currentFacialId = personId;
     this.showFacial = true;
+  }
+
+  openDocumentModal(personId: string) {
+    this.currentDocumentId = personId;
+    this.showDocument = true;
   }
 }

@@ -40,7 +40,7 @@
           </ng-container>
 
 
-          <!-- Ícones (opcional) -->
+          <!-- Icons (optional) -->
           <ng-container *ngIf="actionType === 'icons'">
             <div class="flex flex-row justify-center gap-2 mt-1">
               <button *ngIf="actions.includes('editar')" (click)="onAction('editar', person.id)">
@@ -62,6 +62,8 @@
   [imageBase64]="facialData[currentFacialId!]"
   (close)="showFacial = false"
 ></app-modal-facial>
+
+
 
 
 

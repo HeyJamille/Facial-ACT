@@ -11,16 +11,15 @@
     </button>
     
     <!-- Facial Image -->
-    <div class="flex justify-center items-center">
+    <div class="flex justify-center items-center" *ngIf="imageBase64">
       <img
-        *ngIf="imageBase64"
         [src]="imageBase64"
         alt="Captura Facial"
         class="max-h-[80vh] w-auto object-contain rounded"
       />
     </div>
 
-    <!-- Mensagem se não houver imagem -->
+    <!-- Message if there is no image -->
     <p *ngIf="!imageBase64" class="text-center text-gray-500 mt-4">
       Nenhuma imagem disponível
     </p>

@@ -254,8 +254,8 @@
               Política de Uso
             </a> e
             <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
-              Privacidade
-            </a>.
+              Privacidade.
+            </a>
           </label>
         </div>
 
@@ -272,104 +272,22 @@
       </form>
     </div>
 
-
     <!-- Facial Field -->
-    <div class="flex flex-col gap-5 lg:w-1/2">
-      <div>
-        <h2 class="text-2xl font-bold my-4">Captura Facial</h2>
+    <div class="flex flex-col gap-5 lg:w-1/2" >
+      <app-face-capture
+        [isEditMode]="isEditMode"         
+        [person]="person"                 
+        [showFaceCapture]="isEditMode">   
+      </app-face-capture>
 
-        <!-- Status Validation -->
-        <div *ngIf="isEditMode" class="flex items-center gap-2">
-          <label class="text-sm font-medium text-gray-700">
-            Status da Validação:
-          </label>
-          
-          <p
-            class="text-sm font-semibold"
-            [ngClass]="{
-              'text-green-600': person.statusValidacao === 'Aprovado',
-              'text-red-600': person.statusValidacao === 'Reprovado',
-              'text-gray-500': !person.statusValidacao || person.statusValidacao === 'Pendente'
-            }"
-          >
-            {{ person.statusValidacao || 'Pendente' }}
-          </p>
-        </div>
-
-        <!-- Active Capture -->
-        <div 
-            *ngIf="showFaceCapture; else disabledCapture">
-          <app-face-capture></app-face-capture>
-        </div>
-
-        <!-- Disabled Capture  -->
-        <ng-template #disabledCapture>
-          <div class="bg-white rounded-xl shadow-lg h-[400px] flex flex-col justify-center items-center gap-2">
-            <!-- Icon -->
-            <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
-            <span class="text-gray-400 text-sm font-medium text-center">
-              Salve os seus dados primeiro para liberar <br />
-              a captura facial.
-            </span>
-          </div>
-        </ng-template>
-      </div>
 
       <!-- Document Upload -->
       <div>
-        <div class="my-4">
-          <h2 class="text-2xl font-bold">Anexar Documento</h2>
-          <p class="text-black text-sm mt-1">
-            Documentos com fotos aceitos: Passaporte, Identidade e CNH.
-          </p>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-lg p-6 h-auto flex flex-col justify-center items-center gap-4">
-          <!-- Upload Area -->
-          <ng-container *ngIf="!previewUrl">
-            <div
-              class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 opacity-50 cursor-not-allowed"
-            >
-              <img src="exit.png" alt="Upload Icon" class="w-9 h-9 text-gray-500 mb-2"/>
-              <span class="text-gray-600 text-sm font-medium">Envio de documentos desativado</span>
-              <span class="text-gray-600 text-sm">Campo em desenvolvimento</span> <!--Cadastre-se primeiro para poder enviar o documento.-->
-
-              <input
-                #fileInput
-                type="file"
-                accept="image/*,.pdf"
-                class="hidden"
-                [disabled]="true"
-                (change)="onFileSelected($event)"
-              />
-            </div>
-
-          </ng-container>
-
-          <!-- Preview -->
-          <div *ngIf="previewUrl" class="mt-4 w-full flex flex-col items-center">
-            <!-- Mostra imagem se não for PDF -->
-            <ng-container *ngIf="!isPdf; else pdfPreview">
-              <img
-                [src]="previewUrl"
-                alt="Preview"
-                class="max-h-40 rounded-lg border border-gray-300"
-              />
-            </ng-container>
-            
-            <!-- Mostra ícone genérico se for PDF -->
-            <ng-template #pdfPreview>
-              <div class="flex flex-col items-center">
-                <svg class="w-12 h-12 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7l-5-5H6z"/>
-                </svg>
-                <p class="text-sm text-gray-600 mt-1">Arquivo PDF selecionado</p>
-              </div>
-            </ng-template>
-
-            <p class="text-xs text-gray-500 mt-2">Pré-visualização do documento</p>
-          </div>
-        </div>
+        <app-file-upload 
+          [personId]="person.id!" 
+          [isEditMode]="isEditMode"
+          (documentSelected)="onDocumentSelected($event)">
+        </app-file-upload>
       </div>
     </div>
   </section>

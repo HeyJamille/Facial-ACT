@@ -74,7 +74,7 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}Facial/${personId}`, formData, { headers });
   }
 
-  // ✅ Retorna Base64 puro da API
+  // Return base64 string of facial image
   getFacialBase64(personId: string): Observable<{ base64: string }> {
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
@@ -116,17 +116,29 @@ export class ApiService {
     );
   }
 
-  uploadDocumento(personId: string, formData: FormData): Observable<any> {
+  uploadFile(personId: string, formData: FormData): Observable<any> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.post(`${this.baseUrl}Pessoa/${personId}/UploadDocumento`, formData, {
+    return this.http.post(`${this.baseUrl}Pessoa/UploadArquivo/${personId}`, formData, {
       headers,
     });
   }
 
+  downloadFile(personId: string, token: string): Observable<Blob> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get(`${this.baseUrl}Pessoa/DownloadArquivo/${personId}`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
+
+  /*
   updatePersonWithFormData(formData: FormData, id: string): Observable<any> {
     return this.http.put(`${this.baseUrl}Pessoa/${id}`, formData);
   }
@@ -134,7 +146,7 @@ export class ApiService {
   createPersonWithFormData(formData: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}Pessoa`, formData);
   }
-
+ */
   public async fetchFacialBase64(
     personId: string,
     token: string

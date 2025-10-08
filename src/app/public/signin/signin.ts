@@ -37,7 +37,6 @@ export class Signin {
 
   onSignin(data: { username: string; password: string }) {
     const currentRoute = this.router.url;
-    const userInfo = this.auth.getUserInfo(); // call method
     let apiEndpoint = '';
     let redirectUrl = '';
     this.loading = true;

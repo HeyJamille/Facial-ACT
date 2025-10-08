@@ -1,12 +1,18 @@
+// BIbliotecas
 import { Component, OnInit } from '@angular/core';
-import { Header } from '../../components/header/header';
-import { Table } from '../../components/table/table';
-import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Person } from '../../models/person.model';
-import { ApiService } from '../../services/api-service/api-service';
+
+// Componentes
+import { Header } from '../../components/header/header';
+import { Table } from '../../components/table/table';
 import { Filter } from '../../components/ui/filter/filter';
+
+// Models
+import { Person } from '../../models/person.model';
+
+// Services
+import { ApiService } from '../../services/api-service/api-service';
 
 @Component({
   selector: 'app-documents-validation',

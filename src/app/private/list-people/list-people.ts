@@ -1,17 +1,21 @@
-// listpeople.ts
-
-import { Component, OnInit } from '@angular/core'; // <-- 1. Importar OnInit
+// BIbliotecas
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { Component, OnInit } from '@angular/core';
 
+// Components
 import { Table } from '../../components/table/table';
 import { ConfirmationModal } from '../../components/confirmation-modal/confirmation-modal';
-import { Person } from '../../models/person.model';
 import { Header } from '../../components/header/header';
-import { ApiService } from '../../services/api-service/api-service'; // <-- 2. Importar ApiService
 import { Filter } from '../../components/ui/filter/filter';
+
+// Models
+import { Person } from '../../models/person.model';
+
+// Services
+import { ApiService } from '../../services/api-service/api-service';
 
 @Component({
   selector: 'app-list-people',
@@ -111,7 +115,7 @@ export class ListPeople implements OnInit {
       return;
     }
 
-    // Abre o modal de confirmação
+    // Open Confirmation Modal
     this.peopleForDeletId = id;
     this.peopleForDeletName = pessoa.nomeCompleto;
     this.showModal = true;

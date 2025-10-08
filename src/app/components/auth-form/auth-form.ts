@@ -5,6 +5,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { RouterModule } from '@angular/router';
+
+// Componentes
 import { Button } from '../ui/button/button';
 
 export interface AuthField {
@@ -26,16 +28,12 @@ export class AuthForm {
 
   @Input() headerTitle!: string; // Title
   @Input() fields: AuthField[] = []; // Dinamics field
-  @Input() buttonText: string = 'Enviar';
   @Input() text?: string; // Ex: "Cadastre-se!"
   @Input() linkText?: string; // Ex: "Cadastre-se!"
   @Input() linkUrl?: string;
 
   @Output() formSubmit = new EventEmitter<any>();
   @Output() forgotPassword = new EventEmitter<void>(); // event to open modal
-
-  // Event emitted when clicking the link
-  @Output() linkClick = new EventEmitter<void>();
 
   loading = false;
   showPassword = false;

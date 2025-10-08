@@ -1,10 +1,11 @@
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { SafeUrl } from '@angular/platform-browser';
+import { ToastrService } from 'ngx-toastr';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+// Services
 import { AuthService } from '../../services/auth-service/auth-service';
 import { ApiService } from '../../services/api-service/api-service';
-import { ToastrService } from 'ngx-toastr';
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Button } from '../ui/button/button';
 
 @Component({
   selector: 'app-face-capture',
@@ -15,40 +16,39 @@ import { Button } from '../ui/button/button';
 export class FaceCapture implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
 
-  imagemCapturada: string | null = null;
-  imagemSegura: SafeUrl | null = null;
+  @Input() isEditMode: boolean = false;
+  @Input() person: any;
+  @Input() showFaceCapture: boolean = false;
 
-  inicioCaptura: boolean = true;
+  imagecaptured: string | null = null;
+  //imagesafe: SafeUrl | null = null;
+
+  homeCapture: boolean = true;
   showCamera: boolean = false;
   isLoading: boolean = false;
-  imagemJaEnviada: boolean = false; // <- novo estado
+  imageSent: boolean = false;
   loading: boolean = false;
 
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
 
-  constructor(
-    private sanitizer: DomSanitizer,
-    private auth: AuthService,
-    private api: ApiService,
-    private toastr: ToastrService
-  ) {}
+  constructor(private auth: AuthService, private api: ApiService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
-    this.carregarImagem();
+    this.showImage();
   }
 
   ngAfterViewInit(): void {
     this.canvas = document.createElement('canvas');
   }
 
-  iniciarCaptura() {
-    if (this.imagemJaEnviada) {
+  startCapture() {
+    if (this.imageSent) {
       this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
       return;
     }
 
-    this.inicioCaptura = false;
+    this.homeCapture = false;
     this.showCamera = true;
 
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -65,8 +65,8 @@ export class FaceCapture implements AfterViewInit {
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
-  capturarImagem() {
-    if (this.imagemJaEnviada) return;
+  captureImage() {
+    if (this.imageSent) return;
 
     const video = this.videoRef.nativeElement;
 
@@ -76,20 +76,20 @@ export class FaceCapture implements AfterViewInit {
     const ctx = this.canvas.getContext('2d');
     ctx?.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
 
-    this.imagemCapturada = this.canvas.toDataURL('image/jpeg');
+    this.imagecaptured = this.canvas.toDataURL('image/jpeg');
 
     this.stopCamera();
 
-    localStorage.setItem('imagemCapturada', this.imagemCapturada);
+    localStorage.setItem('imagecaptured', this.imagecaptured);
   }
 
-  enviarImagem() {
-    if (this.imagemJaEnviada) {
+  sendImage() {
+    if (this.imageSent) {
       this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
       return;
     }
 
-    if (!this.imagemCapturada) {
+    if (!this.imagecaptured) {
       this.toastr.warning('Nenhuma captura facial capturada.');
       return;
     }
@@ -103,7 +103,7 @@ export class FaceCapture implements AfterViewInit {
       return;
     }
 
-    const file = this.dataURLtoFile(this.imagemCapturada, 'facial.jpg');
+    const file = this.dataURLtoFile(this.imagecaptured, 'facial.jpg');
     const formData = new FormData();
     formData.append('file', file);
 
@@ -111,7 +111,7 @@ export class FaceCapture implements AfterViewInit {
       next: () => {
         this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
         this.loading = false;
-        this.imagemJaEnviada = true; // bloqueia novos envios
+        this.imageSent = true; // block new sends
         this.showCamera = false;
       },
       error: () => {
@@ -121,15 +121,15 @@ export class FaceCapture implements AfterViewInit {
     });
   }
 
-  repetirCaptura() {
-    if (this.imagemJaEnviada) return;
+  repeatCapture() {
+    if (this.imageSent) return;
 
-    this.imagemCapturada = null;
-    this.inicioCaptura = false;
-    this.iniciarCaptura();
+    this.imagecaptured = null;
+    this.homeCapture = false;
+    this.startCapture();
   }
 
-  async carregarImagem() {
+  async showImage() {
     const userId = this.auth.getUserInfo()?.id;
     if (!userId) return;
 
@@ -137,25 +137,25 @@ export class FaceCapture implements AfterViewInit {
     if (!token) return;
 
     try {
-      // 1️⃣ Tenta buscar do banco
+      // Try to get it from the bank
       const data = await this.api.fetchFacialBase64(userId, token);
 
       if (data.base64) {
-        // Imagem do banco encontrada → bloqueia botões
-        this.imagemCapturada = data.base64;
-        localStorage.setItem('imagemCapturada', this.imagemCapturada);
-        this.imagemJaEnviada = true; // bloqueia todos os botões
-        this.inicioCaptura = false;
+        // Stock image found, lock buttons
+        this.imagecaptured = data.base64;
+        localStorage.setItem('imagecaptured', this.imagecaptured);
+        this.imageSent = true; // locks all buttons
+        this.homeCapture = false;
         this.showCamera = false;
         return;
       }
 
-      // 2️⃣ Se não encontrou no banco, verifica localStorage
-      const storedImage = localStorage.getItem('imagemCapturada');
+      // If you didn't find it in the bank, check localStorage
+      const storedImage = localStorage.getItem('imagecaptured');
       if (storedImage) {
-        this.imagemCapturada = storedImage;
-        this.imagemJaEnviada = false; // permite enviar/recapturar
-        this.inicioCaptura = false; // não mostrar botão iniciar
+        this.imagecaptured = storedImage;
+        this.imageSent = false; // allows sending/recapturing
+        this.homeCapture = false; // don't show start button
         this.showCamera = false;
         this.toastr.info(
           'Imagem carregada do armazenamento local. Você pode enviar para o banco ou recapturar.'
@@ -163,14 +163,14 @@ export class FaceCapture implements AfterViewInit {
         return;
       }
 
-      // 3️⃣ Se não encontrou em nenhum lugar → permite captura
-      this.imagemCapturada = null;
-      this.imagemJaEnviada = false;
-      this.inicioCaptura = true;
+      // If you didn't find it anywhere → allow capture
+      this.imagecaptured = null;
+      this.imageSent = false;
+      this.homeCapture = true;
       this.showCamera = false;
       this.toastr.info('Facial liberada para cadastro.');
     } catch {
-      this.toastr.error('Falha ao carregar imagem');
+      this.toastr.error('Falha ao carregar facial');
     }
   }
 

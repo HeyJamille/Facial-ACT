@@ -1,6 +1,9 @@
+// Bibliotecas
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { EventEmitter, Input, Output } from '@angular/core';
+
+// Components
 import { Button } from '../ui/button/button';
 
 @Component({
@@ -10,12 +13,12 @@ import { Button } from '../ui/button/button';
   imports: [CommonModule, Button],
 })
 export class ConfirmationModal {
-  @Input() showModal: boolean = false; // controla visibilidade
+  @Input() showModal: boolean = false; // visibilyty of the modal
   @Input() title: string = ''; // Title: Aprovar / Reprovar / Excluir
   @Input() subtitle: string = '';
   @Input() personName: string = '';
   @Input() loading: boolean = false;
 
-  @Output() confirm = new EventEmitter<void>(); // Evento quando clicar em confirmar
-  @Output() cancel = new EventEmitter<void>(); // Evento quando clicar em cancelar
+  @Output() confirm = new EventEmitter<void>();
+  @Output() cancel = new EventEmitter<void>();
 }

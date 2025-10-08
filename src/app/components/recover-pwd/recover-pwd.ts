@@ -1,8 +1,11 @@
+// Bibliotecas
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Button } from '../ui/button/button';
 import { ToastrService } from 'ngx-toastr';
+
+// Components
+import { Button } from '../ui/button/button';
 
 @Component({
   selector: 'app-recover-pwd',
@@ -44,7 +47,7 @@ export class RecoverPwd {
     }
   }
 
-  // Função simulando API de forma síncrona
+  // Function simulating API synchronously
   sendEmail(email: string) {
     console.log('E-mail enviado para', email);
   }

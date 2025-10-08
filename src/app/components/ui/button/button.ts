@@ -1,3 +1,4 @@
+// Bibliotecas
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
@@ -11,6 +12,5 @@ export class Button {
   @Input() type: 'button' | 'submit' = 'button';
   @Input() loading: boolean = false;
   @Input() disabled: boolean = false;
-
   @Input() buttonText: string = 'Button';
 }

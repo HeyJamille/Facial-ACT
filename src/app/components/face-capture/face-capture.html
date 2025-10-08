@@ -1,40 +1,76 @@
-<div class="flex justify-center mt-6">
-  <div class="w-full bg-white rounded-lg shadow-lg p-6">
+<div >
+  <h2 class="text-2xl font-bold my-4">Captura Facial</h2>
 
-    <!-- Start Button (aparece apenas se não houver imagem capturada) -->
-    <div *ngIf="inicioCaptura && !imagemCapturada" class="flex justify-center">
-      <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-              (click)="iniciarCaptura()">
-        Iniciar Captura
-      </button>
-    </div>
-
-    <!-- Camera (aparece apenas se estiver capturando e a imagem não tiver sido enviada) -->
-    <div *ngIf="showCamera && !imagemJaEnviada" class="flex flex-col items-center">
-      <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
-      <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-              (click)="capturarImagem()">
-        Capturar
-      </button>
-    </div>
-
-    <!-- Captured image (preview da foto) -->
-    <div *ngIf="imagemCapturada" class="flex flex-col items-center mt-4 space-y-2">
-      <img [src]="imagemCapturada" class="w-full max-w-sm rounded-lg" />
-
-      <!-- Botões só aparecem se a imagem NÃO foi enviada para o banco -->
-      <div *ngIf="!imagemJaEnviada" class="flex flex-col w-full space-y-2">
-        <button class="w-full bg-green-600 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-green-700 transition"
-                (click)="enviarImagem()">
-          Enviar
-        </button>
-        <button class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
-                (click)="repetirCaptura()">
-          Repetir Captura
-        </button>
-      </div>
-      
-    </div>
-
+  <!-- Validation Status -->
+  <div *ngIf="isEditMode" class="flex items-center gap-2">
+    <label class="text-sm font-medium text-gray-700">
+      Status da Validação Facial:
+    </label>
+    
+    <p
+      class="text-sm font-semibold"
+      [ngClass]="{
+        'text-green-600': person.statusValidacao === 'Aprovado',
+        'text-red-600': person.statusValidacao === 'Reprovado',
+        'text-gray-500': !person.statusValidacao || person.statusValidacao === 'Pendente'
+      }"
+    >
+      {{ person.statusValidacao || 'Pendente' }}
+    </p>
   </div>
+
+  <!-- Active Capture -->
+  <div 
+    *ngIf="showFaceCapture; else disabledCapture"
+    class="mt-4">
+      <div class="w-full bg-white rounded-lg shadow-lg p-6">
+
+        <!-- Start Button (appears only if there is no captured image) -->
+        <div *ngIf="homeCapture && !imagecaptured" class="flex justify-center">
+          <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
+                  (click)="startCapture()">
+            Iniciar Captura
+          </button>
+        </div>
+
+        <!-- Camera (only appears if capturing and the image has not been sent) -->
+        <div *ngIf="showCamera && !imageSent" class="flex flex-col items-center">
+          <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
+          <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
+                  (click)="captureImage()">
+            Capturar
+          </button>
+        </div>
+
+        <!-- Captured image (preview da foto) -->
+        <div *ngIf="imagecaptured" class="flex flex-col items-center mt-4 space-y-2">
+          <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" />
+
+          <!-- Buttons only appear if the image has NOT been sent to the bank -->
+          <div *ngIf="!imageSent" class="flex flex-col w-full space-y-2">
+            <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition disabled:opacity-70 disabled:cursor-not-allowed"
+                    (click)="sendImage()">
+              Enviar
+            </button>
+            <button class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
+                    (click)="repeatCapture()">
+              Repetir Captura
+            </button>
+          </div>
+          
+        </div>
+      </div>
+  </div>
+
+  <!-- Disabled Capture  -->
+  <ng-template #disabledCapture>
+    <div class="bg-white rounded-xl shadow-lg h-[400px] flex flex-col justify-center items-center gap-2">
+      <!-- Icon -->
+      <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
+      <span class="text-gray-400 text-sm font-medium text-center">
+        Salve os seus dados primeiro para liberar <br />
+        a captura facial.
+      </span>
+    </div>
+  </ng-template>
 </div>

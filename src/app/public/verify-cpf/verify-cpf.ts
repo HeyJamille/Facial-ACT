@@ -1,13 +1,16 @@
+// Bibliotecas
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgxMaskDirective } from 'ngx-mask';
 import { ToastrService } from 'ngx-toastr';
+
+// Components
 import { Button } from '../../components/ui/button/button';
-import { catchError, of } from 'rxjs';
+
+// Services
 import { ApiService } from '../../services/api-service/api-service';
-import { AuthGuard } from '../../guards/auth-guard';
 import { AuthService } from '../../services/auth-service/auth-service';
 
 export interface FaceValidationResponse {
