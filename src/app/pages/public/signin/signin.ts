@@ -34,7 +34,6 @@ export class Signin {
     private router: Router
   ) {}
 
-  /*
   onSignin(data: { username: string; password: string }) {
     const currentRoute = this.router.url;
     let apiEndpoint = '';
@@ -53,7 +52,7 @@ export class Signin {
       redirectUrl = '/';
     }
 
-     API Call
+    // API Call
     this.api.signin(data.username, data.password, apiEndpoint).subscribe({
       next: (res) => {
         this.auth.setToken(res.token); // Save token
@@ -75,29 +74,27 @@ export class Signin {
       error: () => this.toastr.error('Credenciais inválidas!'),
     });
   }
- */
 
-  onSignin(data: { username: string; password: string }) {
-    this.api.signin(data.username, data.password, 'Auth/login').subscribe({
+  /*
+   onSignin(data: { username: string; password: string }) {
+    this.api.signin(data.username, data.password, 'Auth/token').subscribe({
       next: (res) => {
         // Salva o token
         this.auth.setToken(res.token);
 
         // Pega o perfil de acesso (A ou U)
-        const userInfo = this.auth.getUserInfo(); // call method
-        const userID = userInfo?.id;
-        const perfil = userInfo?.role;
+        const role = this.auth.userRole;
 
-        if (perfil === 'A') {
+        if (role === 'A') {
           this.toastr.success('Bem-vindo, administrador!', 'Sucesso');
-          this.router.navigate(['/ListarPessoa']); // rota admin
-        } else if (perfil === 'U') {
+          this.router.navigate(['/listPeople']); // rota admin
+        } else if (role === 'U') {
           this.toastr.success('Bem-vindo!', 'Sucesso');
 
           // Aqui você pode navegar para registerPeople
           // e já passar o payload inteiro do token (se ele já contém os dados do usuário)
           const payload = JSON.parse(atob(res.token.split('.')[1]));
-          this.router.navigate(['/RegistrarPessoa'], { state: { person: payload } });
+          this.router.navigate(['/registerPeople'], { state: { person: payload } });
         } else {
           this.toastr.warning('Perfil não reconhecido!', 'Aviso');
         }
@@ -105,6 +102,7 @@ export class Signin {
       error: () => this.toastr.error('Credenciais inválidas!', 'Erro'),
     });
   }
+  */
 
   // Recover Password Modal
   showModal = false;
