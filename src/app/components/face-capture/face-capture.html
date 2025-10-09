@@ -30,17 +30,21 @@
 
           <!-- Buttons only appear after capturing image -->
           <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
-            <!-- Enviar (aparece somente se for 'S') -->
-            <button *ngIf="facialIntegrada === 'S' && !imageSent"
-                    class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
-                    (click)="sendImage()">
+            <!-- Botão Enviar (aparece somente se facialIntegrada === 'S') -->
+            <button
+              *ngIf="shouldShowSendButton()"
+              class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
+              (click)="sendImage()"
+              [disabled]="areButtonsDisabled()">
               Enviar
             </button>
 
-            <!-- Repetir Captura -->
-            <button *ngIf="!imageSent && !isButtonBlocked()"
-                    class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
-                    (click)="repeatCapture()">
+            <!-- Botão Repetir Captura -->
+            <button
+              *ngIf="shouldShowRepeatButton()"
+              class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
+              (click)="repeatCapture()"
+              [disabled]="areButtonsDisabled()">
               Repetir Captura
             </button>
           </div>

@@ -88,12 +88,21 @@ export class FaceCapture implements AfterViewInit {
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
-  isButtonBlocked(): boolean {
-    // Se a facial já foi integrada com sucesso, bloqueia
-    if (this.facialIntegrada === 'S') return true;
+  // 🔒 Verifica se botão "Enviar" deve aparecer
+  shouldShowSendButton(): boolean {
+    return this.facialIntegrada === 'S' && !this.imageSent;
+  }
 
-    // Qualquer outro caso, libera o botão
-    return false;
+  // 🔁 Verifica se botão "Repetir Captura" deve aparecer
+  shouldShowRepeatButton(): boolean {
+    // Se facialIntegrada for 'S' ou 'N', pode repetir
+    // (mas se já enviou, não aparece mais)
+    return !this.imageSent && (this.facialIntegrada === 'S' || this.facialIntegrada !== 'S');
+  }
+
+  // 🔒 Desabilita ambos depois que enviar
+  areButtonsDisabled(): boolean {
+    return this.imageSent === true;
   }
 
   captureImage() {
@@ -112,38 +121,34 @@ export class FaceCapture implements AfterViewInit {
 
     this.checkImageBrightness(this.imagecaptured).then((result: 'boa' | 'escura' | 'clara') => {
       this.imageQuality = result;
+
       let facialValue: string | number;
       let integracaoMensagem: string;
 
       if (result === 'boa') {
-        // Good Photo
-        facialValue = 'S';
+        facialValue = 'S'; // Foto boa → libera envio
         integracaoMensagem = 'Rosto integrado com sucesso.';
+      } else if (result === 'escura') {
+        facialValue = 'N'; // Foto ruim → só repetir captura
+        integracaoMensagem = 'Foto muito escura. Tente capturar em um ambiente mais iluminado.';
       } else {
-        // Foto ruim → pega valor atual da API
         facialValue = this.facialIntegrada || 'N';
-
-        // Se for 'N', mostra "Aguardando Avaliação"
-        if (facialValue === 'N') {
-          integracaoMensagem = 'Pendente Envio';
-        } else {
-          // Caso seja número ou outro valor, usa a mensagem retornada da API
-          integracaoMensagem = this.integracaoOcorrencia || 'Erro na captura';
-        }
+        integracaoMensagem = this.integracaoOcorrencia || 'Erro na captura';
       }
-
-      // ✅ Aqui você confere o valor
-      //console.log('Facial Integrada:', facialValue, 'Integracao Ocorrencia:', integracaoMensagem);
 
       const payload = {
         facialIntegrada: facialValue,
         integracaoOcorrencia: integracaoMensagem,
       };
 
+      // Atualiza valores no componente
+      this.facialIntegrada = payload.facialIntegrada;
+      this.integracaoOcorrencia = payload.integracaoOcorrencia;
+
+      // Atualiza a API
       this.api.updateIntegration(this.person.id, payload).subscribe({
-        next: (res: any) => {
-          this.facialIntegrada = payload.facialIntegrada;
-          this.integracaoOcorrencia = payload.integracaoOcorrencia;
+        next: () => {
+          // Valores já atualizados acima
         },
         error: (err) => console.error('Erro ao atualizar integração', err),
       });
