@@ -50,11 +50,16 @@
           </div>
 
           <!-- Validation Status -->
-          <div *ngIf="isEditMode" class="flex items-center  gap-2">
+          <div *ngIf="isEditMode  && integracaoOcorrencia !== 'Rosto integrado com sucesso.'" class="flex items-center  gap-2">
             <label class="text-sm font-medium text-gray-700">
               Status:
             </label>
             
+            <p class="text-sm font-semibold text-red-600">
+              {{ integracaoOcorrencia }}
+            </p>
+  
+            <!--
             <p
               class="text-sm font-semibold"
               [ngClass]="{
@@ -64,6 +69,7 @@
             >
               {{ integracaoOcorrencia }}
             </p>
+            -->
           </div>
         </div>
       </div>
