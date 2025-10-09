@@ -88,19 +88,28 @@ export class FaceCapture implements AfterViewInit {
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
-  // 🔒 Verifica se botão "Enviar" deve aparecer
+  // Check if the "Send" button should appear
   shouldShowSendButton(): boolean {
     return this.facialIntegrada === 'S' && !this.imageSent;
   }
 
-  // 🔁 Verifica se botão "Repetir Captura" deve aparecer
+  // Verify if repeat button need to appear
   shouldShowRepeatButton(): boolean {
-    // Se facialIntegrada for 'S' ou 'N', pode repetir
-    // (mas se já enviou, não aparece mais)
-    return !this.imageSent && (this.facialIntegrada === 'S' || this.facialIntegrada !== 'S');
+    // Does not show if already sent
+    if (this.imageSent) {
+      return false;
+    }
+
+    // Does not show if facialIntegrada is 'N' and integracaoOcorrencia is "Waiting for Validation"
+    if (this.facialIntegrada === 'N' && this.integracaoOcorrencia === 'Aguardando Validação') {
+      return false;
+    }
+
+    // In any other case, show the button
+    return true;
   }
 
-  // 🔒 Desabilita ambos depois que enviar
+  // Disable both after submitting
   areButtonsDisabled(): boolean {
     return this.imageSent === true;
   }
