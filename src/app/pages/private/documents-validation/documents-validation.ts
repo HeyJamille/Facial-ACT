@@ -36,14 +36,29 @@ export class DocumentsValidation implements OnInit {
 
   fetchPeople() {
     this.api.getPeople().subscribe({
-      next: (data) => {
-        this.peopleList = data;
-        this.filteredPeople = [...data];
+      next: (data: any[]) => {
+        // Map each people
+        this.peopleList = data.map((person) => ({
+          ...person,
+          celular: this.formatPhone(person.celular),
+          dataEnvioFacial: person.dataEnvioFacial ? new Date(person.dataEnvioFacial) : null,
+        }));
+
+        // Clona para filtro
+        this.filteredPeople = [...this.peopleList];
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
       },
     });
+  }
+
+  formatPhone(value: string | number): string {
+    if (!value) return '';
+    const v = value.toString().replace(/\D/g, '');
+    if (v.length === 11) return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7, 11)}`;
+    if (v.length === 10) return `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6, 10)}`;
+    return value.toString();
   }
 
   onFilter(event: { term: string; filterBy: string }) {

@@ -35,7 +35,7 @@ export class Table {
   @Input() data: Person[] = []; // Data is received from the parent
   @Input() fields: AuthField[] = [];
   @Input() actions: string[] = [];
-  @Input() actionType: 'icons' | 'select' = 'icons';
+  @Input() actionType: 'icon' | 'select' = 'icon';
 
   @Output() actionEvent = new EventEmitter<{ action: string; id: string }>();
   @Output() editPerson = new EventEmitter<string>();

@@ -177,7 +177,9 @@ export class FaceCapture implements AfterViewInit {
 
     this.loading = true;
 
-    const userId = this.auth.getUserInfo()?.id;
+    // Define user, admin ou person
+    const userId = this.person?.id || this.auth.getUserInfo()?.id;
+
     if (!userId) {
       this.toastr.error('Usuário não encontrado.', 'Erro');
       this.loading = false;

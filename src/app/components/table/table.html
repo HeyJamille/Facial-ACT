@@ -6,7 +6,7 @@
         <th *ngFor="let col of fields" class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">
           {{ col.label }}
         </th>
-        <th class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ações</th>
+        <th class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ação</th>
       </tr>
     </thead>
 
@@ -17,7 +17,21 @@
         <td *ngFor="let col of fields" 
             class="py-2 px-4 text-center text-sm text-gray-700 truncate"
             title="{{ person[col.name] }}">
-          {{ person[col.name] }}
+
+          <!-- Date of birth -->
+          <span *ngIf="(col.name === 'dataNascimento' || col.name === 'dataEnvioFacial') && person[col.name]">
+            {{ person[col.name] | date:'dd/MM/yyyy' }}
+          </span>
+
+          <!-- Phone -->
+          <span *ngIf="col.name === 'celular' && person[col.name]">
+            {{ person[col.name] }}
+          </span>
+
+          <!-- Other fields -->
+          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial'">
+            {{ person[col.name] }}
+          </span>
         </td>
 
         <!-- Actions -->
@@ -39,17 +53,11 @@
             </div>
           </ng-container>
 
-
           <!-- Icons (optional) -->
-          <ng-container *ngIf="actionType === 'icons'">
-            <div class="flex flex-row justify-center gap-2 mt-1">
-              <button *ngIf="actions.includes('editar')" (click)="onAction('editar', person.id)">
-                <img src="/pencil.png" alt="Editar" class="w-5 h-5">
-              </button>
+          <ng-container *ngIf="actionType === 'icon'" class="mt-1">
               <button *ngIf="actions.includes('deletar')" (click)="onAction('deletar', person.id)">
-                <img src="/trash.png" alt="Deletar" class="w-5 h-5">
+                <img src="/trash.png" alt="Deletar" class="w-5 h-6">
               </button>
-            </div>
           </ng-container>
         </td>
       </tr>

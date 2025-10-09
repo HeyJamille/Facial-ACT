@@ -39,6 +39,7 @@ export class ListPeople implements OnInit {
   }
 
   // Get API data
+  /*
   fetchPeople() {
     this.api.getPeople().subscribe({
       next: (data) => {
@@ -49,6 +50,35 @@ export class ListPeople implements OnInit {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
       },
     });
+  }
+  */
+  fetchPeople() {
+    this.api.getPeople().subscribe({
+      next: (data: any[]) => {
+        // Map each people
+        this.peopleList = data.map((person) => ({
+          ...person,
+          dataNascimento: person.dataNascimento
+            ? new Date(person.dataNascimento) // converte para objeto Date
+            : null,
+          celular: this.formatPhone(person.celular),
+        }));
+
+        // Clona para filtro
+        this.filteredPeople = [...this.peopleList];
+      },
+      error: () => {
+        this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
+      },
+    });
+  }
+
+  formatPhone(value: string | number): string {
+    if (!value) return '';
+    const v = value.toString().replace(/\D/g, '');
+    if (v.length === 11) return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7, 11)}`;
+    if (v.length === 10) return `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6, 10)}`;
+    return value.toString();
   }
 
   // Receives event from Filter
@@ -70,13 +100,8 @@ export class ListPeople implements OnInit {
     });
   }
 
-  handleEditDelete(event: { action: string; id: string }) {
-    const { action, id } = event;
-    if (action === 'editar') {
-      this.editPerson(id);
-    } else if (action === 'deletar') {
-      this.deletePersonConfirmed(id);
-    }
+  handleDeletePerson(event: { id: string }) {
+    this.deletePersonConfirmed(event.id);
   }
 
   confirmDeletion() {

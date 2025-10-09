@@ -27,12 +27,11 @@
         { name: 'nomePai', label: 'Pai' },
         { name: 'nomeMae', label: 'Mãe' },
         { name: 'facial', label: 'Facial' },
-        { name: 'dataEnvioFacial', label: 'Data Facial' },
       ]"
       [data]="filteredPeople"
-      [actions]="['editar', 'deletar']"
-      [actionType]="'icons'"
-      (actionEvent)="handleEditDelete($event)">
+      [actions]="['deletar']"
+      [actionType]="'icon'"
+      (actionEvent)="handleDeletePerson($event)">
     </app-table>
 
     <!-- Confirmation Modal-->
