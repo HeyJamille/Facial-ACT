@@ -39,19 +39,6 @@ export class ListPeople implements OnInit {
   }
 
   // Get API data
-  /*
-  fetchPeople() {
-    this.api.getPeople().subscribe({
-      next: (data) => {
-        this.peopleList = data;
-        this.filteredPeople = [...data];
-      },
-      error: () => {
-        this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
-      },
-    });
-  }
-  */
   fetchPeople() {
     this.api.getPeople().subscribe({
       next: (data: any[]) => {
@@ -100,8 +87,41 @@ export class ListPeople implements OnInit {
     });
   }
 
-  handleDeletePerson(event: { id: string }) {
-    this.deletePersonConfirmed(event.id);
+  handleEditDelete(event: { action: string; id: string }) {
+    const { action, id } = event;
+    if (action === 'editar') {
+      this.editPerson(id);
+    } else if (action === 'deletar') {
+      this.deletePerson(id);
+    }
+  }
+
+  deletePerson(id: string) {
+    const pessoa = this.peopleList.find((p) => p.id === id);
+    if (pessoa) {
+      this.peopleForDeletId = id;
+      this.peopleForDeletName = pessoa.nomeCompleto;
+      this.showModal = true;
+    }
+  }
+
+  editPerson(personId: string) {
+    const person = this.peopleList.find((p) => p.id === personId);
+    if (!person) {
+      this.toastr.error('Uusário não encontrado', 'Erro');
+      return;
+    }
+
+    // simple deep copy
+    const copy = JSON.parse(JSON.stringify(person));
+
+    // remove sensitive fields if they exist
+    delete copy.senha;
+
+    this.toastr.success('Redirecionando para edição...', 'Sucesso');
+    setTimeout(() => {
+      this.router.navigate(['/RegistrarPessoa'], { state: { person: copy, personId } });
+    }, 500);
   }
 
   confirmDeletion() {
@@ -144,24 +164,5 @@ export class ListPeople implements OnInit {
     this.peopleForDeletId = id;
     this.peopleForDeletName = pessoa.nomeCompleto;
     this.showModal = true;
-  }
-
-  editPerson(personId: string) {
-    const person = this.peopleList.find((p) => p.id === personId);
-    if (!person) {
-      this.toastr.error('Uusário não encontrado', 'Erro');
-      return;
-    }
-
-    // simple deep copy
-    const copy = JSON.parse(JSON.stringify(person));
-
-    // remove sensitive fields if they exist
-    delete copy.senha;
-
-    this.toastr.success('Redirecionando para edição...', 'Sucesso');
-    setTimeout(() => {
-      this.router.navigate(['/RegistrarPessoa'], { state: { person: copy, personId } });
-    }, 500);
   }
 }

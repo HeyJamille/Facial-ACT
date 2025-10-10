@@ -17,21 +17,13 @@
         { name: 'dataNascimento', label: 'Data Nasc.' },
         { name: 'email', label: 'Email' },
         { name: 'celular', label: 'Celular' },
-        { name: 'documento', label: 'Documento' },
         { name: 'tipo', label: 'Tipo' },
-        { name: 'logradouro', label: 'Logradouro' },
-        { name: 'numero', label: 'Número' },
-        { name: 'bairro', label: 'Bairro' },
-        { name: 'cidade', label: 'Cidade' },
-        { name: 'estado', label: 'Estado' },
-        { name: 'nomePai', label: 'Pai' },
-        { name: 'nomeMae', label: 'Mãe' },
-        { name: 'facial', label: 'Facial' },
+        { name: 'documento', label: 'Documento' },
       ]"
       [data]="filteredPeople"
-      [actions]="['deletar']"
-      [actionType]="'icon'"
-      (actionEvent)="handleDeletePerson($event)">
+      [actions]="['editar', 'deletar']"
+      [actionType]="'icons'"
+      (actionEvent)="handleEditDelete($event)">
     </app-table>
 
     <!-- Confirmation Modal-->

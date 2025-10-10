@@ -20,8 +20,9 @@
             <div class="w-full">
               <label for="nomeCompleto" class="text-sm font-medium text-black">Nome Completo</label>
               <input type="text" id="nomeCompleto" name="nomeCompleto" [(ngModel)]="person.nomeCompleto" #nomeCompleto="ngModel" required
+                [disabled]="isAdmin"
                 placeholder="Nome completo"
-                class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': nomeCompleto.invalid && registerPeopleForms.submitted}">
             </div>
             
@@ -29,8 +30,9 @@
             <div class="w-full">
               <label for="dataNascimento" class="text-sm font-medium text-black">Data de Nascimento</label>
               <input type="date" id="dataNascimento" name="dataNascimento" [(ngModel)]="person.dataNascimento"
+                [disabled]="isAdmin"  
                 #dataNascimento="ngModel" required
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': dataNascimento.invalid && registerPeopleForms.submitted}"
                 [ngModel]="person.dataNascimento | date:'yyyy-MM-dd'"
                 > 
@@ -83,8 +85,9 @@
             <div class="w-full">
               <label for="celular" class="text-sm font-medium text-black">Celular</label>
               <input type="text" id="celular" name="celular" [(ngModel)]="person.celular" #celular="ngModel" required
+                [disabled]="isAdmin"  
                 placeholder="Ex: (00) 00000-0000" mask="(00) 00000-0000"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': celular.invalid && registerPeopleForms.submitted}">
             </div>
           </div>
@@ -116,6 +119,7 @@
                 [(ngModel)]="person.senha"
                 #senha="ngModel"
                 placeholder="Digite uma senha"
+                [disabled]="isAdmin"  
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
                 [ngClass]="{'border-red-500': senha.invalid && registerPeopleForms.submitted}"
                 [required]="!isEditMode"
@@ -147,7 +151,8 @@
               <label for="nomePai" class="text-sm font-medium text-black">Nome do Pai</label>
               <input type="text" id="nomePai" name="nomePai" [(ngModel)]="person.nomePai" 
                 placeholder="Nome do Pai"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
               >
 							</div>
 
@@ -155,7 +160,8 @@
               <label for="nomeMae" class="text-sm font-medium text-black">Nome da Mãe</label>
               <input type="text" id="nomeMae" name="nomeMae" [(ngModel)]="person.nomeMae" #nomeMae="ngModel" required
                 placeholder="Nome da Mãe"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': nomeMae.invalid && registerPeopleForms.submitted}">
 							</div>
           </div>
@@ -170,7 +176,8 @@
               <label for="logradouro" class="text-sm font-medium text-black">Logradouro</label>
               <input type="text" id="logradouro" name="logradouro" [(ngModel)]="person.logradouro" #logradouro="ngModel" required
 							  placeholder="Ex: Av. Brasil" 
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': logradouro.invalid && registerPeopleForms.submitted}">
 						</div>
 
@@ -178,7 +185,8 @@
               <label for="numero" class="text-sm font-medium text-black">Número</label>
               <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
 							  placeholder="Ex: 123"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': numero.invalid && registerPeopleForms.submitted}">
 						</div>
           </div>
@@ -188,7 +196,8 @@
               <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
               <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
 								placeholder="Ex: Centro"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}"
                 >
 						</div>
@@ -197,7 +206,8 @@
               <label for="cidade" class="text-sm font-medium text-black">Cidade</label>
               <input type="text" id="cidade" name="cidade" [(ngModel)]="person.cidade" #cidade="ngModel" required
 							  placeholder="Ex: São Paulo"
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': cidade.invalid && registerPeopleForms.submitted}">
 						</div>
 
@@ -209,6 +219,7 @@
                 [(ngModel)]="person.estado"
                 #estado="ngModel"
                 required
+                [disabled]="isAdmin" 
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}">
                 
@@ -247,7 +258,7 @@
 
         <!-- Checkbox -->
         <div class="flex items-center gap-2">
-          <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration"/>
+          <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration" [disabled]="isAdmin" />
           <label for="declaration" class="text-sm text-gray-700">
             Declaro estar ciente e de acordo com a 
             <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">

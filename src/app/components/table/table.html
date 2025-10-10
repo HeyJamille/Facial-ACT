@@ -35,7 +35,7 @@
         </td>
 
         <!-- Actions -->
-        <td class="py-2 px-4 text-center">
+        <td class="py-2 px-4 flex justify-center gap-1 lg:gap-2">
           <!-- Select -->
           <ng-container *ngIf="actionType === 'select'">
             <div>
@@ -53,11 +53,18 @@
             </div>
           </ng-container>
 
-          <!-- Icons (optional) -->
-          <ng-container *ngIf="actionType === 'icon'" class="mt-1">
-              <button *ngIf="actions.includes('deletar')" (click)="onAction('deletar', person.id)">
-                <img src="/trash.png" alt="Deletar" class="w-5 h-6">
-              </button>
+          <!-- Icons -->
+          <ng-container *ngIf="actionType === 'icons'" >
+            <button 
+              *ngIf="actions.includes('editar')" 
+              (click)="onAction('editar', person.id)">
+              <img src="/pencil.png" alt="Editar" class="w-5 h-5">
+            </button>
+            <button 
+              *ngIf="actions.includes('deletar')" 
+              (click)="onAction('deletar', person.id)">
+              <img src="/trash.png" alt="Deletar" class="w-5 h-5">
+            </button>
           </ng-container>
         </td>
       </tr>

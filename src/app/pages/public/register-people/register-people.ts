@@ -37,6 +37,7 @@ export class RegisterPeople {
   buttonTitle = 'Salvar';
   showEdit: boolean = false;
   loading: boolean = false;
+  isAdmin = false;
 
   showPassword: boolean = false;
   facialFile?: File;
@@ -58,6 +59,9 @@ export class RegisterPeople {
     if (state && state['person']) {
       this.person = state['person']; // complet object
     }
+
+    // Verify if is admin
+    this.isAdmin = this.auth.getUserInfo()?.role === 'A';
   }
 
   onSubmit(form: NgForm) {

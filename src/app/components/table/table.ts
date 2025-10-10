@@ -35,7 +35,7 @@ export class Table {
   @Input() data: Person[] = []; // Data is received from the parent
   @Input() fields: AuthField[] = [];
   @Input() actions: string[] = [];
-  @Input() actionType: 'icon' | 'select' = 'icon';
+  @Input() actionType: 'icons' | 'select' = 'icons';
 
   @Output() actionEvent = new EventEmitter<{ action: string; id: string }>();
   @Output() editPerson = new EventEmitter<string>();
@@ -66,10 +66,6 @@ export class Table {
         }
       });
     }
-  }
-
-  onDelete(id: string) {
-    this.deletePerson.emit(id);
   }
 
   openFacial(personId: string) {
@@ -194,6 +190,14 @@ export class Table {
   // Optional function for icons
   onAction(action: string, id: string) {
     this.actionEvent.emit({ action, id });
+  }
+
+  onEdit(id: string) {
+    this.editPerson.emit(id);
+  }
+
+  onDelete(id: string) {
+    this.deletePerson.emit(id);
   }
 
   approveFacial(personId: string) {
