@@ -197,7 +197,7 @@
               <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
 								placeholder="Ex: Centro"
                 [disabled]="isAdmin" 
-                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
 								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}"
                 >
 						</div>
@@ -257,8 +257,8 @@
         </fieldset>
 
         <!-- Checkbox -->
-        <div class="flex items-center gap-2">
-          <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration" [disabled]="isAdmin" />
+        <div *ngIf="!isVisualizarPessoaRoute()" class="flex items-center gap-2">
+          <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration" />
           <label for="declaration" class="text-sm text-gray-700">
             Declaro estar ciente e de acordo com a 
             <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
@@ -276,7 +276,7 @@
         </p>
 
         <!-- Button -->
-        <app-button type="submit" [loading]="loading" buttonText={{buttonTitle}}>
+        <app-button *ngIf="!isVisualizarPessoaRoute()" type="submit" [loading]="loading" buttonText={{buttonTitle}} [disabled]="isAdmin">
           {{ loading ? 'Salvando...' : 'Salvar' }}
         </app-button>
 

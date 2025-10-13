@@ -46,7 +46,6 @@ export class DocumentsValidation implements OnInit {
         // Map each people
         this.peopleList = data.map((person) => ({
           ...person,
-          celular: this.utils.formatPhone(person.celular),
           dataEnvioFacial: person.dataEnvioFacial ? new Date(person.dataEnvioFacial) : null,
         }));
 

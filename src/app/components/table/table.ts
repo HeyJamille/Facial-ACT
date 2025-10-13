@@ -13,6 +13,7 @@ import { ModalFacial } from '../modal-facial/modal-facial';
 import { ApiService } from '../../services/api-service/api-service';
 
 import { AuthService } from '../../services/auth-service/auth-service';
+import { UtilsService } from '../../utils/utils-service';
 
 export interface AuthField {
   name: keyof Person;
@@ -55,7 +56,8 @@ export class Table {
     private api: ApiService,
     private router: Router,
     private toastr: ToastrService,
-    private auth: AuthService
+    private auth: AuthService,
+    public utils: UtilsService
   ) {}
 
   ngOnChanges() {
@@ -111,7 +113,7 @@ export class Table {
     const value = (event.target as HTMLSelectElement).value;
 
     if (value === 'visualizar-facial') {
-      console.log('Chamando API para pegar facial de', person.id);
+      //console.log('Chamando API para pegar facial de', person.id);
 
       try {
         // Get Token
@@ -209,7 +211,7 @@ export class Table {
   }
 
   openFacialModal(personId: string) {
-    console.log('Abrindo modal para pessoa:', personId);
+    //console.log('Abrindo modal para pessoa:', personId);
     this.currentFacialId = personId;
     this.showFacial = true;
   }
@@ -217,24 +219,5 @@ export class Table {
   openDocumentModal(personId: string) {
     this.currentDocumentId = personId;
     this.showDocument = true;
-  }
-
-  maskId(value: string | null | undefined, fieldName?: string): string {
-    if (!value) return '';
-
-    const raw = String(value).replace(/\D/g, ''); // remove all it is not number
-
-    // if has 11 number -> CPF
-    if (raw.length === 11) {
-      const first = raw.slice(0, 3);
-      const last = raw.slice(-2);
-      return `${first}.***.***-${last}`;
-    }
-
-    // If not -> passport
-    const first = value.slice(0, 2);
-    const last = value.slice(-2);
-    const stars = '*'.repeat(Math.max(3, value.length - 4));
-    return `${first}${stars}${last}`;
   }
 }

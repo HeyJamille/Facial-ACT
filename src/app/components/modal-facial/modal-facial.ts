@@ -17,6 +17,6 @@ export class ModalFacial {
   }
 
   ngOnChanges() {
-    console.log('Modal recebeu imagemBase64:', this.imageBase64);
+    //console.log('Modal recebeu imagemBase64:', this.imageBase64);
   }
 }

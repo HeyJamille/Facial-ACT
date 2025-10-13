@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // Services
 import { ApiService } from '../../services/api-service/api-service';
@@ -29,7 +30,12 @@ export class FileUpload implements OnChanges {
 
   isAdmin = false;
 
-  constructor(private toastr: ToastrService, private api: ApiService, private auth: AuthService) {}
+  constructor(
+    private toastr: ToastrService,
+    private api: ApiService,
+    private auth: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     // Verify if is admin
@@ -48,6 +54,8 @@ export class FileUpload implements OnChanges {
       next: (res: any) => {
         //console.log('Resposta da API getPersonById:', res);
 
+        const url = this.router.url;
+
         if (res && res.arquivoDocumento) {
           //console.log('arquivoDocumento encontrado:', res.arquivoDocumento);
           this.fileUploaded = true;
@@ -55,10 +63,13 @@ export class FileUpload implements OnChanges {
           this.previewUrl = res.arquivoDocumento;
           //this.toastr.info('Documento já enviado.');
         } else {
-          this.toastr.info('Documento liberado para envio.');
-          //console.log('Nenhum documento encontrado, upload ativo');
           this.isEditMode = true;
           this.fileUploaded = false;
+
+          // Só mostra toast se não estiver na rota visualizarPessoa
+          if (!url.includes('VisualizarPessoa')) {
+            this.toastr.info('Documento liberado para envio.');
+          }
         }
       },
       error: (err) => {

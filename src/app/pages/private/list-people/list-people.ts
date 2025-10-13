@@ -32,12 +32,7 @@ export class ListPeople implements OnInit {
   filteredPeople: Person[] = [];
   loading: boolean = false;
 
-  constructor(
-    private router: Router,
-    private toastr: ToastrService,
-    private api: ApiService,
-    private utils: UtilsService
-  ) {}
+  constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
   // Call data
   ngOnInit() {
@@ -52,7 +47,6 @@ export class ListPeople implements OnInit {
         this.peopleList = data.map((person) => ({
           ...person,
           dataNascimento: person.dataNascimento ? new Date(person.dataNascimento) : null,
-          celular: this.utils.formatPhone(person.celular),
         }));
 
         // Clona para filtro
@@ -114,9 +108,9 @@ export class ListPeople implements OnInit {
     // remove sensitive fields if they exist
     delete copy.senha;
 
-    this.toastr.success('Redirecionando para edição...', 'Sucesso');
+    this.toastr.success('Redirecionando para visualização...', 'Sucesso');
     setTimeout(() => {
-      this.router.navigate(['/RegistrarPessoa'], { state: { person: copy, personId } });
+      this.router.navigate(['/VisualizarPessoa'], { state: { person: copy, personId } });
     }, 500);
   }
 

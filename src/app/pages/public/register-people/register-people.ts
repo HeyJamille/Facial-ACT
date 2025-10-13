@@ -131,7 +131,11 @@ export class RegisterPeople {
     const token = this.auth.getToken();
     this.isEditMode = !!token; // token = edit
 
-    if (this.isEditMode) {
+    const url = this.router.url;
+
+    if (url.includes('VisualizarPessoa')) {
+      this.pageTitle = 'Visualizar Dados Cadastrais';
+    } else if (url.includes('EditarPessoa')) {
       this.isEditMode = true;
       this.pageTitle = 'Alterar Dados Cadastrais';
 
@@ -177,5 +181,10 @@ export class RegisterPeople {
   onDocumentSelected(file: File) {
     this.documentFile = file;
     this.toastr.info('Documento anexado com sucesso!');
+  }
+
+  // Function para verify actual recent
+  isVisualizarPessoaRoute(): boolean {
+    return this.router.url.includes('VisualizarPessoa');
   }
 }

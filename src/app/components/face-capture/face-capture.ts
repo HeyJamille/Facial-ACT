@@ -9,6 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 // Services
 import { AuthService } from '../../services/auth-service/auth-service';
@@ -45,7 +46,12 @@ export class FaceCapture implements AfterViewInit {
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
 
-  constructor(private auth: AuthService, private api: ApiService, private toastr: ToastrService) {}
+  constructor(
+    private auth: AuthService,
+    private api: ApiService,
+    private toastr: ToastrService,
+    private router: Router
+  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['person'] && this.person?.id) {
@@ -266,6 +272,7 @@ export class FaceCapture implements AfterViewInit {
     try {
       // Try to get it from the bank
       const data = await this.api.fetchFacialBase64(userId, token);
+      const url = this.router.url;
 
       if (data.base64) {
         this.imagecaptured = data.base64;
@@ -302,7 +309,11 @@ export class FaceCapture implements AfterViewInit {
       this.imageSent = false;
       this.homeCapture = true;
       this.showCamera = false;
-      this.toastr.info('Facial liberada para cadastro.');
+
+      // Só mostra toast se não estiver na rota visualizarPessoa
+      if (!url.includes('VisualizarPessoa')) {
+        this.toastr.info('Facial liberada para cadastro.');
+      }
     } catch {
       this.toastr.error('Falha ao carregar facial');
     }

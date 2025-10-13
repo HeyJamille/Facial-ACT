@@ -25,16 +25,21 @@
 
           <!-- Phone -->
           <span *ngIf="col.name === 'celular' && person[col.name]">
-            {{ person[col.name] }}
+            {{ utils.maskPhone(person[col.name]) }}
           </span>
 
           <!-- CPF or Passport -->
           <span *ngIf="col.name === 'documento'">
-            {{ maskId(person[col.name], col.name) }}
+            {{ utils.maskId(person[col.name], col.name) }}
+          </span>
+
+          <!-- Email -->
+          <span *ngIf="col.name === 'email' && person[col.name]">
+            {{ utils.maskEmail(person[col.name]) }}
           </span>
 
           <!-- Other fields -->
-          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'documento'">
+          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'documento' && col.name !== 'email'">
             {{ person[col.name] }}
           </span>
         </td>
