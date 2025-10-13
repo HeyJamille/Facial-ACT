@@ -51,23 +51,6 @@ export class AuthForm {
     this.loading = true;
 
     this.formSubmit.emit(form.value);
-
-    // delay to show loading
-    setTimeout(() => {
-      // Check if is signin route
-      if (this.router.url.includes('/signin')) {
-        this.toastr.success('Login realizado com sucesso! Redirecionando...', 'Sucesso');
-        this.router.navigate(['/registerPeople']);
-      }
-
-      // Check if is signup route
-      else if (this.router.url.includes('/signup')) {
-        this.toastr.success('Cadastro realizado com sucesso! Redirecionando...', 'Sucesso');
-        this.router.navigate(['/registerPeople']);
-      }
-
-      this.loading = false;
-    }, 500);
   }
 
   togglePassword() {

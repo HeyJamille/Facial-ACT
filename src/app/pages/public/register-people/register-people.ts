@@ -139,6 +139,11 @@ export class RegisterPeople {
       const userInfo = this.auth.getUserInfo();
       const userId = userInfo?.id;
 
+      if (userId && this.person.id && this.isAdmin && this.person.id !== userId) {
+        // Admin tentando editar outra pessoa
+        this.isEditMode = false; // bloqueia edição
+      }
+
       //console.log('USERID:', userId);
       //console.log('USERINFO:', userInfo);
 

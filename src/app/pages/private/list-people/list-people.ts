@@ -16,6 +16,7 @@ import { Person } from '../../../models/person.model';
 
 // Services
 import { ApiService } from '../../../services/api-service/api-service';
+import { UtilsService } from '../../../utils/utils-service';
 
 @Component({
   selector: 'app-list-people',
@@ -31,7 +32,12 @@ export class ListPeople implements OnInit {
   filteredPeople: Person[] = [];
   loading: boolean = false;
 
-  constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
+  constructor(
+    private router: Router,
+    private toastr: ToastrService,
+    private api: ApiService,
+    private utils: UtilsService
+  ) {}
 
   // Call data
   ngOnInit() {
@@ -45,10 +51,8 @@ export class ListPeople implements OnInit {
         // Map each people
         this.peopleList = data.map((person) => ({
           ...person,
-          dataNascimento: person.dataNascimento
-            ? new Date(person.dataNascimento) // converte para objeto Date
-            : null,
-          celular: this.formatPhone(person.celular),
+          dataNascimento: person.dataNascimento ? new Date(person.dataNascimento) : null,
+          celular: this.utils.formatPhone(person.celular),
         }));
 
         // Clona para filtro
@@ -58,14 +62,6 @@ export class ListPeople implements OnInit {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
       },
     });
-  }
-
-  formatPhone(value: string | number): string {
-    if (!value) return '';
-    const v = value.toString().replace(/\D/g, '');
-    if (v.length === 11) return `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7, 11)}`;
-    if (v.length === 10) return `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6, 10)}`;
-    return value.toString();
   }
 
   // Receives event from Filter

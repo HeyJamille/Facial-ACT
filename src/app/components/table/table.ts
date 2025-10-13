@@ -218,4 +218,23 @@ export class Table {
     this.currentDocumentId = personId;
     this.showDocument = true;
   }
+
+  maskId(value: string | null | undefined, fieldName?: string): string {
+    if (!value) return '';
+
+    const raw = String(value).replace(/\D/g, ''); // remove all it is not number
+
+    // if has 11 number -> CPF
+    if (raw.length === 11) {
+      const first = raw.slice(0, 3);
+      const last = raw.slice(-2);
+      return `${first}.***.***-${last}`;
+    }
+
+    // If not -> passport
+    const first = value.slice(0, 2);
+    const last = value.slice(-2);
+    const stars = '*'.repeat(Math.max(3, value.length - 4));
+    return `${first}${stars}${last}`;
+  }
 }

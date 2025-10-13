@@ -52,7 +52,7 @@
                 required
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': tipo.invalid && registerPeopleForms.submitted}"
-                [disabled]="isEditMode">
+                [disabled]="isEditMode || isAdmin">
                 
                 <option value="" disabled selected>Escolha uma opção</option>
                 <option value="cpf">CPF</option>
@@ -78,7 +78,7 @@
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': documento.invalid && registerPeopleForms.submitted}"
                 required
-                [disabled]="isEditMode">
+                [disabled]="isEditMode || isAdmin">
             </div>
             
             <!-- Celular -->
@@ -105,7 +105,7 @@
                 placeholder="email@gmail.com"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': email.invalid && registerPeopleForms.submitted}"
-                [disabled]="isEditMode">
+                [disabled]="isEditMode || isAdmin">
             </div>
 
             <!-- Password -->
@@ -290,7 +290,6 @@
         [person]="person"                 
         [showFaceCapture]="isEditMode">   
       </app-face-capture>
-
 
       <!-- Document Upload -->
       <div>

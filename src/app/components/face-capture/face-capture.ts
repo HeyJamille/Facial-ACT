@@ -40,6 +40,8 @@ export class FaceCapture implements AfterViewInit {
   integracaoOcorrencia?: string;
   facialIntegrada?: string | number;
 
+  isAdmin = false;
+
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
 
@@ -59,6 +61,9 @@ export class FaceCapture implements AfterViewInit {
 
   ngOnInit(): void {
     this.showImage();
+
+    // Verify if is admin
+    this.isAdmin = this.auth.getUserInfo()?.role === 'A';
   }
 
   ngAfterViewInit(): void {

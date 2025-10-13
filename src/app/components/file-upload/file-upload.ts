@@ -9,6 +9,7 @@ import { ApiService } from '../../services/api-service/api-service';
 
 // Components
 import { Button } from '../ui/button/button';
+import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-file-upload',
@@ -26,7 +27,14 @@ export class FileUpload implements OnChanges {
   isPdf = false;
   fileUploaded = false;
 
-  constructor(private toastr: ToastrService, private api: ApiService) {}
+  isAdmin = false;
+
+  constructor(private toastr: ToastrService, private api: ApiService, private auth: AuthService) {}
+
+  ngOnInit() {
+    // Verify if is admin
+    this.isAdmin = this.auth.getUserInfo()?.role === 'A';
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['personId'] && this.personId) {

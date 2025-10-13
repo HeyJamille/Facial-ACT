@@ -3,10 +3,10 @@
     <!-- Header -->
     <thead class="bg-black text-white">
       <tr>
-        <th *ngFor="let col of fields" class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">
+        <th *ngFor="let col of fields" class="py-3 px-full text-center uppercase text-xs font-semibold tracking-wider">
           {{ col.label }}
         </th>
-        <th class="py-3 px-4 text-center uppercase text-xs font-semibold tracking-wider">Ação</th>
+        <th class="py-3 px-6 text-center uppercase text-xs font-semibold tracking-wider">Ação</th>
       </tr>
     </thead>
 
@@ -15,7 +15,7 @@
       <tr *ngFor="let person of data" class="bg-white hover:bg-gray-100 transition-colors duration-200 border-b border-gray-200">
         <!-- People list -->
         <td *ngFor="let col of fields" 
-            class="py-2 px-4 text-center text-sm text-gray-700 truncate"
+            class="py-2 px-6 text-center text-sm text-gray-700 truncate"
             title="{{ person[col.name] }}">
 
           <!-- Date of birth -->
@@ -28,19 +28,24 @@
             {{ person[col.name] }}
           </span>
 
+          <!-- CPF or Passport -->
+          <span *ngIf="col.name === 'documento'">
+            {{ maskId(person[col.name], col.name) }}
+          </span>
+
           <!-- Other fields -->
-          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial'">
+          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'documento'">
             {{ person[col.name] }}
           </span>
         </td>
 
         <!-- Actions -->
-        <td class="py-2 px-4 flex justify-center gap-1 lg:gap-2">
+        <td class="py-2 flex justify-center gap-2">
           <!-- Select -->
           <ng-container *ngIf="actionType === 'select'">
             <div>
               <select
-                class="border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="border border-gray-300 rounded-lg px-2 py-1 mx-6 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 [(ngModel)]="selectedAction[person.id]"
                 (change)="onActionChange($event, person)"
               >
@@ -54,16 +59,16 @@
           </ng-container>
 
           <!-- Icons -->
-          <ng-container *ngIf="actionType === 'icons'" >
+          <ng-container *ngIf="actionType === 'icons'" class="px-2 py-1 mx-6" >
             <button 
               *ngIf="actions.includes('editar')" 
               (click)="onAction('editar', person.id)">
-              <img src="/pencil.png" alt="Editar" class="w-5 h-5">
+              <img src="/pencil.png" alt="Editar" class="w-4 h-5 cursor-pointer">
             </button>
             <button 
               *ngIf="actions.includes('deletar')" 
               (click)="onAction('deletar', person.id)">
-              <img src="/trash.png" alt="Deletar" class="w-5 h-5">
+              <img src="/trash.png" alt="Deletar" class="w-4 h-5 cursor-pointer">
             </button>
           </ng-container>
         </td>

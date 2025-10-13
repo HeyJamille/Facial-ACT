@@ -14,6 +14,7 @@ import { AuthService } from '../../../services/auth-service/auth-service';
 
 // Router
 import { Router } from '@angular/router';
+import { Person } from '../../../models/person.model';
 
 @Component({
   selector: 'app-signin',
@@ -24,6 +25,7 @@ export class Signin {
   email: string = '';
   password: string = '';
   loading: boolean = false;
+  person: Person = {} as Person;
 
   @Output() linkClick = new EventEmitter<void>();
 
@@ -34,6 +36,7 @@ export class Signin {
     private router: Router
   ) {}
 
+  /*
   onSignin(data: { username: string; password: string }) {
     const currentRoute = this.router.url;
     let apiEndpoint = '';
@@ -74,35 +77,54 @@ export class Signin {
       error: () => this.toastr.error('Credenciais inválidas!'),
     });
   }
+*/
 
-  /*
-   onSignin(data: { username: string; password: string }) {
-    this.api.signin(data.username, data.password, 'Auth/token').subscribe({
+  onSignin(data: { username: string; password: string }) {
+    this.loading = true;
+
+    const currentRoute = this.router.url.toLowerCase();
+    let apiEndpoint = 'Auth/login';
+    let redirectUrl = '/EditarPessoa';
+
+    // In the current route to /auth/token, use token endpoint and redirect admin
+    if (currentRoute.includes('/auth/token')) {
+      apiEndpoint = 'Auth/token';
+      redirectUrl = '/ListarPessoa';
+    }
+
+    this.api.signin(data.username, data.password, apiEndpoint).subscribe({
       next: (res) => {
-        // Salva o token
+        // Save token
         this.auth.setToken(res.token);
 
-        // Pega o perfil de acesso (A ou U)
-        const role = this.auth.userRole;
+        const role = this.auth.getUserInfo()?.role;
 
-        if (role === 'A') {
+        // If you are an admin or we are on the /auth/token route
+        if (role === 'A' || currentRoute.includes('/auth/token')) {
           this.toastr.success('Bem-vindo, administrador!', 'Sucesso');
-          this.router.navigate(['/listPeople']); // rota admin
-        } else if (role === 'U') {
-          this.toastr.success('Bem-vindo!', 'Sucesso');
-
-          // Aqui você pode navegar para registerPeople
-          // e já passar o payload inteiro do token (se ele já contém os dados do usuário)
-          const payload = JSON.parse(atob(res.token.split('.')[1]));
-          this.router.navigate(['/registerPeople'], { state: { person: payload } });
-        } else {
-          this.toastr.warning('Perfil não reconhecido!', 'Aviso');
+          this.router.navigate(['/ListarPessoa']);
+          this.loading = false;
+          return;
         }
+
+        // If you are a normal user
+        if (role === 'U') {
+          this.toastr.success('Bem-vindo!', 'Sucesso');
+          const payload = JSON.parse(atob(res.token.split('.')[1]));
+          this.router.navigate(['/EditarPessoa'], { state: { person: payload } });
+          this.loading = false;
+          return;
+        }
+
+        this.toastr.warning('Perfil não reconhecido!', 'Aviso');
+        this.loading = false;
       },
-      error: () => this.toastr.error('Credenciais inválidas!', 'Erro'),
+      error: () => {
+        this.toastr.error('Credenciais inválidas!', 'Erro');
+        this.loading = false;
+      },
     });
   }
-  */
 
   // Recover Password Modal
   showModal = false;
