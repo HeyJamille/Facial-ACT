@@ -1,6 +1,6 @@
 // Bibliotecas
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 
@@ -119,7 +119,7 @@ export class Signin {
         this.toastr.warning('Perfil não reconhecido!', 'Aviso');
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
         this.toastr.error('Credenciais inválidas!', 'Erro');
         this.loading = false;
       },

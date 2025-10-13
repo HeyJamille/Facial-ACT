@@ -4,6 +4,7 @@
     { label: 'Email', type: 'username', name: 'username', placeholder: 'Ex: email@gmail.com', required: true },
     { label: 'Senha', type: 'password', name: 'password', placeholder: '••••••••', required: true }
   ]"
+  [loading]="loading"
   linkText="Recupere."
   text="Esqueceu sua senha?"
   (formSubmit)="onSignin($event)"

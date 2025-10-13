@@ -31,11 +31,11 @@ export class AuthForm {
   @Input() text?: string; // Ex: "Cadastre-se!"
   @Input() linkText?: string; // Ex: "Cadastre-se!"
   @Input() linkUrl?: string;
+  @Input() loading: boolean = false;
 
   @Output() formSubmit = new EventEmitter<any>();
   @Output() forgotPassword = new EventEmitter<void>(); // event to open modal
 
-  loading = false;
   showPassword = false;
 
   onLinkClick() {
@@ -47,8 +47,6 @@ export class AuthForm {
       this.toastr.warning('Preencha corretamente todos os dados!', 'Atenção');
       return;
     }
-
-    this.loading = true;
 
     this.formSubmit.emit(form.value);
   }

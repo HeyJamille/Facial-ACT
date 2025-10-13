@@ -16,9 +16,9 @@ export class Header {
 
   constructor(private auth: AuthService, private router: Router) {
     const userInfo = this.auth.getUserInfo();
-    console.log('IS ADMIN:', userInfo);
+    //console.log('IS ADMIN:', userInfo);
     this.isAdmin = userInfo?.role === 'A';
-    console.log('IS ADMIN:', this.isAdmin);
+    //console.log('IS ADMIN:', this.isAdmin);
   }
 
   toggleMenu() {
