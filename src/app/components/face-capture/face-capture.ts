@@ -36,6 +36,7 @@ export class FaceCapture implements AfterViewInit {
   isLoading: boolean = false;
   imageSent: boolean = false;
   loading: boolean = false;
+  errorImagem: boolean = false;
 
   integracaoOcorrencia?: string;
   facialIntegrada?: string | number;
@@ -173,7 +174,34 @@ export class FaceCapture implements AfterViewInit {
   }
 
   getButtonState() {
-    const url = this.router.url;
+    // Case 1: Facial awaiting validation → hide all
+    if (
+      this.facialIntegrada !== 'S' &&
+      this.integracaoOcorrencia !== 'N' &&
+      this.integracaoOcorrencia === null
+    ) {
+      //console.log('CASO 1');
+      return { showSend: true, showRepeat: true, disabled: false };
+    } else if (this.facialIntegrada === 'S') {
+      //console.log('CASO 2');
+      return { showSend: false, showRepeat: false, disabled: true };
+    } else if (
+      this.facialIntegrada === 'N' &&
+      this.integracaoOcorrencia === 'Aguardando Validação'
+    ) {
+      //console.log('CASO 3');
+      return { showSend: false, showRepeat: false, disabled: true };
+    } else if (this.errorImagem === true) {
+      return { showSend: true, showRepeat: true, disabled: false };
+    } else {
+      //console.log('CASO 4');
+      return { showSend: false, showRepeat: true, disabled: true };
+    }
+  }
+
+  /*
+  getButtonState() {
+    const url = this.router.url;isEditMode
 
     // Case 1: Facial awaiting validation → hide all
     if (this.facialIntegrada === 'N' && this.integracaoOcorrencia === 'Aguardando Validação') {
@@ -197,11 +225,17 @@ export class FaceCapture implements AfterViewInit {
     // Case 4: Capture page → show submit + repeat
     return { showSend: true, showRepeat: true, disabled: false };
   }
-
+*/
   repeatCapture() {
     if (this.imageSent) return;
 
+    this.showCamera = true;
+    this.errorImagem = true;
+    this.isEditMode = true;
+    //console.log('Dados', this.isEditMode);
     this.imagecaptured = null;
+    this.auth.clearImageLocalStorage();
+    this.imageSent = false;
     this.homeCapture = false;
     this.startCapture();
   }
@@ -257,9 +291,9 @@ export class FaceCapture implements AfterViewInit {
         this.imageSent = false; // allows sending/recapturing
         this.homeCapture = false; // don't show start button
         this.showCamera = false;
-        this.toastr.info(
-          'Imagem carregada do armazenamento local. Você pode enviar para o banco ou recapturar.'
-        );
+        //this.toastr.info(
+        //  'Imagem carregada do armazenamento local. Você pode enviar para o banco ou recapturar.'
+        //);
         return;
       }
 

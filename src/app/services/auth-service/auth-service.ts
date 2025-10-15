@@ -96,4 +96,8 @@ export class AuthService {
     localStorage.clear();
     console.log('LocalStorage limpo!');
   }
+
+  clearImageLocalStorage() {
+    localStorage.removeItem('imagecaptured');
+  }
 }

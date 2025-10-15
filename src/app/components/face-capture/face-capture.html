@@ -17,7 +17,7 @@
         </div>
 
         <!-- Camera (only appears if capturing and the image has not been sent) -->
-        <div *ngIf="showCamera && !imageSent" class="flex flex-col items-center">
+        <div *ngIf="showCamera" class="flex flex-col items-center">
           <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
           <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
                   (click)="captureImage()">
@@ -27,7 +27,7 @@
 
         <!-- Captured image (preview da foto) -->
         <div *ngIf="imagecaptured" class="flex flex-col items-center mt-4 space-y-2">
-          <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" />
+          <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" /> 
 
           <!-- Buttons only appear after capturing image -->
           <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
@@ -36,25 +36,23 @@
               <button
                 class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
                 (click)="sendImage()"
-                [disabled]="getButtonState().disabled">
+                >
                 Enviar
               </button>
             </div>
 
             <div *ngIf="getButtonState().showRepeat">
-              <!-- Retake Capture Button -->
               <button
-              
                 class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
                 (click)="repeatCapture()"
-                [disabled]="getButtonState().disabled">
+                >
                 Repetir Captura
               </button>
             </div>
           </div>
 
           <!-- Validation Status -->
-          <div *ngIf="isEditMode  && integracaoOcorrencia !== 'Rosto integrado com sucesso.'" class="flex items-center  gap-2">
+          <div *ngIf="isEditMode  && integracaoOcorrencia !== 'Rosto integrado com sucesso.' && errorImagem === false" class="flex items-center  gap-2">
             <label class="text-sm font-medium text-gray-700">
               Status:
             </label>
@@ -62,18 +60,6 @@
             <p class="text-sm font-semibold text-red-600">
               {{ integracaoOcorrencia }}
             </p>
-  
-            <!--
-            <p
-              class="text-sm font-semibold"
-              [ngClass]="{
-                'text-green-600': facialIntegrada === 'S',
-                'text-red-600': facialIntegrada !== 'S'
-              }"
-            >
-              {{ integracaoOcorrencia }}
-            </p>
-            -->
           </div>
         </div>
       </div>
