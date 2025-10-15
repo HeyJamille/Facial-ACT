@@ -36,7 +36,6 @@ export class FaceCapture implements AfterViewInit {
   isLoading: boolean = false;
   imageSent: boolean = false;
   loading: boolean = false;
-  imageQuality: 'boa' | 'escura' | 'clara' | null = null;
 
   integracaoOcorrencia?: string;
   facialIntegrada?: string | number;
@@ -99,32 +98,6 @@ export class FaceCapture implements AfterViewInit {
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
-  // Check if the "Send" button should appear
-  shouldShowSendButton(): boolean {
-    return this.facialIntegrada === 'S' && !this.imageSent;
-  }
-
-  // Verify if repeat button need to appear
-  shouldShowRepeatButton(): boolean {
-    // Does not show if already sent
-    if (this.imageSent) {
-      return false;
-    }
-
-    // Does not show if facialIntegrada is 'N' and integracaoOcorrencia is "Waiting for Validation"
-    if (this.facialIntegrada === 'N' && this.integracaoOcorrencia === 'Aguardando Validação') {
-      return false;
-    }
-
-    // In any other case, show the button
-    return true;
-  }
-
-  // Disable both after submitting
-  areButtonsDisabled(): boolean {
-    return this.imageSent === true;
-  }
-
   captureImage() {
     if (this.imageSent) return;
 
@@ -138,41 +111,6 @@ export class FaceCapture implements AfterViewInit {
     this.imagecaptured = this.canvas.toDataURL('image/jpeg');
     this.stopCamera();
     localStorage.setItem('imagecaptured', this.imagecaptured);
-
-    this.checkImageBrightness(this.imagecaptured).then((result: 'boa' | 'escura' | 'clara') => {
-      this.imageQuality = result;
-
-      let facialValue: string | number;
-      let integracaoMensagem: string;
-
-      if (result === 'boa') {
-        facialValue = 'S'; // Foto boa → libera envio
-        integracaoMensagem = 'Rosto integrado com sucesso.';
-      } else if (result === 'escura') {
-        facialValue = 'N'; // Foto ruim → só repetir captura
-        integracaoMensagem = 'Foto muito escura. Tente capturar em um ambiente mais iluminado.';
-      } else {
-        facialValue = this.facialIntegrada || 'N';
-        integracaoMensagem = this.integracaoOcorrencia || 'Erro na captura';
-      }
-
-      const payload = {
-        facialIntegrada: facialValue,
-        integracaoOcorrencia: integracaoMensagem,
-      };
-
-      // Atualiza valores no componente
-      this.facialIntegrada = payload.facialIntegrada;
-      this.integracaoOcorrencia = payload.integracaoOcorrencia;
-
-      // Atualiza a API
-      this.api.updateIntegration(this.person.id, payload).subscribe({
-        next: () => {
-          // Valores já atualizados acima
-        },
-        error: (err) => console.error('Erro ao atualizar integração', err),
-      });
-    });
   }
 
   sendImage() {
@@ -188,9 +126,7 @@ export class FaceCapture implements AfterViewInit {
 
     this.loading = true;
 
-    // Define user, admin ou person
     const userId = this.person?.id || this.auth.getUserInfo()?.id;
-
     if (!userId) {
       this.toastr.error('Usuário não encontrado.', 'Erro');
       this.loading = false;
@@ -204,9 +140,30 @@ export class FaceCapture implements AfterViewInit {
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
         this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
-        this.loading = false;
-        this.imageSent = true; // block new sends
+
+        // Blocks recapture and sending
+        this.imageSent = true;
         this.showCamera = false;
+        this.homeCapture = false;
+
+        // Updates integrationOccurrence and facialIntegrada
+        const payload = {
+          facialIntegrada: 'N',
+          integracaoOcorrencia: 'Aguardando Validação',
+        };
+
+        this.api.updateIntegration(userId, payload).subscribe({
+          next: () => {
+            this.integracaoOcorrencia = payload.integracaoOcorrencia;
+            this.facialIntegrada = payload.facialIntegrada;
+            this.saveLocalStorage();
+          },
+          error: () => {
+            this.toastr.error('Erro ao atualizar status da integração.');
+          },
+        });
+
+        this.loading = false;
       },
       error: () => {
         this.toastr.error('Erro ao enviar captura facial.', 'Erro');
@@ -215,51 +172,38 @@ export class FaceCapture implements AfterViewInit {
     });
   }
 
+  getButtonState() {
+    const url = this.router.url;
+
+    // Case 1: Facial awaiting validation → hide all
+    if (this.facialIntegrada === 'N' && this.integracaoOcorrencia === 'Aguardando Validação') {
+      return { showSend: false, showRepeat: false, disabled: true };
+    }
+
+    // Case 2: Facial already validated → hides everything
+    if (this.facialIntegrada === 'S') {
+      return { showSend: false, showRepeat: false, disabled: true };
+    }
+
+    // Case 3: Occurrence has changed and user is **outside the capture page** → just repeat
+    if (
+      this.facialIntegrada === 'N' &&
+      this.integracaoOcorrencia !== 'Aguardando Validação' &&
+      !url.includes('FaceCapture')
+    ) {
+      return { showSend: false, showRepeat: true, disabled: false };
+    }
+
+    // Case 4: Capture page → show submit + repeat
+    return { showSend: true, showRepeat: true, disabled: false };
+  }
+
   repeatCapture() {
     if (this.imageSent) return;
 
     this.imagecaptured = null;
     this.homeCapture = false;
     this.startCapture();
-  }
-
-  checkImageBrightness(imageDataUrl: string): Promise<'boa' | 'escura' | 'clara'> {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = imageDataUrl;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return resolve('boa');
-
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0, img.width, img.height);
-
-        const imageData = ctx.getImageData(0, 0, img.width, img.height);
-        const data = imageData.data;
-
-        let brightnessSum = 0;
-        const totalPixels = data.length / 4;
-
-        for (let i = 0; i < data.length; i += 4) {
-          // Média do brilho de cada pixel (RGB)
-          const brightness = (data[i] + data[i + 1] + data[i + 2]) / 3;
-          brightnessSum += brightness;
-        }
-
-        const avgBrightness = brightnessSum / totalPixels;
-
-        // Define faixas de luminosidade
-        if (avgBrightness < 60) {
-          resolve('escura');
-        } else if (avgBrightness > 200) {
-          resolve('clara');
-        } else {
-          resolve('boa');
-        }
-      };
-    });
   }
 
   async showImage() {
@@ -278,17 +222,32 @@ export class FaceCapture implements AfterViewInit {
         this.imagecaptured = data.base64;
         localStorage.setItem('imagecaptured', this.imagecaptured);
 
-        // Bloqueia apenas se for 'S'
-        if (this.facialIntegrada === 'S') {
-          this.imageSent = true; // bloqueia enviar/recapturar
-          this.showCamera = false;
-        } else {
-          this.imageSent = false; // permite recapturar
-          this.showCamera = false;
-        }
+        // Search for the person's status in the bank
+        const userId = this.person?.id || this.auth.getUserInfo()?.id;
+        if (userId) {
+          this.api.getPersonById(userId).subscribe({
+            next: (res: any) => {
+              this.facialIntegrada = res.facialIntegrada;
+              this.integracaoOcorrencia = res.integracaoOcorrencia;
 
-        this.homeCapture = false;
-        return;
+              // Update localStorage
+              this.saveLocalStorage();
+
+              // Blocks buttons if already integrated
+              if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
+                this.imageSent = true;
+                this.showCamera = false;
+              } else {
+                this.imageSent = false;
+              }
+
+              this.homeCapture = false;
+            },
+            error: () => {
+              this.imageSent = false;
+            },
+          });
+        }
       }
 
       // If you didn't find it in the bank, check localStorage
@@ -310,7 +269,7 @@ export class FaceCapture implements AfterViewInit {
       this.homeCapture = true;
       this.showCamera = false;
 
-      // Só mostra toast se não estiver na rota visualizarPessoa
+      // Only shows toast if not in the viewPerson route
       if (!url.includes('VisualizarPessoa')) {
         this.toastr.info('Facial liberada para cadastro.');
       }
@@ -338,5 +297,13 @@ export class FaceCapture implements AfterViewInit {
       u8arr[n] = bstr.charCodeAt(n);
     }
     return new File([u8arr], filename, { type: mime });
+  }
+
+  private saveLocalStorage() {
+    if (this.imagecaptured) localStorage.setItem('imagecaptured', this.imagecaptured);
+    if (this.facialIntegrada)
+      localStorage.setItem('facialIntegrada', this.facialIntegrada.toString());
+    if (this.integracaoOcorrencia)
+      localStorage.setItem('integracaoOcorrencia', this.integracaoOcorrencia);
   }
 }
