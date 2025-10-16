@@ -52,12 +52,16 @@
           </div>
 
           <!-- Validation Status -->
-          <div *ngIf="isEditMode  && integracaoOcorrencia !== 'Rosto integrado com sucesso.' && errorImagem === false" class="flex items-center  gap-2">
+          <div *ngIf="isEditMode && errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== ''" class="flex items-center  gap-2">
             <label class="text-sm font-medium text-gray-700">
               Status:
             </label>
             
-            <p class="text-sm font-semibold text-red-600">
+            <p class="text-sm font-semibold"
+            [ngClass]="{
+              'text-green-600': facialIntegrada === 'S',
+              'text-red-600': facialIntegrada !== 'S'
+            }">
               {{ integracaoOcorrencia }}
             </p>
           </div>

@@ -1,4 +1,4 @@
-import { SafeUrl } from '@angular/platform-browser';
+// Bibliotecas
 import { ToastrService } from 'ngx-toastr';
 import {
   AfterViewInit,
@@ -29,13 +29,9 @@ export class FaceCapture implements AfterViewInit {
   @Input() showFaceCapture: boolean = false;
 
   imagecaptured: string | null = null;
-  //imagesafe: SafeUrl | null = null;
-
   homeCapture: boolean = true;
   showCamera: boolean = false;
-  isLoading: boolean = false;
   imageSent: boolean = false;
-  loading: boolean = false;
   errorImagem: boolean = false;
 
   integracaoOcorrencia?: string;
@@ -99,6 +95,7 @@ export class FaceCapture implements AfterViewInit {
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
+  // capture and put in localStorage
   captureImage() {
     if (this.imageSent) return;
 
@@ -116,7 +113,7 @@ export class FaceCapture implements AfterViewInit {
 
   sendImage() {
     if (this.imageSent) {
-      this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
+      //this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
       return;
     }
 
@@ -125,12 +122,9 @@ export class FaceCapture implements AfterViewInit {
       return;
     }
 
-    this.loading = true;
-
     const userId = this.person?.id || this.auth.getUserInfo()?.id;
     if (!userId) {
       this.toastr.error('Usuário não encontrado.', 'Erro');
-      this.loading = false;
       return;
     }
 
@@ -163,23 +157,16 @@ export class FaceCapture implements AfterViewInit {
             this.toastr.error('Erro ao atualizar status da integração.');
           },
         });
-
-        this.loading = false;
       },
       error: () => {
         this.toastr.error('Erro ao enviar captura facial.', 'Erro');
-        this.loading = false;
       },
     });
   }
 
   getButtonState() {
     // Case 1: Facial awaiting validation → hide all
-    if (
-      this.facialIntegrada !== 'S' &&
-      this.integracaoOcorrencia !== 'N' &&
-      this.integracaoOcorrencia === null
-    ) {
+    if (this.facialIntegrada === '' && this.integracaoOcorrencia === '') {
       //console.log('CASO 1');
       return { showSend: true, showRepeat: true, disabled: false };
     } else if (this.facialIntegrada === 'S') {
@@ -199,33 +186,6 @@ export class FaceCapture implements AfterViewInit {
     }
   }
 
-  /*
-  getButtonState() {
-    const url = this.router.url;isEditMode
-
-    // Case 1: Facial awaiting validation → hide all
-    if (this.facialIntegrada === 'N' && this.integracaoOcorrencia === 'Aguardando Validação') {
-      return { showSend: false, showRepeat: false, disabled: true };
-    }
-
-    // Case 2: Facial already validated → hides everything
-    if (this.facialIntegrada === 'S') {
-      return { showSend: false, showRepeat: false, disabled: true };
-    }
-
-    // Case 3: Occurrence has changed and user is **outside the capture page** → just repeat
-    if (
-      this.facialIntegrada === 'N' &&
-      this.integracaoOcorrencia !== 'Aguardando Validação' &&
-      !url.includes('FaceCapture')
-    ) {
-      return { showSend: false, showRepeat: true, disabled: false };
-    }
-
-    // Case 4: Capture page → show submit + repeat
-    return { showSend: true, showRepeat: true, disabled: false };
-  }
-*/
   repeatCapture() {
     if (this.imageSent) return;
 
