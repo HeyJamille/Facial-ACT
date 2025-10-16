@@ -98,7 +98,10 @@ export class RegisterPeople {
       ? this.api.updatePerson(personToSend)
       : this.api.createPerson(personToSend);
 
-    if (!this.person.senha || this.person.senha.length < 6) {
+    if (
+      (!this.isEditMode && (!this.person.senha || this.person.senha.length < 6)) || // cadastro
+      (this.isEditMode && this.person.senha && this.person.senha.length < 6) // edição
+    ) {
       this.toastr.error('A senha deve ter no mínimo 6 caracteres.', 'Erro');
       this.loading = false;
       return;

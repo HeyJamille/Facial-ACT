@@ -136,7 +136,15 @@
                 placeholder="Digite uma senha"
                 [disabled]="isAdmin"  
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
-                [ngClass]="{'border-red-500': (senha.invalid || (person.senha && person.senha.length < 6)) && registerPeopleForms.submitted}"
+                [ngClass]="{
+    'border-red-500':
+      registerPeopleForms.submitted &&
+      (
+        (!isEditMode && (!person.senha || person.senha.length < 6)) ||
+        (isEditMode && person.senha && person.senha.length < 6)
+      )
+  }"
+
                 [required]="!isEditMode"
               />
 
