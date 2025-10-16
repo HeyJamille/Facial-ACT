@@ -2,6 +2,7 @@
 import { ToastrService } from 'ngx-toastr';
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -49,7 +50,8 @@ export class FaceCapture implements AfterViewInit {
     private auth: AuthService,
     private api: ApiService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -135,31 +137,28 @@ export class FaceCapture implements AfterViewInit {
     const formData = new FormData();
     formData.append('file', file);
 
+    // **Atualiza o status imediatamente antes de enviar**
+    this.facialIntegrada = 'N';
+    this.integracaoOcorrencia = 'Aguardando Validação';
+    this.imageSent = true;
+    this.showCamera = false;
+    this.homeCapture = false;
+    this.saveLocalStorage();
+
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
         this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
 
-        // Blocks recapture and sending
-        this.imageSent = true;
-        this.showCamera = false;
-        this.homeCapture = false;
-
-        // Updates integrationOccurrence and facialIntegrada
-        const payload = {
-          facialIntegrada: 'N',
-          integracaoOcorrencia: 'Aguardando Validação',
-        };
-
-        this.api.updateIntegration(userId, payload).subscribe({
-          next: () => {
-            this.integracaoOcorrencia = payload.integracaoOcorrencia;
-            this.facialIntegrada = payload.facialIntegrada;
-            this.saveLocalStorage();
-          },
-          error: () => {
-            this.toastr.error('Erro ao atualizar status da integração.');
-          },
-        });
+        // Atualiza o backend
+        this.api
+          .updateIntegration(userId, {
+            facialIntegrada: this.facialIntegrada,
+            integracaoOcorrencia: this.integracaoOcorrencia,
+          })
+          .subscribe({
+            next: () => {},
+            error: () => this.toastr.error('Erro ao atualizar status da integração.'),
+          });
       },
       error: () => {
         this.toastr.error('Erro ao enviar captura facial.', 'Erro');

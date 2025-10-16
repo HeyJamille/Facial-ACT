@@ -13,18 +13,18 @@ import { Button } from '../ui/button/button';
 import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
-  selector: 'app-file-upload',
+  selector: 'app-card-upload',
   standalone: true,
-  templateUrl: './file-upload.html',
+  templateUrl: './card-upload.html',
   imports: [CommonModule, FormsModule, Button],
 })
-export class FileUpload implements OnChanges {
-  @Output() documentSelected = new EventEmitter<File>();
+export class CardUpload implements OnChanges {
+  @Output() cardSelected = new EventEmitter<File>();
   @Output() uploadMessage = new EventEmitter<{ text: string; type: 'success' | 'error' }>();
   @Input() personId!: string;
   @Input() isEditMode = false;
 
-  fileToUpload?: File;
+  cardToUpload?: File;
   previewUrl?: string;
   isPdf = false;
   fileUploaded = false;
@@ -81,12 +81,12 @@ export class FileUpload implements OnChanges {
     });
   }
 
-  onFileSelected(event: Event) {
+  onCardSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      this.fileToUpload = file;
-      this.documentSelected.emit(file);
+      this.cardToUpload = file;
+      this.cardSelected.emit(file);
       this.handlePreview(file);
     }
   }
@@ -106,49 +106,13 @@ export class FileUpload implements OnChanges {
   }
 
   sendImage() {
-    if (!this.fileToUpload || !this.personId) {
-      this.toastr.warning('Selecione um documento primeiro.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.fileToUpload, this.fileToUpload.name);
-
-    this.api.uploadFile(this.personId, formData).subscribe({
-      next: () => {
-        this.toastr.success('Documento enviado com sucesso!');
-        this.fileUploaded = true;
-        this.isEditMode = false;
-        this.previewUrl = this.previewUrl || undefined;
-      },
-      error: () => this.toastr.error('Erro ao enviar documento.'),
-    });
+    console.log('teste');
   }
 
-  /*
-  sendImage() {
-    if (!this.fileToUpload || !this.personId) {
-      this.toastr.warning('Selecione um documento primeiro.');
-      return;
-    }
-
-    const tipoArquivo: 'carteirinha' | 'documento' = 'carteirinha';
-
-    this.api.uploadFile(this.personId, this.fileToUpload, tipoArquivo).subscribe({
-      next: () => {
-        this.toastr.success('Documento enviado com sucesso!');
-        this.fileUploaded = true;
-        this.isEditMode = false;
-        this.previewUrl = this.previewUrl || undefined;
-      },
-      error: () => this.toastr.error('Erro ao enviar documento.'),
-    });
-  }
-    */
   resetUpload() {
     this.fileUploaded = false;
     this.isEditMode = true;
     this.previewUrl = undefined;
-    this.fileToUpload = undefined;
+    this.cardToUpload = undefined;
   }
 }

@@ -82,6 +82,39 @@ export class ApiService {
     });
   }
 
+  /*
+  uploadFile(personId: string, file: File, tipo: 'carteirinha' | 'documento'): Observable<any> {
+    const token = this.auth.getToken();
+    const formData = new FormData();
+
+    // Campo do arquivo depende do tipo
+    if (tipo === 'carteirinha') {
+      formData.append('arquivoCarteirinha', file);
+    } else if (tipo === 'documento') {
+      formData.append('arquivoDocumento', file);
+    }
+
+    // Passando o tipo para o backend
+    formData.append('tipo', tipo);
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const url = `${this.baseUrl}Pessoa/UploadArquivo/${personId}`;
+
+    // Debug completo
+    console.log('personId:', personId);
+    console.log('tipo:', tipo);
+    console.log('arquivo enviado:', file);
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    return this.http.post(url, formData, { headers });
+  }
+  */
+
   // Download File
   downloadFile(personId: string, token: string): Observable<Blob> {
     const headers = new HttpHeaders({

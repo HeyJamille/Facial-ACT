@@ -12,6 +12,7 @@ import { Header } from '../../../components/header/header';
 import { Button } from '../../../components/ui/button/button';
 import { FaceCapture } from '../../../components/face-capture/face-capture';
 import { FileUpload } from '../../../components/file-upload/file-upload';
+import { CardUpload } from '../../../components/card-upload/card-upload';
 
 // Services
 import { ApiService } from '../../../services/api-service/api-service';
@@ -201,6 +202,12 @@ export class RegisterPeople {
     this.toastr.info('Documento anexado com sucesso!');
   }
 
+  /*
+  onCardSelected(file: File) {
+    this.documentFile = file;
+    this.toastr.info('Carteirinha anexada com sucesso!');
+  }
+  */
   // Function para verify actual recent
   isVisualizarPessoaRoute(): boolean {
     return this.router.url.includes('VisualizarPessoa');

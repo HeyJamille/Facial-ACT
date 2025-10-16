@@ -52,15 +52,15 @@
           </div>
 
           <!-- Validation Status -->
-          <div *ngIf="isEditMode && errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== ''" class="flex items-center  gap-2">
-            <label class="text-sm font-medium text-gray-700">
+          <div *ngIf="isEditMode && (facialIntegrada === 'N' && integracaoOcorrencia === 'Aguardando Validação') || (errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== '')" class="flex items-center  gap-2">
+            <label class="text-sm font-medium text-gray-700"> 
               Status:
             </label>
             
             <p class="text-sm font-semibold"
             [ngClass]="{
               'text-green-600': facialIntegrada === 'S',
-              'text-red-600': facialIntegrada !== 'S'
+     'text-red-600': facialIntegrada !== 'S'
             }">
               {{ integracaoOcorrencia }}
             </p>
@@ -71,7 +71,7 @@
 
   <!-- Disabled Capture  -->
   <ng-template #disabledCapture>
-    <div class="bg-white rounded-xl shadow-lg h-[400px] flex flex-col justify-center items-center gap-2">
+    <div class="bg-white rounded-xl shadow-lg h-[280px] flex flex-col justify-center items-center gap-2">
       <!-- Icon -->
       <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
       <span class="text-gray-400 text-sm font-medium text-center">
