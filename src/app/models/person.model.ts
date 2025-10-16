@@ -9,6 +9,8 @@ export interface Person {
   tipo: string;
   nomePai: string;
   nomeMae: string;
+  cep: string;
+  complemento: string;
   logradouro: string;
   bairro: string;
   numero: string;

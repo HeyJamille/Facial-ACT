@@ -46,6 +46,12 @@ export class RegisterPeople {
   showFaceCapture: boolean = false;
   showDocumentFile: boolean = false;
 
+  isFacialAllowed = false;
+  isFileUploadAllowed = false;
+
+  // ✅ Variável para armazenar mensagens
+  messages: { text: string; type: 'success' | 'error' }[] = [];
+
   constructor(
     private api: ApiService,
     private toastr: ToastrService,
@@ -92,6 +98,12 @@ export class RegisterPeople {
       ? this.api.updatePerson(personToSend)
       : this.api.createPerson(personToSend);
 
+    if (!this.person.senha || this.person.senha.length < 6) {
+      this.toastr.error('A senha deve ter no mínimo 6 caracteres.', 'Erro');
+      this.loading = false;
+      return;
+    }
+
     request$
       .pipe(
         switchMap((resPerson: any) => {
@@ -132,6 +144,9 @@ export class RegisterPeople {
     this.isEditMode = !!token; // token = edit
 
     const url = this.router.url;
+
+    this.isFacialAllowed = true;
+    this.isFileUploadAllowed = true;
 
     if (url.includes('VisualizarPessoa')) {
       this.pageTitle = 'Visualizar Dados Cadastrais';
@@ -186,5 +201,9 @@ export class RegisterPeople {
   // Function para verify actual recent
   isVisualizarPessoaRoute(): boolean {
     return this.router.url.includes('VisualizarPessoa');
+  }
+
+  addMessage(message: string, type: 'success' | 'error' = 'success') {
+    this.messages.push({ text: message, type });
   }
 }

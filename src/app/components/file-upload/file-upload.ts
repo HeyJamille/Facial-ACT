@@ -20,6 +20,7 @@ import { AuthService } from '../../services/auth-service/auth-service';
 })
 export class FileUpload implements OnChanges {
   @Output() documentSelected = new EventEmitter<File>();
+  @Output() uploadMessage = new EventEmitter<{ text: string; type: 'success' | 'error' }>();
   @Input() personId!: string;
   @Input() isEditMode = false;
 
@@ -68,7 +69,7 @@ export class FileUpload implements OnChanges {
 
           // Só mostra toast se não estiver na rota visualizarPessoa
           if (!url.includes('VisualizarPessoa')) {
-            this.toastr.info('Documento liberado para envio.');
+            this.uploadMessage.emit({ text: 'Documento liberado para cadastro', type: 'success' });
           }
         }
       },

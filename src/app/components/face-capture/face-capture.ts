@@ -4,7 +4,9 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
+  Output,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
@@ -27,6 +29,7 @@ export class FaceCapture implements AfterViewInit {
   @Input() isEditMode: boolean = false;
   @Input() person: any;
   @Input() showFaceCapture: boolean = false;
+  @Output() showMessage = new EventEmitter<{ text: string; type: 'success' | 'error' }>();
 
   imagecaptured: string | null = null;
   homeCapture: boolean = true;
@@ -265,7 +268,7 @@ export class FaceCapture implements AfterViewInit {
 
       // Only shows toast if not in the viewPerson route
       if (!url.includes('VisualizarPessoa')) {
-        this.toastr.info('Facial liberada para cadastro.');
+        this.showMessage.emit({ text: 'Facial liberada para cadastro', type: 'success' });
       }
     } catch {
       this.toastr.error('Falha ao carregar facial');

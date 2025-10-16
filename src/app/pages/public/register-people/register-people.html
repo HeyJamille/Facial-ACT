@@ -5,7 +5,22 @@
 
     <!-- Register People Form -->
     <div class="w-full">
-      <h1 class="text-2xl font-bold my-4">{{ pageTitle }}</h1>
+    
+      <div class="flex flex-col mb-5 md:flex-row justify-between items-center md:mb-0">
+        <h1 class="text-2xl font-bold my-4">{{ pageTitle }}</h1>
+        
+        <!-- Messages -->
+        <div class="flex flex-col h-auto  md:flex-row gap-2 md:w-auto">
+          <div *ngFor="let msg of messages | slice:0:2"
+              [ngClass]="{
+                'bg-green-100 text-green-700': msg.type === 'success',
+                'bg-red-100 text-red-700': msg.type === 'error'
+              }"
+              class="p-2 rounded-md shadow-md">
+            {{ msg.text }}
+          </div>
+        </div>
+      </div>
 
       <form #registerPeopleForms="ngForm" (ngSubmit)="onSubmit(registerPeopleForms)"
         class="flex flex-col gap-6 bg-white rounded-xl shadow-lg p-6">
@@ -121,7 +136,7 @@
                 placeholder="Digite uma senha"
                 [disabled]="isAdmin"  
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
-                [ngClass]="{'border-red-500': senha.invalid && registerPeopleForms.submitted}"
+                [ngClass]="{'border-red-500': (senha.invalid || (person.senha && person.senha.length < 6)) && registerPeopleForms.submitted}"
                 [required]="!isEditMode"
               />
 
@@ -172,6 +187,16 @@
           <legend class="text-lg font-bold px-2">Endereço</legend>
 
           <div class="flex flex-col sm:flex-row gap-4">
+            <div class="w-full sm:w-1/2">
+              <label for="CEP" class="text-sm font-medium text-black">CEP</label>
+              <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required							 
+                [disabled]="isAdmin" 
+                placeholder="Ex: 01001-000" 
+                mask="00000-000"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+								[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}">
+						</div>
+
             <div class="w-full">
               <label for="logradouro" class="text-sm font-medium text-black">Logradouro</label>
               <input type="text" id="logradouro" name="logradouro" [(ngModel)]="person.logradouro" #logradouro="ngModel" required
@@ -181,7 +206,7 @@
 								[ngClass]="{'border-red-500': logradouro.invalid && registerPeopleForms.submitted}">
 						</div>
 
-            <div class="w-full sm:w-1/4">
+            <div class="w-full sm:w-[200px]">
               <label for="numero" class="text-sm font-medium text-black">Número</label>
               <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
 							  placeholder="Ex: 123"
@@ -192,6 +217,15 @@
           </div>
 
           <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <div class="w-full">
+              <label for="complemento" class="text-sm font-medium text-black">Complemento</label>
+              <input type="text" id="complemento" name="complemento" [(ngModel)]="person.complemento" #complemento="ngModel" required
+								placeholder="Ex: Centro"
+                [disabled]="isAdmin" 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
+								[ngClass]="{'border-red-500': complemento.invalid && registerPeopleForms.submitted}"
+                >
+						</div>
             <div class="w-full">
               <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
               <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
@@ -288,7 +322,8 @@
       <app-face-capture
         [isEditMode]="isEditMode"         
         [person]="person"                 
-        [showFaceCapture]="isEditMode">   
+        [showFaceCapture]="isEditMode"
+        (showMessage)="addMessage($event.text, $event.type)">
       </app-face-capture>
 
       <!-- Document Upload -->
@@ -296,7 +331,8 @@
         <app-file-upload 
           [personId]="person.id!" 
           [isEditMode]="isEditMode"
-          (documentSelected)="onDocumentSelected($event)">
+          (documentSelected)="onDocumentSelected($event)"
+          (uploadMessage)="addMessage($event.text, $event.type)">
         </app-file-upload>
       </div>
     </div>
