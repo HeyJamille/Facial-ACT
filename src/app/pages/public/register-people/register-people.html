@@ -229,11 +229,10 @@
           <div class="flex flex-col sm:flex-row gap-4 mt-4">
             <div class="w-full">
               <label for="complemento" class="text-sm font-medium text-black">Complemento</label>
-              <input type="text" id="complemento" name="complemento" [(ngModel)]="person.complemento" #complemento="ngModel" required
-								placeholder="Ex: Centro"
+              <input type="text" id="complemento" name="complemento" [(ngModel)]="person.complemento" #complemento="ngModel"
+								placeholder="Ex: Casa 5"
                 [disabled]="isAdmin" 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
-								[ngClass]="{'border-red-500': complemento.invalid && registerPeopleForms.submitted}"
                 >
 						</div>
             <div class="w-full">

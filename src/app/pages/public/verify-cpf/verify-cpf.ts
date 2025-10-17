@@ -69,7 +69,7 @@ export class VerifyCPF {
 
     this.api.getFaceValidation(docValue, docType).subscribe({
       next: (response) => {
-        console.log('Objeto retornado pela API:', response);
+        //console.log('Objeto retornado pela API:', response);
 
         if (response.facialValidada || response.existe === true) {
           this.toastr.success('Você já possui cadastro. Redirecionando...', 'Sucesso');
