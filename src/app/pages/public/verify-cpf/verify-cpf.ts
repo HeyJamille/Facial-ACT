@@ -15,6 +15,7 @@ import { AuthService } from '../../../services/auth-service/auth-service';
 
 export interface FaceValidationResponse {
   facialValidada: boolean;
+  existe: boolean;
 }
 
 @Component({
@@ -68,10 +69,10 @@ export class VerifyCPF {
 
     this.api.getFaceValidation(docValue, docType).subscribe({
       next: (response) => {
-        //console.log('Objeto retornado pela API:', response);
+        console.log('Objeto retornado pela API:', response);
 
-        if (response.facialValidada) {
-          this.toastr.success('Você já possui facial cadastrada. Redirecionando...', 'Sucesso');
+        if (response.facialValidada || response.existe === true) {
+          this.toastr.success('Você já possui cadastro. Redirecionando...', 'Sucesso');
 
           // globally release the guard
           this.auth.bypassNextNavigation();

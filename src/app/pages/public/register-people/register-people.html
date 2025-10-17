@@ -120,7 +120,8 @@
                 placeholder="email@gmail.com"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': email.invalid && registerPeopleForms.submitted}"
-                [disabled]="isEditMode || isAdmin">
+                
+                [disabled]="isEditMode && !isViewMode">
             </div>
 
             <!-- Password -->
@@ -137,14 +138,15 @@
                 [disabled]="isAdmin"  
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
                 [ngClass]="{
-    'border-red-500':
-      registerPeopleForms.submitted &&
-      (
-        (!isEditMode && (!person.senha || person.senha.length < 6)) ||
-        (isEditMode && person.senha && person.senha.length < 6)
-      )
-  }"
-
+                  'border-red-500':
+                    registerPeopleForms.submitted &&
+                    !isViewMode && 
+                    (
+                      (!isEditMode && (!person.senha || person.senha.length < 6)) ||
+                      (isEditMode && person.senha && person.senha.length < 6) ||
+                      (isAdmin && person.senha && person.senha.length < 6)
+                    )
+                }"
                 [required]="!isEditMode"
               />
 
@@ -299,7 +301,7 @@
         </fieldset>
 
         <!-- Checkbox -->
-        <div *ngIf="!isVisualizarPessoaRoute()" class="flex items-center gap-2">
+        <div class="flex items-center gap-2">
           <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration" />
           <label for="declaration" class="text-sm text-gray-700">
             Declaro estar ciente e de acordo com a 
@@ -318,7 +320,7 @@
         </p>
 
         <!-- Button -->
-        <app-button *ngIf="!isVisualizarPessoaRoute()" type="submit" [loading]="loading" buttonText={{buttonTitle}} [disabled]="isAdmin">
+        <app-button  type="submit" [loading]="loading" buttonText={{buttonTitle}}>
           {{ loading ? 'Salvando...' : 'Salvar' }}
         </app-button>
 

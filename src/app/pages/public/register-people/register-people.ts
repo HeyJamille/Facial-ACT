@@ -59,7 +59,8 @@ export class RegisterPeople {
   isFacialAllowed = false;
   isFileUploadAllowed = false;
 
-  // ✅ Variável para armazenar mensagens
+  isViewMode = false;
+
   messages: { text: string; type: 'success' | 'error' }[] = [];
 
   constructor(
@@ -109,8 +110,10 @@ export class RegisterPeople {
       : this.api.createPerson(personToSend);
 
     if (
-      (!this.isEditMode && (!this.person.senha || this.person.senha.length < 6)) || // cadastro
-      (this.isEditMode && this.person.senha && this.person.senha.length < 6) // edição
+      !this.isViewMode &&
+      ((!this.isEditMode && (!this.person.senha || this.person.senha.length < 6)) ||
+        (this.isEditMode && this.person.senha && this.person.senha.length < 6) ||
+        (this.isAdmin && this.person.senha && this.person.senha.length < 6))
     ) {
       this.toastr.error('A senha deve ter no mínimo 6 caracteres.', 'Erro');
       this.loading = false;
@@ -155,16 +158,21 @@ export class RegisterPeople {
   ngOnInit(): void {
     const token = this.auth.getToken();
     this.isEditMode = !!token; // token = edit
-
     const url = this.router.url;
 
     this.isFacialAllowed = true;
     this.isFileUploadAllowed = true;
 
+    // New variable
+    this.isViewMode = false;
+
     if (url.includes('VisualizarPessoa')) {
       this.pageTitle = 'Visualizar Dados Cadastrais';
+      this.isEditMode = true;
+      this.isViewMode = true;
     } else if (url.includes('EditarPessoa')) {
       this.isEditMode = true;
+      this.isViewMode = false;
       this.pageTitle = 'Alterar Dados Cadastrais';
 
       // Get user Id
