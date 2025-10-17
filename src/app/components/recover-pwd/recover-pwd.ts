@@ -52,8 +52,8 @@ export class RecoverPwd {
         form.resetForm();
       },
       error: (err) => {
-        console.error(err);
-        this.toastr.error('Erro ao enviar e-mail.', 'Erro');
+        //console.error(err);
+        this.toastr.error(err.error, 'Erro');
         this.loading = false;
       },
     });
