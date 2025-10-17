@@ -189,7 +189,7 @@ export class FaceCapture implements AfterViewInit {
   }
 
   repeatCapture() {
-    if (this.imageSent) return;
+    //if (this.imageSent) return;
 
     this.showCamera = true;
     this.errorImagem = true;
