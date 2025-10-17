@@ -70,7 +70,7 @@ export class ApiService {
     return this.http.delete(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
-  /* ========================= FILE ============================ */
+  /* ========================= FILE ============================ 
   uploadFile(personId: string, formData: FormData): Observable<any> {
     const token = this.auth.getToken();
     const headers = new HttpHeaders({
@@ -81,39 +81,27 @@ export class ApiService {
       headers,
     });
   }
+*/
 
-  /*
-  uploadFile(personId: string, file: File, tipo: 'carteirinha' | 'documento'): Observable<any> {
+  uploadFile(id: string, tipo: 'carteirinha' | 'documento', file: File) {
     const token = this.auth.getToken();
-    const formData = new FormData();
-
-    // Campo do arquivo depende do tipo
-    if (tipo === 'carteirinha') {
-      formData.append('arquivoCarteirinha', file);
-    } else if (tipo === 'documento') {
-      formData.append('arquivoDocumento', file);
+    if (!token) {
+      console.error('Token não encontrado!');
     }
 
-    // Passando o tipo para o backend
-    formData.append('tipo', tipo);
+    const formData = new FormData();
+
+    // Send to backend
+    formData.append('file', file);
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    const url = `${this.baseUrl}Pessoa/UploadArquivo/${personId}`;
-
-    // Debug completo
-    console.log('personId:', personId);
-    console.log('tipo:', tipo);
-    console.log('arquivo enviado:', file);
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
+    const url = `${this.baseUrl}Pessoa/UploadArquivo/${id}?tipo=${tipo}`;
 
     return this.http.post(url, formData, { headers });
   }
-  */
 
   // Download File
   downloadFile(personId: string, token: string): Observable<Blob> {

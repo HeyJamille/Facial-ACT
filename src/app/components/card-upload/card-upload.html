@@ -1,6 +1,6 @@
 <div>
   <div class="my-4">
-    <h2 class="text-2xl font-bold">Anexar Documento</h2>
+    <h2 class="text-2xl font-bold">Anexar Carteira de Estudante</h2>
     <p class="text-black text-sm mt-1">
       Caso seja estudante, anexe sua carteirinha.
     </p>
@@ -9,12 +9,12 @@
   <div class="bg-white rounded-xl shadow-lg p-6 h-auto flex flex-col justify-center items-center gap-4">
 
     <!-- If document already sent -->
-    <div *ngIf="fileUploaded" class="text-center">
+    <div *ngIf="cardUploaded" class="text-center">
       <p class="text-green-600 font-medium text-sm">Carteirinha já enviada!</p>
     </div>
 
     <!-- Upload Area -->
-    <ng-container *ngIf="!fileUploaded && !previewUrl">
+    <ng-container *ngIf="!cardUploaded && !previewUrlCard">
       <div
         class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg"
         [ngClass]="{
@@ -47,9 +47,9 @@
     </ng-container>
 
     <!-- Preview -->
-    <div *ngIf="previewUrl && !fileUploaded" class="mt-4 w-full flex flex-col items-center">
+    <div *ngIf="previewUrlCard && !cardUploaded" class="mt-4 w-full flex flex-col items-center">
       <ng-container *ngIf="!isPdf; else pdfPreview">
-        <img [src]="previewUrl" alt="Preview" class="max-h-40 rounded-lg border border-gray-300"/>
+        <img [src]="previewUrlCard" alt="Preview" class="max-h-40 rounded-lg border border-gray-300"/>
       </ng-container>
       <ng-template #pdfPreview>
         <div class="flex flex-col items-center">

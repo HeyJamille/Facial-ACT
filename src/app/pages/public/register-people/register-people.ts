@@ -23,7 +23,16 @@ import { Person } from '../../../models/person.model';
 
 @Component({
   selector: 'app-register-people',
-  imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button, FaceCapture, FileUpload],
+  imports: [
+    CommonModule,
+    FormsModule,
+    Header,
+    NgxMaskDirective,
+    Button,
+    FaceCapture,
+    FileUpload,
+    CardUpload,
+  ],
   templateUrl: './register-people.html',
 })
 export class RegisterPeople {
@@ -202,12 +211,11 @@ export class RegisterPeople {
     this.toastr.info('Documento anexado com sucesso!');
   }
 
-  /*
   onCardSelected(file: File) {
     this.documentFile = file;
     this.toastr.info('Carteirinha anexada com sucesso!');
   }
-  */
+
   // Function para verify actual recent
   isVisualizarPessoaRoute(): boolean {
     return this.router.url.includes('VisualizarPessoa');

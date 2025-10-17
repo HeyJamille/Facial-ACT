@@ -111,10 +111,9 @@ export class FileUpload implements OnChanges {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', this.fileToUpload, this.fileToUpload.name);
+    const tipoArquivo: 'carteirinha' | 'documento' = 'documento';
 
-    this.api.uploadFile(this.personId, formData).subscribe({
+    this.api.uploadFile(this.personId, tipoArquivo, this.fileToUpload).subscribe({
       next: () => {
         this.toastr.success('Documento enviado com sucesso!');
         this.fileUploaded = true;
@@ -125,26 +124,6 @@ export class FileUpload implements OnChanges {
     });
   }
 
-  /*
-  sendImage() {
-    if (!this.fileToUpload || !this.personId) {
-      this.toastr.warning('Selecione um documento primeiro.');
-      return;
-    }
-
-    const tipoArquivo: 'carteirinha' | 'documento' = 'carteirinha';
-
-    this.api.uploadFile(this.personId, this.fileToUpload, tipoArquivo).subscribe({
-      next: () => {
-        this.toastr.success('Documento enviado com sucesso!');
-        this.fileUploaded = true;
-        this.isEditMode = false;
-        this.previewUrl = this.previewUrl || undefined;
-      },
-      error: () => this.toastr.error('Erro ao enviar documento.'),
-    });
-  }
-    */
   resetUpload() {
     this.fileUploaded = false;
     this.isEditMode = true;

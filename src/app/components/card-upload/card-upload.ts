@@ -20,14 +20,13 @@ import { AuthService } from '../../services/auth-service/auth-service';
 })
 export class CardUpload implements OnChanges {
   @Output() cardSelected = new EventEmitter<File>();
-  @Output() uploadMessage = new EventEmitter<{ text: string; type: 'success' | 'error' }>();
   @Input() personId!: string;
   @Input() isEditMode = false;
 
   cardToUpload?: File;
-  previewUrl?: string;
+  previewUrlCard?: string;
   isPdf = false;
-  fileUploaded = false;
+  cardUploaded = false;
 
   isAdmin = false;
 
@@ -46,37 +45,32 @@ export class CardUpload implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['personId'] && this.personId) {
       //console.log('personId recebido:', this.personId);
-      this.checkDocument();
+      this.checkCard();
     }
   }
 
-  private checkDocument() {
+  private checkCard() {
     this.api.getPersonById(this.personId).subscribe({
       next: (res: any) => {
         //console.log('Resposta da API getPersonById:', res);
 
         const url = this.router.url;
 
-        if (res && res.arquivoDocumento) {
-          //console.log('arquivoDocumento encontrado:', res.arquivoDocumento);
-          this.fileUploaded = true;
+        if (res && res.arquivoCarteirinha) {
+          //console.log('arquivoCarteirinha encontrado:', res.arquivoCarteirinha);
+          this.cardUploaded = true;
           this.isEditMode = false;
-          this.previewUrl = res.arquivoDocumento;
+          this.previewUrlCard = res.arquivoCarteirinha;
           //this.toastr.info('Documento já enviado.');
         } else {
           this.isEditMode = true;
-          this.fileUploaded = false;
-
-          // Só mostra toast se não estiver na rota visualizarPessoa
-          if (!url.includes('VisualizarPessoa')) {
-            this.uploadMessage.emit({ text: 'Documento liberado para cadastro', type: 'success' });
-          }
+          this.cardUploaded = false;
         }
       },
       error: (err) => {
         //console.error('Erro ao buscar pessoa:', err);
         this.isEditMode = true;
-        this.fileUploaded = false;
+        this.cardUploaded = false;
       },
     });
   }
@@ -94,11 +88,11 @@ export class CardUpload implements OnChanges {
   private handlePreview(file: File) {
     if (file.type === 'application/pdf') {
       this.isPdf = true;
-      this.previewUrl = undefined;
+      this.previewUrlCard = undefined;
     } else if (file.type.startsWith('image/')) {
       this.isPdf = false;
       const reader = new FileReader();
-      reader.onload = () => (this.previewUrl = reader.result as string);
+      reader.onload = () => (this.previewUrlCard = reader.result as string);
       reader.readAsDataURL(file);
     } else {
       this.toastr.warning('Tipo de arquivo não suportado. Envie uma imagem ou PDF.');
@@ -106,13 +100,28 @@ export class CardUpload implements OnChanges {
   }
 
   sendImage() {
-    console.log('teste');
+    if (!this.cardToUpload || !this.personId) {
+      this.toastr.warning('Selecione um documento primeiro.');
+      return;
+    }
+
+    const tipoArquivo: 'carteirinha' | 'documento' = 'carteirinha';
+
+    this.api.uploadFile(this.personId, tipoArquivo, this.cardToUpload).subscribe({
+      next: () => {
+        this.toastr.success('Documento enviado com sucesso!');
+        this.cardUploaded = true;
+        this.isEditMode = false;
+        this.previewUrlCard = this.previewUrlCard || undefined;
+      },
+      error: () => this.toastr.error('Erro ao enviar documento.'),
+    });
   }
 
   resetUpload() {
-    this.fileUploaded = false;
+    this.cardUploaded = false;
     this.isEditMode = true;
-    this.previewUrl = undefined;
+    this.previewUrlCard = undefined;
     this.cardToUpload = undefined;
   }
 }
