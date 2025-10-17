@@ -189,4 +189,11 @@ export class ApiService {
       throw err;
     }
   }
+
+  /* ========================= RECOVER PASSWORD ============================ */
+  recoverPwd(email: string): Observable<any> {
+    const params = new HttpParams().set('email', email); // query param
+
+    return this.http.post(`${this.baseUrl}Pessoa/recupera-senha`, null, { params });
+  }
 }

@@ -7,6 +7,10 @@ import { ToastrService } from 'ngx-toastr';
 // Components
 import { Button } from '../ui/button/button';
 
+// Service
+import { ApiService } from '../../services/api-service/api-service';
+import { Person } from '../../models/person.model';
+
 @Component({
   selector: 'app-recover-pwd',
   imports: [CommonModule, FormsModule, Button],
@@ -24,31 +28,34 @@ export class RecoverPwd {
   email: string = '';
   loading: boolean = false;
 
-  constructor(private toastr: ToastrService) {}
+  person: Person = {} as Person;
+
+  constructor(private toastr: ToastrService, private api: ApiService) {}
 
   onSubmit(form: NgForm) {
-    if (form.invalid) {
-      this.toastr.error('Preencha o e-mail corretamente!', 'Erro');
-      return;
-    }
-
     this.loading = true;
+    const email = this.person.email;
 
-    try {
-      // Simulate shipping
-      this.sendEmail(this.email);
+    this.api.recoverPwd(email).subscribe({
+      next: (res) => {
+        this.toastr.success(
+          'Uma senha temporária foi enviada para o seu e-mail! Acesse o sistema com a nova senha e faça a mudança.',
+          'Sucesso',
+          {
+            timeOut: 10000,
+            progressBar: true,
+            tapToDismiss: true,
+          }
+        );
 
-      this.toastr.success('E-mail enviado com sucesso!');
-      this.loading = false;
-      form.resetForm();
-    } catch (err) {
-      this.toastr.error('Erro ao enviar e-mail.', 'Erro');
-      this.loading = false;
-    }
-  }
-
-  // Function simulating API synchronously
-  sendEmail(email: string) {
-    console.log('E-mail enviado para', email);
+        this.loading = false;
+        form.resetForm();
+      },
+      error: (err) => {
+        console.error(err);
+        this.toastr.error('Erro ao enviar e-mail.', 'Erro');
+        this.loading = false;
+      },
+    });
   }
 }

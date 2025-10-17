@@ -20,6 +20,7 @@ import { Person } from '../../../models/person.model';
   selector: 'app-signin',
   imports: [CommonModule, FormsModule, AuthForm, RecoverPwd],
   templateUrl: './signin.html',
+  standalone: true,
 })
 export class Signin {
   email: string = '';
