@@ -109,17 +109,6 @@ export class RegisterPeople {
       ? this.api.updatePerson(personToSend)
       : this.api.createPerson(personToSend);
 
-    if (
-      !this.isViewMode &&
-      ((!this.isEditMode && (!this.person.senha || this.person.senha.length < 6)) ||
-        (this.isEditMode && this.person.senha && this.person.senha.length < 6) ||
-        (this.isAdmin && this.person.senha && this.person.senha.length < 6))
-    ) {
-      this.toastr.error('A senha deve ter no mínimo 6 caracteres.', 'Erro');
-      this.loading = false;
-      return;
-    }
-
     request$
       .pipe(
         switchMap((resPerson: any) => {
@@ -148,8 +137,11 @@ export class RegisterPeople {
           }, 1000);
         },
         error: (err) => {
-          console.error(err);
-          this.toastr.error('Erro ao salvar dados ou enviar arquivos.', 'Erro');
+          //console.error(err);
+
+          const backendMessage = err.error?.mensagem || 'Erro desconhecido contate o suporte.';
+
+          this.toastr.error(backendMessage, 'Erro');
           this.loading = false;
         },
       });
@@ -157,52 +149,80 @@ export class RegisterPeople {
 
   ngOnInit(): void {
     const token = this.auth.getToken();
-    this.isEditMode = !!token; // token = edit
+    const userInfo = this.auth.getUserInfo();
+    const userId = userInfo?.id;
     const url = this.router.url;
 
-    this.isFacialAllowed = true;
-    this.isFileUploadAllowed = true;
+    //console.log('Token:', token);
+    //console.log('userInfo:', userInfo);
+    //console.log('URL atual:', url);
 
-    // New variable
+    this.pageTitle = 'Cadastro';
     this.isViewMode = false;
+    this.isEditMode = false;
+    this.isAdmin = userInfo?.role === 'A';
+    //console.log('isAdmin:', this.isAdmin);
 
+    // View person → all unlocked
     if (url.includes('VisualizarPessoa')) {
       this.pageTitle = 'Visualizar Dados Cadastrais';
-      this.isEditMode = true;
-      this.isViewMode = true;
-    } else if (url.includes('EditarPessoa')) {
-      this.isEditMode = true;
-      this.isViewMode = false;
-      this.pageTitle = 'Alterar Dados Cadastrais';
-
-      // Get user Id
-      const userInfo = this.auth.getUserInfo();
-      const userId = userInfo?.id;
-
-      if (userId && this.person.id && this.isAdmin && this.person.id !== userId) {
-        // Admin tentando editar outra pessoa
-        this.isEditMode = false; // bloqueia edição
-      }
-
-      //console.log('USERID:', userId);
-      //console.log('USERINFO:', userInfo);
+      this.isViewMode = false; // lock everything
+      this.isEditMode = false;
+    }
+    // Register person → everything unlocked
+    else if (url.includes('RegistrarPessoa')) {
+      this.pageTitle = 'Cadastro';
+      this.isViewMode = true; // desbloqueia tudo
+      this.isEditMode = false;
 
       if (userId) {
         this.api.getPersonById(userId).subscribe({
           next: (data) => {
-            // remove password
             const { senha, ...personWithoutPassword } = data;
             this.person = { ...personWithoutPassword };
+            console.log('this.person após API:', this.person);
           },
           error: () => {
             this.toastr.error('Erro ao carregar dados do usuário.', 'Erro');
           },
         });
       }
-    } else {
-      this.isEditMode = false;
-      this.pageTitle = 'Cadastro';
     }
+    // Edit person → block email, type and document
+    else if (url.includes('EditarPessoa')) {
+      this.pageTitle = 'Alterar Dados Cadastrais';
+      this.isEditMode = true; // bloqueia campos específicos
+      this.isViewMode = false; // bloqueia o resto
+    }
+    // Other case → block everything
+    else {
+      this.isEditMode = false;
+      this.isViewMode = false;
+    }
+
+    if (
+      (this.isAdmin && this.isEditMode) ||
+      userId === this.person.id ||
+      (!this.isAdmin && userId)
+    ) {
+      this.api.getPersonById(userId).subscribe({
+        next: (data) => {
+          // remove password
+          const { senha, ...personWithoutPassword } = data;
+          this.person = { ...personWithoutPassword };
+        },
+        error: () => {
+          const url = this.router.url;
+
+          if (!url.includes('RegistrarPessoa')) {
+            this.toastr.error('Erro ao carregar dados do usuário.', 'Erro');
+          }
+        },
+      });
+    }
+
+    //console.log('isEditMode final:', this.isEditMode);
+    //console.log('isViewMode final:', this.isViewMode);
   }
 
   togglePassword(): void {

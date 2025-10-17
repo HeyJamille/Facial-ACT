@@ -43,6 +43,8 @@ export class FaceCapture implements AfterViewInit {
 
   isAdmin = false;
 
+  viewPerson = false;
+
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
 
@@ -71,6 +73,9 @@ export class FaceCapture implements AfterViewInit {
 
     // Verify if is admin
     this.isAdmin = this.auth.getUserInfo()?.role === 'A';
+
+    const url = this.router.url;
+    this.viewPerson = url.includes('VisualizarPessoa');
   }
 
   ngAfterViewInit(): void {
@@ -266,7 +271,7 @@ export class FaceCapture implements AfterViewInit {
       this.showCamera = false;
 
       // Only shows toast if not in the viewPerson route
-      if (!url.includes('VisualizarPessoa')) {
+      if (!url.includes('VisualizarPessoa') && !this.isAdmin) {
         this.showMessage.emit({ text: 'Facial liberada para cadastro', type: 'success' });
       }
     } catch {

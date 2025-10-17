@@ -68,7 +68,7 @@ export class FileUpload implements OnChanges {
           this.fileUploaded = false;
 
           // Só mostra toast se não estiver na rota visualizarPessoa
-          if (!url.includes('VisualizarPessoa')) {
+          if (!url.includes('VisualizarPessoa') && !this.isAdmin) {
             this.uploadMessage.emit({ text: 'Documento liberado para cadastro', type: 'success' });
           }
         }
