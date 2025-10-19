@@ -145,11 +145,10 @@
                 [ngClass]="{
                   'border-red-500':
                     registerPeopleForms.submitted &&
-                    !isViewMode && 
                     (
                       (!isEditMode && (!person.senha || person.senha.length < 6)) ||
                       (isEditMode && person.senha && person.senha.length < 6) ||
-                      (isAdmin && person.senha && person.senha.length < 6)
+                      (isAdmin && isEditMode && person.senha && person.senha.length < 6)
                     )
                 }"
                 [required]="!isEditMode"

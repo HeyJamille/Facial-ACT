@@ -100,20 +100,33 @@ export class RegisterPeople {
       personToSend.nomePai = 'Não informado';
     }
 
-    // Dont send password if empty in edit mode
-    if (this.isEditMode && (!personToSend.senha || personToSend.senha.trim() === '')) {
-      delete personToSend.senha;
+    // Dont send password if empty in edit mode or is view mode
+    if (this.isEditMode || !this.isViewMode) {
+      // Se o campo senha estiver vazio, não envia (mantém a antiga)
+      if (!personToSend.senha || personToSend.senha.trim() === '') {
+        delete personToSend.senha;
+      } else if (personToSend.senha.length < 6) {
+        this.toastr.error('A senha deve ter pelo menos 6 caracteres.');
+        this.loading = false;
+        return;
+      }
     }
-
-    const request$ = this.isEditMode
-      ? this.api.updatePerson(personToSend)
-      : this.api.createPerson(personToSend);
+    /*
+    console.log('personToSend.senha', personToSend.senha);
+    console.log('is admin', this.isAdmin);
+    console.log('edit mode', this.isEditMode);
+    console.log('is view mode', this.isViewMode);
+    */
+    const request$ =
+      this.isEditMode || (this.isAdmin && !this.isViewMode)
+        ? this.api.updatePerson(personToSend)
+        : this.api.createPerson(personToSend);
 
     request$
       .pipe(
         switchMap((resPerson: any) => {
-          // New registration
-          if (!this.isEditMode && resPerson.token) {
+          // Only perform this logic if there is a return and for a new registration
+          if (resPerson && !this.isEditMode && resPerson.token) {
             this.auth.setToken(resPerson.token);
             this.showFaceCapture = true;
           }
@@ -123,7 +136,7 @@ export class RegisterPeople {
       .subscribe({
         next: () => {
           this.toastr.success(
-            this.isEditMode
+            this.isEditMode || !this.isViewMode
               ? 'Cadastro atualizado com sucesso!'
               : 'Cadastro realizado com sucesso!',
             'Sucesso'
@@ -132,9 +145,11 @@ export class RegisterPeople {
           this.loading = false;
 
           // Redirect to EditarPessoa after 1 second
-          setTimeout(() => {
-            this.router.navigate(['/EditarPessoa']);
-          }, 1000);
+          if (!this.isEditMode && this.isViewMode) {
+            setTimeout(() => {
+              this.router.navigate(['/EditarPessoa']);
+            }, 1000);
+          }
         },
         error: (err) => {
           //console.error(err);
@@ -175,6 +190,7 @@ export class RegisterPeople {
       this.isViewMode = true; // desbloqueia tudo
       this.isEditMode = false;
 
+      /*
       if (userId) {
         this.api.getPersonById(userId).subscribe({
           next: (data) => {
@@ -187,6 +203,7 @@ export class RegisterPeople {
           },
         });
       }
+        */
     }
     // Edit person → block email, type and document
     else if (url.includes('EditarPessoa')) {
