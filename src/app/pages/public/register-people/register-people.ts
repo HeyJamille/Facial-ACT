@@ -7,6 +7,10 @@ import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective } from 'ngx-mask';
 import { forkJoin, Observable, of, switchMap } from 'rxjs';
 
+// Datas
+import dataStates from '../../../data/states.json';
+import dataGenres from '../../../data/genres.json';
+
 // Components
 import { Header } from '../../../components/header/header';
 import { Button } from '../../../components/ui/button/button';
@@ -20,6 +24,7 @@ import { AuthService } from '../../../services/auth-service/auth-service';
 
 // Modals
 import { Person } from '../../../models/person.model';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-register-people',
@@ -39,6 +44,7 @@ export class RegisterPeople {
   person: Person = {
     tipo: '',
     estado: '',
+    sexo: '',
   } as Person;
 
   isEditMode: boolean = false; // false = register, true = edit
@@ -60,13 +66,20 @@ export class RegisterPeople {
 
   isViewMode = false;
 
+  states = dataStates;
+  genres = dataGenres;
+
+  selectedState: string = '';
+  selectedGenre: string = '';
+
   messages: { text: string; type: 'success' | 'error' }[] = [];
 
   constructor(
     private api: ApiService,
     private toastr: ToastrService,
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private http: HttpClient
   ) {
     // Check if there's state passed from navigation
     const nav = this.router.getCurrentNavigation();

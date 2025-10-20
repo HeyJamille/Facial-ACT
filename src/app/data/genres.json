@@ -1,0 +1,6 @@
+[
+  { "code": 1, "type": "Masculino" },
+  { "code": 2, "type": "Feminino" },
+  { "code": 3, "type": "Não Binário" },
+  { "code": 4, "type": "Prefiro não informar" }
+]

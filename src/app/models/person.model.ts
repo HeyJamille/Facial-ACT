@@ -2,6 +2,7 @@ export interface Person {
   id: string;
   nomeCompleto: string;
   dataNascimento: string;
+  sexo: string;
   email: string;
   senha?: string;
   celular: string;

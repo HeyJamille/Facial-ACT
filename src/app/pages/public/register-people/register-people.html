@@ -54,6 +54,27 @@
                 [ngModel]="person.dataNascimento | date:'yyyy-MM-dd'"
                 > 
             </div>
+
+            <!-- Sexo -->
+            <div class="w-full ">
+              <label for="sexo" class="text-sm font-medium text-black">Sexo</label>
+              <select
+                id="sexo"
+                name="sexo"
+                [(ngModel)]="person.sexo"
+                #sexo="ngModel"
+                required
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': sexo.invalid && registerPeopleForms.submitted}"
+              >
+                <option value="" disabled selected>Selecione</option>
+                <option *ngFor="let genre of genres" [value]="genre.code">
+                  {{ genre.type }}
+                </option>
+              </select>
+            </div>
           </div>
 
           <!-- Other personal data -->
@@ -276,36 +297,12 @@
                 [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
-                [ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}">
-                
+                [ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}"
+              >
                 <option value="" disabled selected>Selecione</option>
-                <option value="AC">AC</option>
-                <option value="AL">AL</option>
-                <option value="AP">AP</option>
-                <option value="AM">AM</option>
-                <option value="BA">BA</option>
-                <option value="CE">CE</option>
-                <option value="DF">DF</option>
-                <option value="ES">ES</option>
-                <option value="GO">GO</option>
-                <option value="MA">MA</option>
-                <option value="MT">MT</option>
-                <option value="MS">MS</option>
-                <option value="MG">MG</option>
-                <option value="PA">PA</option>
-                <option value="PB">PB</option>
-                <option value="PR">PR</option>
-                <option value="PE">PE</option>
-                <option value="PI">PI</option>
-                <option value="RJ">RJ</option>
-                <option value="RN">RN</option>
-                <option value="RS">RS</option>
-                <option value="RO">RO</option>
-                <option value="RR">RR</option>
-                <option value="SC">SC</option>
-                <option value="SP">SP</option>
-                <option value="SE">SE</option>
-                <option value="TO">TO</option>
+                <option *ngFor="let state of states" [value]="state.acronym">
+                  {{ state.acronym }}
+                </option>
               </select>
             </div>
           </div>
