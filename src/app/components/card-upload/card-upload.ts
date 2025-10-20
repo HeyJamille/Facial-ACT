@@ -29,6 +29,7 @@ export class CardUpload implements OnChanges {
   cardUploaded = false;
 
   isAdmin = false;
+  isViewMode = false;
 
   constructor(
     private toastr: ToastrService,
@@ -40,6 +41,22 @@ export class CardUpload implements OnChanges {
   ngOnInit() {
     // Verify if is admin
     this.isAdmin = this.auth.getUserInfo()?.role === 'A';
+
+    const url = this.router.url;
+
+    if (url.includes('VisualizarPessoa')) {
+      this.isViewMode = true;
+    } else if (url.includes('EditarPessoa')) {
+      this.isEditMode = true;
+    } else if (url.includes('RegistrarPessoa')) {
+      this.isEditMode = false;
+    }
+
+    /*
+    console.log('isViewMode', this.isViewMode);
+    console.log('isEditMode', this.isEditMode);
+    console.log('isAdmin', this.isAdmin);
+    */
   }
 
   ngOnChanges(changes: SimpleChanges) {

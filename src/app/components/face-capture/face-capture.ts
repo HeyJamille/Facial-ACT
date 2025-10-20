@@ -42,8 +42,7 @@ export class FaceCapture implements AfterViewInit {
   facialIntegrada?: string | number;
 
   isAdmin = false;
-
-  viewPerson = false;
+  isViewMode = false;
 
   private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
@@ -75,7 +74,14 @@ export class FaceCapture implements AfterViewInit {
     this.isAdmin = this.auth.getUserInfo()?.role === 'A';
 
     const url = this.router.url;
-    this.viewPerson = url.includes('VisualizarPessoa');
+
+    if (url.includes('VisualizarPessoa')) {
+      this.isViewMode = true;
+    } else if (url.includes('EditarPessoa')) {
+      this.isEditMode = true;
+    } else if (url.includes('RegistrarPessoa')) {
+      this.isEditMode = false;
+    }
   }
 
   ngAfterViewInit(): void {

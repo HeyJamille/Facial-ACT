@@ -101,7 +101,7 @@ export class RegisterPeople {
     }
 
     // Dont send password if empty in edit mode or is view mode
-    if (this.isEditMode || !this.isViewMode) {
+    if (this.isEditMode || this.isViewMode) {
       // Se o campo senha estiver vazio, não envia (mantém a antiga)
       if (!personToSend.senha || personToSend.senha.trim() === '') {
         delete personToSend.senha;
@@ -118,7 +118,7 @@ export class RegisterPeople {
     console.log('is view mode', this.isViewMode);
     */
     const request$ =
-      this.isEditMode || (this.isAdmin && !this.isViewMode)
+      this.isEditMode || (this.isAdmin && this.isViewMode)
         ? this.api.updatePerson(personToSend)
         : this.api.createPerson(personToSend);
 
@@ -136,7 +136,7 @@ export class RegisterPeople {
       .subscribe({
         next: () => {
           this.toastr.success(
-            this.isEditMode || !this.isViewMode
+            this.isEditMode || this.isViewMode
               ? 'Cadastro atualizado com sucesso!'
               : 'Cadastro realizado com sucesso!',
             'Sucesso'
@@ -145,7 +145,7 @@ export class RegisterPeople {
           this.loading = false;
 
           // Redirect to EditarPessoa after 1 second
-          if (!this.isEditMode && this.isViewMode) {
+          if (!this.isEditMode && !this.isViewMode) {
             setTimeout(() => {
               this.router.navigate(['/EditarPessoa']);
             }, 1000);
@@ -181,13 +181,13 @@ export class RegisterPeople {
     // View person → all unlocked
     if (url.includes('VisualizarPessoa')) {
       this.pageTitle = 'Visualizar Dados Cadastrais';
-      this.isViewMode = false; // lock everything
+      this.isViewMode = true; // lock everything
       this.isEditMode = false;
     }
     // Register person → everything unlocked
     else if (url.includes('RegistrarPessoa')) {
       this.pageTitle = 'Cadastro';
-      this.isViewMode = true; // desbloqueia tudo
+      this.isViewMode = false; // desbloqueia tudo
       this.isEditMode = false;
 
       /*

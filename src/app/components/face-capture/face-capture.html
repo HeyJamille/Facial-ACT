@@ -6,12 +6,6 @@
     *ngIf="showFaceCapture; else disabledCapture"
     class="mt-4">
       <div class="w-full bg-white rounded-lg shadow-lg p-6">
-
-        <!-- Admin message -->
-       <span *ngIf="isAdmin && viewPerson" class="text-gray-600 text-sm font-medium text-center">
-          Usuário administrador — captura facial desabilitado.
-        </span>
-      
         <!-- Start Button (appears only if there is no captured image) -->
         <div *ngIf=" homeCapture && !imagecaptured" class="flex justify-center">
           <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
@@ -76,12 +70,20 @@
 
   <!-- Disabled Capture  -->
   <ng-template #disabledCapture>
-    <div class="bg-white rounded-xl shadow-lg h-[280px] flex flex-col justify-center items-center gap-2">
+    <div 
+      class="bg-white rounded-xl shadow-lg h-[280px] flex flex-col justify-center items-center gap-2 cursor-not-allowed"
+      >
       <!-- Icon -->
       <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
-      <span class="text-gray-400 text-sm font-medium text-center">
+      
+      <span *ngIf="!isAdmin && !isEditMode" class="text-gray-400 text-sm font-medium text-center">
         Salve os seus dados primeiro para liberar <br />
         a captura facial.
+      </span>
+
+      <!-- Admin message -->
+      <span *ngIf="isAdmin && isViewMode" class="text-gray-400 text-sm font-medium text-center">
+        Usuário administrador — captura facial desabilitada.
       </span>
     </div>
   </ng-template>

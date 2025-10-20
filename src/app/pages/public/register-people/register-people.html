@@ -35,7 +35,7 @@
             <div class="w-full">
               <label for="nomeCompleto" class="text-sm font-medium text-black">Nome Completo</label>
               <input type="text" id="nomeCompleto" name="nomeCompleto" [(ngModel)]="person.nomeCompleto" #nomeCompleto="ngModel" required
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 placeholder="Nome completo"
                 class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
@@ -46,7 +46,7 @@
             <div class="w-full">
               <label for="dataNascimento" class="text-sm font-medium text-black">Data de Nascimento</label>
               <input type="date" id="dataNascimento" name="dataNascimento" [(ngModel)]="person.dataNascimento"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
  
                 #dataNascimento="ngModel" required
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
@@ -69,9 +69,8 @@
                 required
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': tipo.invalid && registerPeopleForms.submitted}"
-                [disabled]="isEditMode || !isViewMode"
->
-                
+                [disabled]="isEditMode || isViewMode"
+                >
                 <option value="" disabled selected>Escolha uma opção</option>
                 <option value="cpf">CPF</option>
                 <option value="passaporte">Passaporte</option>
@@ -96,7 +95,7 @@
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': documento.invalid && registerPeopleForms.submitted}"
                 required
-                [disabled]="isEditMode || !isViewMode"
+                [disabled]="isEditMode || isViewMode"
 >
             </div>
             
@@ -104,7 +103,7 @@
             <div class="w-full">
               <label for="celular" class="text-sm font-medium text-black">Celular</label>
               <input type="text" id="celular" name="celular" [(ngModel)]="person.celular" #celular="ngModel" required
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
  
                 placeholder="Ex: (00) 00000-0000" mask="(00) 00000-0000"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
@@ -139,7 +138,7 @@
                 [(ngModel)]="person.senha"
                 #senha="ngModel"
                 placeholder="Digite uma senha"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
  
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
                 [ngClass]="{
@@ -180,7 +179,7 @@
               <label for="nomePai" class="text-sm font-medium text-black">Nome do Pai</label>
               <input type="text" id="nomePai" name="nomePai" [(ngModel)]="person.nomePai" 
                 placeholder="Nome do Pai"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
               >
@@ -190,7 +189,7 @@
               <label for="nomeMae" class="text-sm font-medium text-black">Nome da Mãe</label>
               <input type="text" id="nomeMae" name="nomeMae" [(ngModel)]="person.nomeMae" #nomeMae="ngModel" required
                 placeholder="Nome da Mãe"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': nomeMae.invalid && registerPeopleForms.submitted}">
@@ -206,7 +205,7 @@
             <div class="w-full sm:w-1/2">
               <label for="CEP" class="text-sm font-medium text-black">CEP</label>
               <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required							 
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 placeholder="Ex: 01001-000" 
                 mask="00000-000"
@@ -218,7 +217,7 @@
               <label for="logradouro" class="text-sm font-medium text-black">Logradouro</label>
               <input type="text" id="logradouro" name="logradouro" [(ngModel)]="person.logradouro" #logradouro="ngModel" required
 							  placeholder="Ex: Av. Brasil" 
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': logradouro.invalid && registerPeopleForms.submitted}">
@@ -228,7 +227,7 @@
               <label for="numero" class="text-sm font-medium text-black">Número</label>
               <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
 							  placeholder="Ex: 123"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': numero.invalid && registerPeopleForms.submitted}">
@@ -240,7 +239,7 @@
               <label for="complemento" class="text-sm font-medium text-black">Complemento</label>
               <input type="text" id="complemento" name="complemento" [(ngModel)]="person.complemento" #complemento="ngModel"
 								placeholder="Ex: Casa 5"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
                 >
@@ -249,7 +248,7 @@
               <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
               <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
 								placeholder="Ex: Centro"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
 								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}"
@@ -260,7 +259,7 @@
               <label for="cidade" class="text-sm font-medium text-black">Cidade</label>
               <input type="text" id="cidade" name="cidade" [(ngModel)]="person.cidade" #cidade="ngModel" required
 							  placeholder="Ex: São Paulo"
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': cidade.invalid && registerPeopleForms.submitted}">
@@ -274,7 +273,7 @@
                 [(ngModel)]="person.estado"
                 #estado="ngModel"
                 required
-                [disabled]="!isViewMode && !isEditMode ? true : false"
+                [disabled]="isViewMode && !isEditMode ? true : false"
 
                 class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
                 [ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}">
