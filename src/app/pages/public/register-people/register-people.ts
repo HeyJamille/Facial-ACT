@@ -42,7 +42,6 @@ export class RegisterPeople {
   } as Person;
 
   isEditMode: boolean = false; // false = register, true = edit
-  //person: Person = {} as Person;
   pageTitle = '';
   buttonTitle = 'Salvar';
   showEdit: boolean = false;
@@ -189,21 +188,6 @@ export class RegisterPeople {
       this.pageTitle = 'Cadastro';
       this.isViewMode = false; // desbloqueia tudo
       this.isEditMode = false;
-
-      /*
-      if (userId) {
-        this.api.getPersonById(userId).subscribe({
-          next: (data) => {
-            const { senha, ...personWithoutPassword } = data;
-            this.person = { ...personWithoutPassword };
-            console.log('this.person após API:', this.person);
-          },
-          error: () => {
-            this.toastr.error('Erro ao carregar dados do usuário.', 'Erro');
-          },
-        });
-      }
-        */
     }
     // Edit person → block email, type and document
     else if (url.includes('EditarPessoa')) {
@@ -268,5 +252,26 @@ export class RegisterPeople {
 
   addMessage(message: string, type: 'success' | 'error' = 'success') {
     this.messages.push({ text: message, type });
+  }
+
+  searchCep(): void {
+    const cep = this.person.cep;
+    if (!cep) return;
+
+    this.api.searchCep(cep).subscribe({
+      next: (dados) => {
+        if (!dados.erro) {
+          this.person.logradouro = dados.logradouro;
+          this.person.bairro = dados.bairro;
+          this.person.cidade = dados.localidade;
+          this.person.estado = dados.uf;
+        } else {
+          //console.warn('CEP não encontrado');
+        }
+      },
+      error: (err) => {
+        //console.error('Erro ao buscar CEP:', err);
+      },
+    });
   }
 }

@@ -196,4 +196,13 @@ export class ApiService {
 
     return this.http.post(`${this.baseUrl}Pessoa/recupera-senha`, null, { params });
   }
+
+  searchCep(cep: string): Observable<any> {
+    const cleanedCep = cep.replace(/\D/g, '');
+    if (!cleanedCep || cleanedCep.length !== 8) {
+      throw new Error('CEP inválido');
+    }
+
+    return this.http.get(`https://viacep.com.br/ws/${cleanedCep}/json/`);
+  }
 }

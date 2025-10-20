@@ -160,7 +160,7 @@ export class FaceCapture implements AfterViewInit {
       next: () => {
         this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
 
-        // Atualiza o backend
+        // Update api
         this.api
           .updateIntegration(userId, {
             facialIntegrada: this.facialIntegrada,

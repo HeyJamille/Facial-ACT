@@ -206,9 +206,9 @@
               <label for="CEP" class="text-sm font-medium text-black">CEP</label>
               <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required							 
                 [disabled]="isViewMode && !isEditMode ? true : false"
-
                 placeholder="Ex: 01001-000" 
                 mask="00000-000"
+                (blur)="searchCep()"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
 								[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}">
 						</div>
