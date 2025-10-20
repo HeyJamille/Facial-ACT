@@ -104,12 +104,16 @@ export class ApiService {
   }
 
   // Download File
-  downloadFile(personId: string, token: string): Observable<Blob> {
+  downloadFile(
+    personId: string,
+    token: string,
+    tipo: 'carteirinha' | 'documento'
+  ): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.get(`${this.baseUrl}Pessoa/DownloadArquivo/${personId}`, {
+    return this.http.get(`${this.baseUrl}Pessoa/DownloadArquivo/${personId}?tipo=${tipo}`, {
       headers,
       responseType: 'blob',
     });

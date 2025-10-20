@@ -50,6 +50,10 @@ export class Table {
   currentDocumentId?: string;
   documentData: Record<string, string> = {};
 
+  showCard = false;
+  currentCardId?: string;
+  cardData: Record<string, string> = {};
+
   selectedAction: { [key: string]: string } = {};
 
   constructor(
@@ -159,7 +163,9 @@ export class Table {
         return;
       }
 
-      this.api.downloadFile(person.id, token).subscribe({
+      const tipoArquivo: 'carteirinha' | 'documento' = 'documento';
+
+      this.api.downloadFile(person.id, token, tipoArquivo).subscribe({
         next: (blob: Blob) => {
           if (!blob) {
             this.toastr.warning('Nenhum documento encontrado.');
@@ -180,7 +186,42 @@ export class Table {
         },
         error: (err) => {
           console.error('Erro ao baixar documento:', err);
-          this.toastr.error('Erro ao baixar documento.');
+          this.toastr.error('Nenhum documento encontrado.');
+        },
+      });
+    }
+
+    if (value === 'visualizar-carteirinha') {
+      const token = this.auth.getToken();
+      if (!token) {
+        this.toastr.error('Usuário não autenticado', 'Erro');
+        return;
+      }
+
+      const tipoArquivo: 'carteirinha' | 'documento' = 'carteirinha';
+
+      this.api.downloadFile(person.id, token, tipoArquivo).subscribe({
+        next: (blob: Blob) => {
+          if (!blob) {
+            this.toastr.warning('Nenhuma carteirinha encontrada.');
+            return;
+          }
+
+          const extension = blob.type.split('/')[1] || 'pdf';
+          const fileName = `carteirinha${person.id}.${extension}`;
+
+          const link = document.createElement('a');
+          const url = window.URL.createObjectURL(blob);
+          link.href = url;
+          link.download = fileName;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          this.toastr.success('Baixando carteirinha!');
+        },
+        error: (err) => {
+          console.error('Erro ao baixar carteirinha:', err);
+          this.toastr.error('Nenhuma carteirinha encontrada.');
         },
       });
     }
@@ -219,5 +260,10 @@ export class Table {
   openDocumentModal(personId: string) {
     this.currentDocumentId = personId;
     this.showDocument = true;
+  }
+
+  openCardModal(personId: string) {
+    this.currentCardId = personId;
+    this.showCard = true;
   }
 }
