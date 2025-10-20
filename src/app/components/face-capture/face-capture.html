@@ -74,17 +74,30 @@
       class="bg-white rounded-xl shadow-lg h-[280px] flex flex-col justify-center items-center gap-2 cursor-not-allowed"
       >
       <!-- Icon -->
-      <img src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
+      <img *ngIf="!isAdmin && !isEditMode" src="close.png" alt="Upload Icon" class="w-8 h-8 text-gray-500 mb-2"/>
       
       <span *ngIf="!isAdmin && !isEditMode" class="text-gray-400 text-sm font-medium text-center">
         Salve os seus dados primeiro para liberar <br />
         a captura facial.
       </span>
 
-      <!-- Admin message -->
+      <div *ngIf="isAdmin && isViewMode" class="flex justify-center">
+        <img
+          *ngIf="imagecaptured"
+          [src]="imagecaptured"
+          alt="Foto facial"
+          class="w-full h-[250px] rounded-lg"
+        />
+        <p *ngIf="!imagecaptured" class="text-gray-500 mt-4 text-sm">
+          Nenhuma imagem enviada.
+        </p>
+      </div>
+
+      <!-- Admin message 
       <span *ngIf="isAdmin && isViewMode" class="text-gray-400 text-sm font-medium text-center">
         Usuário administrador — captura facial desabilitada.
       </span>
+      -->
     </div>
   </ng-template>
 </div>

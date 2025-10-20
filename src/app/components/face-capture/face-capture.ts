@@ -148,7 +148,7 @@ export class FaceCapture implements AfterViewInit {
     const formData = new FormData();
     formData.append('file', file);
 
-    // **Atualiza o status imediatamente antes de enviar**
+    // Updates status immediately before sending
     this.facialIntegrada = 'N';
     this.integracaoOcorrencia = 'Aguardando Validação';
     this.imageSent = true;
@@ -214,73 +214,88 @@ export class FaceCapture implements AfterViewInit {
   }
 
   async showImage() {
-    const userId = this.auth.getUserInfo()?.id;
-    if (!userId) return;
+    const url = this.router.url;
+
+    // Verifica se está na rota de VisualizarPessoa
+    const isViewingPerson = url.toLowerCase().includes('visualizarpessoa');
+
+    // ⚠️ Sempre prioriza o this.person.id se existir
+    const userId =
+      this.person?.id ||
+      (isViewingPerson && this.isAdmin ? this.person?.id : this.auth.getUserInfo()?.id);
+    console.log('ID usado para buscar imagem:', userId);
+
+    if (!userId) {
+      console.warn('Nenhum ID de pessoa encontrado.');
+      return;
+    }
 
     const token = this.auth.getToken();
-    if (!token) return;
+    if (!token) {
+      console.warn('Token não encontrado.');
+      return;
+    }
 
     try {
-      // Try to get it from the bank
+      // Busca imagem pelo ID da pessoa
       const data = await this.api.fetchFacialBase64(userId, token);
-      const url = this.router.url;
+      console.log('Retorno da API:', data);
 
-      if (data.base64) {
-        this.imagecaptured = data.base64;
-        localStorage.setItem('imagecaptured', this.imagecaptured);
+      if (data?.base64) {
+        // Monta base64 corretamente
+        this.imagecaptured = data.base64.startsWith('data:')
+          ? data.base64
+          : `data:image/jpeg;base64,${data.base64}`;
 
-        // Search for the person's status in the bank
-        const userId = this.person?.id || this.auth.getUserInfo()?.id;
-        if (userId) {
-          this.api.getPersonById(userId).subscribe({
-            next: (res: any) => {
-              this.facialIntegrada = res.facialIntegrada;
-              this.integracaoOcorrencia = res.integracaoOcorrencia;
+        // Se quiser armazenar localmente:
+        // localStorage.setItem('imagecaptured', this.imagecaptured);
 
-              // Update localStorage
-              this.saveLocalStorage();
+        // Busca informações da pessoa
+        this.api.getPersonById(userId).subscribe({
+          next: (res: any) => {
+            this.facialIntegrada = res.facialIntegrada;
+            this.integracaoOcorrencia = res.integracaoOcorrencia;
+            this.saveLocalStorage();
 
-              // Blocks buttons if already integrated
-              if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
-                this.imageSent = true;
-                this.showCamera = false;
-              } else {
-                this.imageSent = false;
-              }
-
-              this.homeCapture = false;
-            },
-            error: () => {
+            if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
+              this.imageSent = true;
+              this.showCamera = false;
+            } else {
               this.imageSent = false;
-            },
+            }
+
+            this.homeCapture = false;
+          },
+          error: () => {
+            this.imageSent = false;
+          },
+        });
+      } else {
+        // Caso não tenha imagem, tenta localStorage
+        const storedImage = localStorage.getItem('imagecaptured');
+        if (storedImage) {
+          this.imagecaptured = storedImage;
+          this.imageSent = false;
+          this.homeCapture = false;
+          this.showCamera = false;
+          return;
+        }
+
+        // Nenhuma imagem → libera captura
+        this.imagecaptured = null;
+        this.imageSent = false;
+        this.homeCapture = true;
+        this.showCamera = false;
+
+        if (!isViewingPerson && !this.isAdmin) {
+          this.showMessage.emit({
+            text: 'Facial liberada para cadastro',
+            type: 'success',
           });
         }
       }
-
-      // If you didn't find it in the bank, check localStorage
-      const storedImage = localStorage.getItem('imagecaptured');
-      if (storedImage) {
-        this.imagecaptured = storedImage;
-        this.imageSent = false; // allows sending/recapturing
-        this.homeCapture = false; // don't show start button
-        this.showCamera = false;
-        //this.toastr.info(
-        //  'Imagem carregada do armazenamento local. Você pode enviar para o banco ou recapturar.'
-        //);
-        return;
-      }
-
-      // If you didn't find it anywhere → allow capture
-      this.imagecaptured = null;
-      this.imageSent = false;
-      this.homeCapture = true;
-      this.showCamera = false;
-
-      // Only shows toast if not in the viewPerson route
-      if (!url.includes('VisualizarPessoa') && !this.isAdmin) {
-        this.showMessage.emit({ text: 'Facial liberada para cadastro', type: 'success' });
-      }
-    } catch {
+    } catch (err) {
+      console.error('Erro ao buscar imagem facial:', err);
       this.toastr.error('Falha ao carregar facial');
     }
   }
