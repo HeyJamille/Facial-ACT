@@ -15,14 +15,13 @@ import { AccessDenied } from './pages/public/access-denied/access-denied';
 import { AuthGuard } from './guards/auth-guard';
 import { FacialViewer } from './components/facial-viewer/facial-viewer';
 import { NotFound } from './pages/public/not-found/not-found';
-import { FaceCapture } from './components/face-capture/face-capture';
+import { Dashboard } from './pages/private/dashboard/dashboard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'VerificarFacial', pathMatch: 'full' },
   { path: 'VerificarFacial', component: VerifyCPF },
   { path: 'Auth/token', component: Signin },
-
-  { path: 'Auth/login', component: Signin }, //
+  { path: 'Auth/login', component: Signin },
 
   {
     path: 'RegistrarPessoa',
@@ -40,7 +39,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'ListarPessoa',
+    path: 'Pesquisa',
     component: ListPeople,
     canActivate: [AuthGuard],
   },
@@ -52,6 +51,11 @@ export const routes: Routes = [
   {
     path: 'VisualizarFacial',
     component: FacialViewer,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'Inicio',
+    component: Dashboard,
     canActivate: [AuthGuard],
   },
   { path: 'AcessoBloqueado', component: AccessDenied },

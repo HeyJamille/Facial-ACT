@@ -1,16 +1,20 @@
-<div class="flex flex-col sm:flex-row gap-2 w-full">
-  <select [(ngModel)]="filterBy" name="filterBy" class="border border-gray-400 rounded-lg px-2 py-2 text-sm w-full sm:w-30">
-    <option value="nomeCompleto">Nome</option>
+<div class="flex flex-col justify-center items-center sm:flex-row gap-2 w-full">
+  <select
+    [(ngModel)]="filterBy"
+    name="filterBy"
+    class="border border-gray-400 rounded-lg px-2 py-2 text-sm w-full md:w-[150px]"
+  >
+    <option value="" disabled selected>Selecione</option>
     <option value="documento">Documento</option>
-    <option value="dataFacial">Data Facial</option>
+    <option value="email">Email</option>
   </select>
 
-  <input 
+  <input
     type="text"
     placeholder="Pesquisar..."
     [(ngModel)]="term"
     name="term"
     (input)="onSearch()"
-    class="pl-4 pr-2 py-2 border rounded-lg text-sm text-black border-gray-300 bg-white focus:outline-none w-full"
-  >
+    class="pl-4 pr-2 py-2 border rounded-lg text-sm text-black border-gray-300 bg-white focus:outline-none w-full md:w-[400px]"
+  />
 </div>

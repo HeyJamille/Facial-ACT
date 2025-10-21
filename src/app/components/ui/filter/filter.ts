@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Filter {
   term: string = '';
-  filterBy: string = 'nomeCompleto';
+  filterBy: string = '';
 
   @Output() search = new EventEmitter<{ term: string; filterBy: string }>();
 

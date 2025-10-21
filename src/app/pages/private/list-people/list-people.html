@@ -4,14 +4,15 @@
   <section class="m-5 overflow-x-auto">
     
     <!-- Header + Search -->
-    <div class="flex flex-col sm:flex-row items-center justify-between mb-5 gap-4">
-      <h1 class="text-2xl font-bold text-gray-900">Lista de Pessoas</h1>
+    <div class="flex flex-col items-center justify-center mb-5 gap-4">
+      <h1 class="text-2xl font-bold text-gray-900">Pesquise uma Pessoa</h1>
      
-      <app-filter class="w-full sm:w-auto" (search)="onFilter($event)"></app-filter>
+      <app-filter class="w-full" (search)="onFilter($event)"></app-filter>
     </div>
 
     <!-- People Table -->
     <app-table
+    *ngIf="hasSearched && filteredPeople.length > 0"
      [fields]="[
         { name: 'nomeCompleto', label: 'Nome Completo' },
         { name: 'dataNascimento', label: 'Data Nasc.' },
@@ -25,6 +26,11 @@
       [actionType]="'icons'"
       (actionEvent)="handleEditDelete($event)">
     </app-table>
+    
+    <!-- Optional message when there are no results -->
+    <p *ngIf="hasSearched && filteredPeople.length === 0" class="text-center text-gray-500 mt-6">
+      Nenhum resultado encontrado.
+    </p>
 
     <!-- Confirmation Modal-->
     <app-confirmation-modal

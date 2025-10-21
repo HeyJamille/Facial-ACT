@@ -30,7 +30,10 @@ export class ListPeople implements OnInit {
   peopleForDeletName: string = '';
   peopleList: Person[] = [];
   filteredPeople: Person[] = [];
+  hasSearched: boolean = false;
+
   loading: boolean = false;
+  isLoading = true;
 
   constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
@@ -41,6 +44,8 @@ export class ListPeople implements OnInit {
 
   // Get API data
   fetchPeople() {
+    this.isLoading = true;
+
     this.api.getPeople().subscribe({
       next: (data: any[]) => {
         // Map each people
@@ -50,23 +55,26 @@ export class ListPeople implements OnInit {
         }));
 
         // Clona para filtro
-        this.filteredPeople = [...this.peopleList];
+        this.filteredPeople = [];
+        this.isLoading = false;
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
+        this.isLoading = false;
       },
     });
   }
 
   // Receives event from Filter
   onFilter(event: { term: string; filterBy: string }) {
+    const termLower = event.term.toLowerCase();
+    this.hasSearched = !!termLower; // control visibilly
+
     // If there is no term, show all
     if (!event.term || event.term.trim() === '') {
       this.filteredPeople = [...this.peopleList];
       return;
     }
-
-    const termLower = event.term.toLowerCase();
 
     this.filteredPeople = this.peopleList.filter((person) => {
       const value = person[event.filterBy as keyof Person];

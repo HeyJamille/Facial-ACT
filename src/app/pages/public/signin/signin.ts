@@ -103,7 +103,7 @@ export class Signin {
         // If you are an admin or we are on the /auth/token route
         if (role === 'A' || currentRoute.includes('/auth/token')) {
           this.toastr.success('Bem-vindo, administrador!', 'Sucesso');
-          this.router.navigate(['/ListarPessoa']);
+          this.router.navigate(['/Inicio']);
           this.loading = false;
           return;
         }

@@ -4,9 +4,10 @@
 
     <!-- Menu desktop -->
     <ul class="hidden lg:flex justify-end items-center gap-5 lg:gap-10">
-      <li *ngIf="isAdmin"><a href="/EditarPessoa">Alterar Dados</a></li>
-      <li *ngIf="isAdmin"><a href="/ListarPessoa">Listagem</a></li>
-      <li *ngIf="isAdmin"><a href="/ValidacaoDocumentos">Validação de Facial</a></li>
+      <li *ngIf="isAdmin"><a href="/Inicio">Início</a></li>
+      <li *ngIf="isAdmin"><a href="/EditarPessoa">Meus Dados</a></li>
+      <li *ngIf="isAdmin"><a href="/Pesquisa">Pesquisa</a></li>
+      <li *ngIf="isAdmin"><a href="/ValidacaoDocumentos">Validação de Documentos</a></li>
 
       <a href="/VerificarFacial" 
          (click)="logout()" 
@@ -48,9 +49,10 @@
 
   <nav>
     <ul class="flex flex-col justify-start w-full mt-5 gap-6 lg:gap-10">
-      <li *ngIf="isAdmin"><a href="/EditarPessoa">Alterar Dados</a></li>
-      <li><a href="/ListarPessoa">Listagem</a></li>
-      <li><a href="/ValidacaoDocumentos">Validação de Facial</a></li>
+      <li *ngIf="isAdmin"><a href="/Inicio">Início</a></li>
+      <li *ngIf="isAdmin"><a href="/EditarPessoa">Meus Dados</a></li>
+      <li><a href="/Pesquisa">Pesquisa</a></li>
+      <li><a href="/ValidacaoDocumentos">Validação de Documentos</a></li>
 
       <a 
          href="/VerificarFacial" 
