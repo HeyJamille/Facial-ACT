@@ -13,7 +13,6 @@ import { AccessDenied } from './pages/public/access-denied/access-denied';
 
 // Routes protected
 import { AuthGuard } from './guards/auth-guard';
-import { FacialViewer } from './components/facial-viewer/facial-viewer';
 import { NotFound } from './pages/public/not-found/not-found';
 import { Dashboard } from './pages/private/dashboard/dashboard';
 
@@ -46,11 +45,6 @@ export const routes: Routes = [
   {
     path: 'ValidacaoDocumentos',
     component: DocumentsValidation,
-    canActivate: [AuthGuard],
-  },
-  {
-    path: 'VisualizarFacial',
-    component: FacialViewer,
     canActivate: [AuthGuard],
   },
   {

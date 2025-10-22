@@ -6,7 +6,7 @@
         <th *ngFor="let col of fields" class="py-3 px-full text-center uppercase text-xs font-semibold tracking-wider">
           {{ col.label }}
         </th>
-        <th class="py-3 px-6 text-center uppercase text-xs font-semibold tracking-wider">Ação</th>
+        <th class="py-3 px-5 text-center uppercase text-xs font-semibold tracking-wider">Ação</th>
       </tr>
     </thead>
 
@@ -15,7 +15,7 @@
       <tr *ngFor="let person of data" class="bg-white hover:bg-gray-100 transition-colors duration-200 border-b border-gray-200">
         <!-- People list -->
         <td *ngFor="let col of fields" 
-            class="py-2 px-6 text-center text-sm text-gray-700 truncate"
+            class="py-2 px-5 text-center text-sm text-gray-700 truncate"
             title="{{ person[col.name] }}">
 
           <!-- Date of birth -->
@@ -26,6 +26,11 @@
           <!-- Phone -->
           <span *ngIf="col.name === 'celular' && person[col.name]">
             {{ utils.maskPhone(person[col.name]) }}
+          </span>
+
+          <!-- Type -->
+          <span *ngIf="col.name === 'tipo' && person[col.name]">
+            {{ person[col.name] === 'cpf' ? (person[col.name] | uppercase) : person[col.name] }}
           </span>
 
           <!-- CPF or Passport -->
@@ -39,7 +44,7 @@
           </span>
 
           <!-- Other fields -->
-          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'documento' && col.name !== 'email'">
+          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'tipo' && col.name !== 'documento' && col.name !== 'email'">
             {{ person[col.name] }}
           </span>
         </td>
@@ -55,9 +60,9 @@
                 (change)="onActionChange($event, person)"
               >
                 <option value="" disabled>Selecionar</option> <!-- initial placeholder -->
-                <option value="visualizar-facial">Visualizar Facial</option>
-                <option value="visualizar-documento">Visualizar Documento</option>
-                <option value="visualizar-carteirinha">Visualizar Carteirinha</option>
+                <option [disabled]="!person.arquivoFacial" value="visualizar-facial">Visualizar Facial</option>
+                <option [disabled]="!person.arquivoDocumento" value="visualizar-documento">Visualizar Documento</option>
+                <option [disabled]="!person.arquivoCarteirinha" value="visualizar-carteirinha">Visualizar Carteirinha</option>
                 <option value="visualizar-todos">Visualizar Todos</option>
               </select>
             </div>

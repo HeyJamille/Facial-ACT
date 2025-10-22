@@ -216,41 +216,38 @@ export class FaceCapture implements AfterViewInit {
   async showImage() {
     const url = this.router.url;
 
-    // Verifica se está na rota de VisualizarPessoa
-    const isViewingPerson = url.toLowerCase().includes('visualizarpessoa');
+    // Check if you are on the ViewPerson route
+    const isViewingPerson = url.includes('VisualizarPessoa');
 
-    // ⚠️ Sempre prioriza o this.person.id se existir
+    // Always prioritize this.person.id if it exists
     const userId =
       this.person?.id ||
       (isViewingPerson && this.isAdmin ? this.person?.id : this.auth.getUserInfo()?.id);
-    console.log('ID usado para buscar imagem:', userId);
+    //console.log('ID usado para buscar imagem:', userId);
 
     if (!userId) {
-      console.warn('Nenhum ID de pessoa encontrado.');
+      //console.warn('Nenhum ID de pessoa encontrado.');
       return;
     }
 
     const token = this.auth.getToken();
     if (!token) {
-      console.warn('Token não encontrado.');
+      //console.warn('Token não encontrado.');
       return;
     }
 
     try {
-      // Busca imagem pelo ID da pessoa
+      // Search image by person ID
       const data = await this.api.fetchFacialBase64(userId, token);
-      console.log('Retorno da API:', data);
+      //console.log('Retorno da API:', data);
 
       if (data?.base64) {
-        // Monta base64 corretamente
+        // Mounts base64 correctly
         this.imagecaptured = data.base64.startsWith('data:')
           ? data.base64
           : `data:image/jpeg;base64,${data.base64}`;
 
-        // Se quiser armazenar localmente:
-        // localStorage.setItem('imagecaptured', this.imagecaptured);
-
-        // Busca informações da pessoa
+        // Search for information about the person
         this.api.getPersonById(userId).subscribe({
           next: (res: any) => {
             this.facialIntegrada = res.facialIntegrada;
@@ -271,7 +268,7 @@ export class FaceCapture implements AfterViewInit {
           },
         });
       } else {
-        // Caso não tenha imagem, tenta localStorage
+        // If you don't have an image, try localStorage
         const storedImage = localStorage.getItem('imagecaptured');
         if (storedImage) {
           this.imagecaptured = storedImage;
@@ -281,7 +278,7 @@ export class FaceCapture implements AfterViewInit {
           return;
         }
 
-        // Nenhuma imagem → libera captura
+        // No image → releases capture
         this.imagecaptured = null;
         this.imageSent = false;
         this.homeCapture = true;

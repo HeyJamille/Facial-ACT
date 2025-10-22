@@ -53,9 +53,9 @@ export class FileUpload implements OnChanges {
       this.isEditMode = false;
     }
 
-    console.log('isViewMode', this.isViewMode);
-    console.log('isEditMode', this.isEditMode);
-    console.log('isAdmin', this.isAdmin);
+    //console.log('isViewMode', this.isViewMode);
+    //console.log('isEditMode', this.isEditMode);
+    //console.log('isAdmin', this.isAdmin);
   }
 
   ngOnChanges(changes: SimpleChanges) {

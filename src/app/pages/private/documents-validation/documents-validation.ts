@@ -45,8 +45,10 @@ export class DocumentsValidation implements OnInit {
           dataEnvioFacial: person.dataEnvioFacial ? new Date(person.dataEnvioFacial) : null,
         }));
 
-        // Clone to filter
-        this.filteredPeople = [...this.peopleList];
+        // Filters only people with completed documents, ID cards or facial recognition
+        this.filteredPeople = this.peopleList.filter(
+          (person) => person.arquivoCarteirinha || person.arquivoDocumento || person.arquivoFacial
+        );
         this.isLoading = false;
       },
       error: () => {
