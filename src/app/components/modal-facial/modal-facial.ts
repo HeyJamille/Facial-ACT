@@ -32,10 +32,10 @@ export class ModalFacial {
     this.showModal = true;
 
     if (type === 'approve') {
-      this.title = 'Aprovar Pessoa';
+      this.title = 'Aprovar';
       this.subtitle = 'Deseja realmente aprovar';
     } else {
-      this.title = 'Desaprovar Pessoa';
+      this.title = 'Desaprovar';
       this.subtitle = 'Deseja realmente desaprovar';
     }
   }
