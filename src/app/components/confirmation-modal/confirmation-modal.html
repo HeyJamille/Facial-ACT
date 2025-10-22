@@ -2,7 +2,7 @@
   *ngIf="showModal"
   class="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50"
 >
-  <div class="bg-white rounded-2xl p-6 w-80 text-center shadow-2xl space-y-4 relative">
+  <div class="bg-white rounded-2xl w-80 text-center shadow-2xl space-y-4 relative px-5 py-6 mx-5" >
     
     <!-- Close Button -->
     <button
@@ -15,12 +15,12 @@
     <!-- Text -->
     <div class="space-y-2">
       <h2 class="text-2xl font-bold text-gray-800">{{ title }}</h2> 
-      <p class="text-sm text-gray-600">{{ subtitle }} <strong>{{ personName }}</strong></p>
+      <p class="text-sm text-gray-600">{{ subtitle }} <strong>{{ personName }}</strong>?</p>
     </div>
     
     <!-- Button -->
     <app-button type="submit" [loading]="loading" (click)="confirm.emit()">
-      {{ loading ? 'Salvando...' : 'Excluir' }}
+      {{ loading ? 'Salvando...' : 'Confirmar' }}
     </app-button>
 
   </div>

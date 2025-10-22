@@ -1,9 +1,9 @@
 <div class="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-50">
-  <div class="relative bg-white p-4 rounded-lg shadow-lg max-w-3xl mx-5 my-6 w-full">
+  <div class="relative bg-white rounded-lg shadow-lg w-auto px-5 py-6 mx-5 ">
     
     <!-- Close Button -->
     <button
-      class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl font-bold"
+      class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl font-bold cursor-pointer"
       (click)="closeModal()"
       aria-label="Fechar modal"
     >
@@ -15,13 +15,36 @@
       <img
         [src]="imageBase64"
         alt="Captura Facial"
-        class="max-h-[80vh] w-auto object-contain rounded"
+        class="max-h-[60vh] w-auto object-contain rounded"
       />
     </div>
 
-    <!-- Message if there is no image -->
-    <p *ngIf="!imageBase64" class="text-center text-gray-500 mt-4">
-      Nenhuma imagem disponível
-    </p>
+    <!-- Approve and disapprove buttons -->
+    <div class="flex items-center justify-center gap-4 pt-5">
+      <button 
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        (click)="openModal('approve')"
+      >
+        Aprovar
+      </button>
+
+      <button 
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+        (click)="openModal('disapprove')"
+      >
+        Desaprovar
+      </button>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <app-confirmation-modal
+      [showModal]="showModal"
+      [title]="title"
+      [subtitle]="subtitle"
+      [personName]="personName"
+      (confirm)="confirmAction()"
+      (cancel)="closeModal()"
+    ></app-confirmation-modal>
+
   </div>
 </div>

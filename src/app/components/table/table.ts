@@ -42,6 +42,7 @@ export class Table {
   @Output() editPerson = new EventEmitter<string>();
   @Output() deletePerson = new EventEmitter<string>();
 
+  currentPersonName: string = '';
   showFacial = false;
   currentFacialId: string | null = null;
   facialData: { [key: string]: string } = {};
@@ -73,7 +74,7 @@ export class Table {
       });
     }
   }
-
+  /*
   openFacial(personId: string) {
     this.api.getFacialBase64(personId).subscribe({
       next: (res: any) => {
@@ -112,7 +113,7 @@ export class Table {
       error: () => this.toastr.error('Erro ao carregar a foto facial', 'Erro'),
     });
   }
-
+ */
   async onActionChange(event: Event, person: Person) {
     const value = (event.target as HTMLSelectElement).value;
 
@@ -149,7 +150,7 @@ export class Table {
         this.facialData[person.id] = base64FromStorage;
 
         // Open the modal
-        this.openFacialModal(person.id);
+        this.openFacialModal(person.id, person.nomeCompleto);
       } catch (err) {
         console.error('Erro ao carregar a captura facial', err);
         this.toastr.error('Erro ao carregar a captura facial', 'Erro');
@@ -243,17 +244,12 @@ export class Table {
     this.deletePerson.emit(id);
   }
 
-  approveFacial(personId: string) {
-    console.log('Aprovando facial de:', personId);
-  }
+  openFacialModal(personId: string, personName: string) {
+    console.log('Abrindo modal para pessoa:', personId);
+    console.log('Abrindo modal para pessoa:', personName);
 
-  disapproveFacial(personId: string) {
-    console.log('Reprovando facial de:', personId);
-  }
-
-  openFacialModal(personId: string) {
-    //console.log('Abrindo modal para pessoa:', personId);
     this.currentFacialId = personId;
+    this.currentPersonName = personName;
     this.showFacial = true;
   }
 

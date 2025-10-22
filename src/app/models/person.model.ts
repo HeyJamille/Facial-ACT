@@ -23,5 +23,5 @@ export interface Person {
   delet: string;
   arquivoFacial: string;
   dataEnvioFacial: string;
-  statusValidacao?: 'Aprovado' | 'Reprovado' | 'Pendente';
+  statusValidacao?: 'Aprovar' | 'Reprovar' | 'Pendente';
 }

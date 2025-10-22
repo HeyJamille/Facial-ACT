@@ -16,7 +16,6 @@ import { Person } from '../../../models/person.model';
 
 // Services
 import { ApiService } from '../../../services/api-service/api-service';
-import { UtilsService } from '../../../utils/utils-service';
 
 @Component({
   selector: 'app-list-people',
@@ -33,7 +32,6 @@ export class ListPeople implements OnInit {
   hasSearched: boolean = false;
 
   loading: boolean = false;
-  isLoading = true;
 
   constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
 
@@ -44,8 +42,6 @@ export class ListPeople implements OnInit {
 
   // Get API data
   fetchPeople() {
-    this.isLoading = true;
-
     this.api.getPeople().subscribe({
       next: (data: any[]) => {
         // Map each people
@@ -56,11 +52,9 @@ export class ListPeople implements OnInit {
 
         // Clona para filtro
         this.filteredPeople = [];
-        this.isLoading = false;
       },
       error: () => {
         this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
-        this.isLoading = false;
       },
     });
   }

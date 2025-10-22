@@ -58,7 +58,7 @@
                 <option value="visualizar-facial">Visualizar Facial</option>
                 <option value="visualizar-documento">Visualizar Documento</option>
                 <option value="visualizar-carteirinha">Visualizar Carteirinha</option>
-                <option value="aprovar-facial">Visualizar Todos</option>
+                <option value="visualizar-todos">Visualizar Todos</option>
               </select>
             </div>
           </ng-container>
@@ -85,6 +85,8 @@
 <app-modal-facial
   *ngIf="showFacial && currentFacialId"
   [imageBase64]="facialData[currentFacialId!]"
+  [personName]="currentPersonName"
+  [personID]="currentFacialId"
   (close)="showFacial = false"
 ></app-modal-facial>
 
