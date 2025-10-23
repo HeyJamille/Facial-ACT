@@ -40,7 +40,7 @@ export class Dashboard {
     },
   };
 
-  // Dados do gráfico de barras para idades
+  // Bar chart data for ages
   barChartData: ChartData<'bar'> = {
     labels: ['18-25', '26-35', '36-45', '46-60', '60+'],
     datasets: [
@@ -83,29 +83,38 @@ export class Dashboard {
     new Chart(ctxGenres, {
       type: 'pie',
       data: this.pieChartData,
-      options: this.pieChartOptions,
+      options: {
+        ...this.pieChartOptions,
+        maintainAspectRatio: false,
+      },
     });
 
     new Chart(ctxAge, {
       type: 'bar',
       data: this.barChartData,
-      options: this.barChartOptions,
+      options: {
+        ...this.barChartOptions,
+        maintainAspectRatio: false,
+      },
     });
 
     new Chart(ctxMonth, {
       type: 'bar',
       data: this.monthlyChartData,
-      options: this.monthlyChartOptions,
+      options: {
+        ...this.monthlyChartOptions,
+        maintainAspectRatio: false,
+      },
     });
   }
 
-  // Dados do gráfico de cadastros por mês
+  // Registration graph data by month
   monthlyChartData: ChartData<'bar'> = {
     labels: this.labels,
     datasets: [
       {
         label: 'Cadastros no Mês',
-        data: [20, 25, 30, 28, 35, 40, 38, 42, 30, 25, 20, 15], // exemplo de valores
+        data: [20, 25, 30, 28, 35, 40, 38, 42, 30, 25, 20, 15],
         backgroundColor: '#93c5fd',
         borderColor: ['#93c5fd'],
       },
@@ -125,7 +134,7 @@ export class Dashboard {
           color: '#374151',
           font: { size: 14 },
           padding: 10,
-          autoSkip: false,
+          autoSkip: false, // show all months
         },
       },
       x: {

@@ -44,11 +44,6 @@ export class ApiService {
 
   // Create person
   createPerson(person: Person): Observable<Person> {
-    //const token = this.auth.getToken(); // get cookie
-    //const headers = token
-    //  ? new HttpHeaders({ Authorization: `Bearer ${token}` })
-    //: new HttpHeaders();
-
     return this.http.post<Person>(`${this.baseUrl}Pessoa/`, person);
   }
 
@@ -70,19 +65,7 @@ export class ApiService {
     return this.http.delete(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
-  /* ========================= FILE ============================ 
-  uploadFile(personId: string, formData: FormData): Observable<any> {
-    const token = this.auth.getToken();
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
-    return this.http.post(`${this.baseUrl}Pessoa/UploadArquivo/${personId}`, formData, {
-      headers,
-    });
-  }
-*/
-
+  /* ========================= FILE ============================ */
   uploadFile(id: string, tipo: 'carteirinha' | 'documento', file: File) {
     const token = this.auth.getToken();
     if (!token) {

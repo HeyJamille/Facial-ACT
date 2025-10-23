@@ -2,7 +2,7 @@
   <select
     [(ngModel)]="filterBy"
     name="filterBy"
-    class="border border-gray-400 rounded-lg px-2 py-2 text-sm w-auto"
+    class="border border-gray-400 rounded-lg px-2 py-2 text-sm w-full sm:w-auto"
   >
     <option value="" disabled selected>Selecione</option>
     <option value="documento">Documento</option>
@@ -18,9 +18,7 @@
   />
 
   <!-- Button -->
-  
-
-  <app-button  type="submit" [loading]="loading" buttonText={{buttonTitle}} (click)="onSearch()">
+  <app-button  type="submit" [loading]="loading" buttonText={{buttonTitle}} (click)="onSearch()" class="w-full sm:w-auto">
     {{ loading ? 'Salvando...' : 'Pesquisar' }}
   </app-button>
 
