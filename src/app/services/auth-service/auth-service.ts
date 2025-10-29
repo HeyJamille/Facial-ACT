@@ -68,9 +68,9 @@ export class AuthService {
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      //console.log('PAYLOAD JWT:', payload); // veja aqui o que vem
+      //console.log('PAYLOAD JWT:', payload);
       return {
-        id: payload.UsuarioID, // talvez não seja esse nome
+        id: payload.UsuarioID,
         role: payload.Perfil,
       };
     } catch {

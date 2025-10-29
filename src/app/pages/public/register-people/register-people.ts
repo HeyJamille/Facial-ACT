@@ -72,6 +72,10 @@ export class RegisterPeople {
   selectedState: string = '';
   selectedGenre: string = '';
 
+  docType: string | null = null;
+  docValue: string | null = null;
+  disableDocInput = false;
+
   messages: { text: string; type: 'success' | 'error' }[] = [];
 
   constructor(
@@ -87,6 +91,21 @@ export class RegisterPeople {
 
     if (state && state['person']) {
       this.person = state['person']; // complet object
+    }
+
+    const storedDocType = localStorage.getItem('docType');
+    const storedDocValue = localStorage.getItem('docValue');
+
+    if (storedDocType && storedDocValue) {
+      this.docType = storedDocType;
+      this.docValue = storedDocValue;
+      this.disableDocInput = true;
+
+      this.person.tipo = this.docType;
+      this.person.documento = this.docValue;
+
+      localStorage.removeItem('docType');
+      localStorage.removeItem('docValue');
     }
 
     // Verify if is admin

@@ -12,6 +12,7 @@ import { Person } from '../../models/person.model';
 // Pages
 import { FaceValidationResponse } from '../../pages/public/verify-cpf/verify-cpf';
 
+// gitignore
 interface SigninResponse {
   token: string;
 }

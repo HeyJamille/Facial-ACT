@@ -124,7 +124,7 @@ export class FaceCapture implements AfterViewInit {
 
     this.imagecaptured = this.canvas.toDataURL('image/jpeg');
     this.stopCamera();
-    localStorage.setItem('imagecaptured', this.imagecaptured);
+    //localStorage.setItem('imagecaptured', this.imagecaptured);
   }
 
   sendImage() {
@@ -154,7 +154,7 @@ export class FaceCapture implements AfterViewInit {
     this.imageSent = true;
     this.showCamera = false;
     this.homeCapture = false;
-    this.saveLocalStorage();
+    //this.saveLocalStorage();
 
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
@@ -252,7 +252,7 @@ export class FaceCapture implements AfterViewInit {
           next: (res: any) => {
             this.facialIntegrada = res.facialIntegrada;
             this.integracaoOcorrencia = res.integracaoOcorrencia;
-            this.saveLocalStorage();
+            //this.saveLocalStorage();
 
             if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
               this.imageSent = true;
@@ -268,7 +268,7 @@ export class FaceCapture implements AfterViewInit {
           },
         });
       } else {
-        // If you don't have an image, try localStorage
+        /* If you don't have an image, try localStorage
         const storedImage = localStorage.getItem('imagecaptured');
         if (storedImage) {
           this.imagecaptured = storedImage;
@@ -277,7 +277,7 @@ export class FaceCapture implements AfterViewInit {
           this.showCamera = false;
           return;
         }
-
+        */
         // No image → releases capture
         this.imagecaptured = null;
         this.imageSent = false;
@@ -318,6 +318,7 @@ export class FaceCapture implements AfterViewInit {
     return new File([u8arr], filename, { type: mime });
   }
 
+  /*
   private saveLocalStorage() {
     if (this.imagecaptured) localStorage.setItem('imagecaptured', this.imagecaptured);
     if (this.facialIntegrada)
@@ -325,4 +326,5 @@ export class FaceCapture implements AfterViewInit {
     if (this.integracaoOcorrencia)
       localStorage.setItem('integracaoOcorrencia', this.integracaoOcorrencia);
   }
+    */
 }
