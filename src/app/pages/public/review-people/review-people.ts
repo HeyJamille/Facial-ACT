@@ -14,6 +14,7 @@ import dataGenres from '../../../data/genres.json';
 // Components
 import { Header } from '../../../components/header/header';
 import { Button } from '../../../components/ui/button/button';
+import { FaceCapture } from '../../../components/face-capture/face-capture';
 import { FileUpload } from '../../../components/file-upload/file-upload';
 import { CardUpload } from '../../../components/card-upload/card-upload';
 
@@ -24,21 +25,29 @@ import { AuthService } from '../../../services/auth-service/auth-service';
 // Modals
 import { Person } from '../../../models/person.model';
 import { HttpClient } from '@angular/common/http';
-import { FaceCapture } from '../../../components/face-capture/face-capture';
 
 @Component({
-  selector: 'app-register-people',
-  imports: [CommonModule, FormsModule, Header, NgxMaskDirective, Button],
-  templateUrl: './register-people.html',
+  selector: 'app-review-people',
+  imports: [
+    CommonModule,
+    FormsModule,
+    Header,
+    NgxMaskDirective,
+    Button,
+    FaceCapture,
+    FileUpload,
+    CardUpload,
+  ],
+  templateUrl: './review-people.html',
 })
-export class RegisterPeople {
+export class ReviewPeople {
   person: Person = {
     tipo: '',
     estado: '',
     sexo: '',
   } as Person;
 
-  isEditMode: boolean = false; // false = register, true = edit
+  isEditMode: boolean = true; // false = register, true = edit
   pageTitle = '';
   buttonTitle = 'Salvar';
   showEdit: boolean = false;
@@ -67,6 +76,7 @@ export class RegisterPeople {
   docValue: string | null = null;
   disableDocInput = false;
 
+  showMessage: boolean = false;
   messages: { text: string; type: 'success' | 'error' }[] = [];
 
   constructor(
@@ -133,7 +143,6 @@ export class RegisterPeople {
         return;
       }
     }
-
     /*
     console.log('personToSend.senha', personToSend.senha);
     console.log('is admin', this.isAdmin);
@@ -158,24 +167,11 @@ export class RegisterPeople {
       )
       .subscribe({
         next: () => {
-          this.toastr.success(
-            this.isEditMode || this.isViewMode
-              ? 'Cadastro atualizado com sucesso!'
-              : 'Cadastro realizado com sucesso!',
-            'Sucesso'
-          );
+          if (this.isEditMode) {
+            this.toastr.success('Cadastro atualizado com sucesso!', 'Sucesso');
+          }
 
           this.loading = false;
-
-          // Redirect to Documents after 1 second
-          if (!this.isEditMode && !this.isViewMode) {
-            setTimeout(() => {
-              console.log('personToSend', personToSend);
-              console.log('this.person ', this.person);
-              // Navegar para a página /Documentos passando o objeto 'pessoa' como estado
-              this.router.navigate(['/Documentos'], { state: { personToSend: this.person } });
-            }, 1000);
-          }
         },
         error: (err) => {
           //console.error(err);
@@ -198,34 +194,26 @@ export class RegisterPeople {
     //console.log('userInfo:', userInfo);
     //console.log('URL atual:', url);
 
-    this.pageTitle = 'Cadastro';
-    this.isViewMode = false;
-    this.isEditMode = false;
+    this.pageTitle = 'Dados Cadastrais Enviados';
+    //this.isViewMode = false;
+    this.showMessage = this.router.url === '/RevisaoFinal';
+    console.log('showMessage:', this.showMessage);
+    console.log('this.router.url:', this.router.url);
+    this.isEditMode = true;
     this.isAdmin = userInfo?.role === 'A';
     //console.log('isAdmin:', this.isAdmin);
 
     // View person → all unlocked
-    if (url.includes('VisualizarPessoa')) {
+    if (url.includes('VisualizarDados')) {
       this.pageTitle = 'Visualizar Dados Cadastrais';
       this.isViewMode = true; // lock everything
       this.isEditMode = false;
     }
-    // Register person → everything unlocked
-    else if (url.includes('RegistrarPessoa')) {
-      this.pageTitle = 'Cadastro';
-      this.isViewMode = false; // desbloqueia tudo
-      this.isEditMode = false;
-    }
     // Edit person → block email, type and document
-    else if (url.includes('EditarPessoa')) {
+    else if (url.includes('EditarDados')) {
       this.pageTitle = 'Alterar Dados Cadastrais';
       this.isEditMode = true; // bloqueia campos específicos
       this.isViewMode = false; // bloqueia o resto
-    }
-    // Other case → block everything
-    else {
-      this.isEditMode = false;
-      this.isViewMode = false;
     }
 
     if (

@@ -1,16 +1,32 @@
-<div >
-  <h2 class="text-2xl text-center font-bold my-4 md:text-start">Captura Facial</h2>
-  
-  <!-- Active Capture -->
-  <div 
-    *ngIf="showFaceCapture"
-    class="mt-4">
+<app-header></app-header>
+
+<article class="min-h-screen flex items-start justify-center bg-gray-100">
+  <section class="flex flex-col justify-center items-center text-center gap-7 w-full m-5">    
+    <div class="flex flex-col md:flex-row mt-4">
+      <!-- 
+      <div class="flex flex-col items-center self-start mb-5 md:m-5 cursor-pointer">
+        <img src="arrow-left.png" class="w-9 h-9 " [routerLink]="'/Documentos'">
+        <p>Anterior</p>
+      </div>
+      -->
+
       <div class="w-full bg-white rounded-lg shadow-lg p-6">
+        <!-- Instructions for a good capture -->
+        <div *ngIf="homeCapture && !imagecaptured" class="flex flex-col items-center mt-5 text-gray-700">
+          <p class="text-2xl text-center text-black font-bold mb-5">Para uma boa captura facial:</p>
+          <ul class="text-sm ml-5 text-start list-decimal mt-2 space-y-1">
+            <li>Esteja em um <strong>ambiente bem iluminado.</strong></li>
+            <li><strong>Não use</strong> óculos escuros, bonés ou máscaras.</li>
+            <li>Mantenha uma distância adequada da câmera (não muito perto, nem muito longe).</li>
+            <li>Posicione a câmera ao nível dos olhos, mantendo o <strong>rosto centralizado</strong> na tela.</li>
+          </ul>
+        </div>
+
         <!-- Start Button (appears only if there is no captured image) -->
-        <div *ngIf=" homeCapture && !imagecaptured" class="flex justify-center">
-          <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+        <div *ngIf=" homeCapture && !imagecaptured" class="flex justify-center mt-5">
+          <button class="w-35 bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
                   (click)="startCapture()"
-                   >
+                  >
             Iniciar Captura
           </button>
         </div>
@@ -59,14 +75,25 @@
             <p class="text-sm font-semibold"
             [ngClass]="{
               'text-green-600': facialIntegrada === 'S',
-     'text-red-600': facialIntegrada !== 'S'
+              'text-red-600': facialIntegrada !== 'S'
             }">
               {{ integracaoOcorrencia }}
             </p>
           </div>
         </div>
       </div>
-  </div>
 
-  
-</div>
+      <div 
+        class="flex flex-col items-center self-start mt-5  md:m-5 cursor-pointer"
+        [ngClass]="{
+          'cursor-pointer opacity-100': imageSent,
+          'cursor-not-allowed opacity-40': !imageSent
+        }"
+        [routerLink]="imageSent ? '/RevisaoFinal' : null"
+      >
+        <img src="arrow-right.png" class="w-9 h-9" >
+        <p>Próximo</p>
+      </div>
+    </div>
+  </section>
+</article>

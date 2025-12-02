@@ -15,6 +15,9 @@ import { AccessDenied } from './pages/public/access-denied/access-denied';
 import { AuthGuard } from './guards/auth-guard';
 import { NotFound } from './pages/public/not-found/not-found';
 import { Dashboard } from './pages/private/dashboard/dashboard';
+import { FaceCapturePage } from './pages/public/face-capture-page/face-capture-page';
+import { Documents } from './pages/public/documents/documents';
+import { ReviewPeople } from './pages/public/review-people/review-people';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'VerificarFacial', pathMatch: 'full' },
@@ -28,13 +31,28 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: 'EditarPessoa',
-    component: RegisterPeople,
+    path: 'Documentos',
+    component: Documents,
     canActivate: [AuthGuard],
   },
   {
-    path: 'VisualizarPessoa',
-    component: RegisterPeople,
+    path: 'CapturaFacial',
+    component: FaceCapturePage,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'RevisaoFinal',
+    component: ReviewPeople,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'EditarDados',
+    component: ReviewPeople,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'VisualizarDados',
+    component: ReviewPeople,
     canActivate: [AuthGuard],
   },
   {

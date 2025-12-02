@@ -1,7 +1,7 @@
 <div>
   <div class="my-4">
-    <h2 class="text-2xl text-center font-bold md:text-start">Anexar Carteira de Estudante</h2>
-    <p class="text-black text-center text-sm mt-1 md:text-start">
+    <h2 class="text-2xl text-start font-bold">Anexar Carteira de Estudante</h2>
+    <p class="text-black text-start text-sm mt-1">
       Caso seja estudante, anexe sua carteirinha.
     </p>
   </div>
@@ -16,23 +16,17 @@
     <!-- Upload Area -->
     <ng-container *ngIf="!cardUploaded && !previewUrlCard">
       <div
-        class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg"
-        [ngClass]="{
-          'border-gray-400 bg-gray-50 opacity-50 cursor-not-allowed': !isEditMode || isViewMode,
-          'border-gray-300 bg-white cursor-pointer': isEditMode && !isViewMode
-        }"
-        (click)="isEditMode ? fileInput.click() : null"
+        class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg border-gray-400 bg-gray-50 opacity-50 cursor-pointer"
+        (click)="fileInput.click()"
       >
         <img src="exit.png" alt="Upload Icon" class="w-9 h-9 mb-2"/>
 
         <span class="text-gray-600 text-sm font-medium text-center" *ngIf="isViewMode">
           Usuário administrador — envio de carteirinha desabilitada.
         </span>
-        <span class="text-gray-600 text-sm font-medium text-center" *ngIf="!isEditMode">
-          Salve os seus dados primeiro para liberar o envio da carteirinha. 
-        </span>
-        <span class="text-gray-600 text-sm font-medium text-center" *ngIf="isEditMode && !isViewMode">
-          Clique para selecionar o arquivo aqui
+        
+        <span class="text-gray-600 text-sm font-medium text-center p-5" *ngIf="!isViewMode">
+          Clique para selecionar o arquivo da carteirinha aqui
         </span>
 
         <input
@@ -40,7 +34,7 @@
           type="file"
           accept="image/*,.pdf"
           class="hidden disabled:bg-gray-200 disabled:text-gray-500"
-          [disabled]="!isEditMode || isViewMode"
+          [disabled]="isViewMode"
           (change)="onCardSelected($event)"
         />
       </div>

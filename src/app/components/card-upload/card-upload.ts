@@ -20,7 +20,7 @@ import { AuthService } from '../../services/auth-service/auth-service';
 })
 export class CardUpload implements OnChanges {
   @Output() cardSelected = new EventEmitter<File>();
-  @Input() personId!: string;
+  @Input() person!: string;
   @Input() isEditMode = false;
 
   cardToUpload?: File;
@@ -60,14 +60,14 @@ export class CardUpload implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['personId'] && this.personId) {
-      //console.log('personId recebido:', this.personId);
+    if (changes['person'] && this.person) {
+      //console.log('person recebido:', this.person);
       this.checkCard();
     }
   }
 
   private checkCard() {
-    this.api.getPersonById(this.personId).subscribe({
+    this.api.getPersonById(this.person).subscribe({
       next: (res: any) => {
         //console.log('Resposta da API getPersonById:', res);
 
@@ -117,14 +117,16 @@ export class CardUpload implements OnChanges {
   }
 
   sendImage() {
-    if (!this.cardToUpload || !this.personId) {
+    console.log('cardToUpload', this.cardToUpload);
+    console.log('this.person', this.person);
+    if (!this.cardToUpload || !this.person) {
       this.toastr.warning('Selecione um documento primeiro.');
       return;
     }
 
     const tipoArquivo: 'carteirinha' | 'documento' = 'carteirinha';
 
-    this.api.uploadFile(this.personId, tipoArquivo, this.cardToUpload).subscribe({
+    this.api.uploadFile(this.person, tipoArquivo, this.cardToUpload).subscribe({
       next: () => {
         this.toastr.success('Documento enviado com sucesso!');
         this.cardUploaded = true;

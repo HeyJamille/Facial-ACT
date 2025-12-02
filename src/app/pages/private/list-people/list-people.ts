@@ -112,7 +112,7 @@ export class ListPeople implements OnInit {
 
     this.toastr.success('Redirecionando para visualização...', 'Sucesso');
     setTimeout(() => {
-      this.router.navigate(['/VisualizarPessoa'], { state: { person: copy, personId } });
+      this.router.navigate(['/VisualizarDados'], { state: { person: copy, personId } });
     }, 500);
   }
 

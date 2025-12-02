@@ -1,0 +1,372 @@
+<app-header></app-header>
+
+<article class="min-h-screen flex items-start justify-center bg-gray-100"> 
+  <section class="flex flex-col lg:flex-row gap-6 m-5">
+
+    <!-- Register People Form -->
+    <div class="w-full">
+    
+      <div class="flex flex-col gap-5 mb-5 md:flex-row justify-between items-center">
+        <div class="flex flex-col">
+          <h1 class="text-2xl font-bold ">{{ pageTitle }}</h1>
+          <p *ngIf="showMessage" class="text-gray-700 ">Confira os dados e documentos enviados.</p>
+        </div>
+        
+        <!-- Messages -->
+        <div class="flex flex-col h-auto  md:flex-row gap-2 md:w-auto">
+          <div *ngFor="let msg of messages | slice:0:2"
+              [ngClass]="{
+                'bg-green-100 text-green-700': msg.type === 'success',
+                'bg-red-100 text-red-700': msg.type === 'error'
+              }"
+              class="p-2 rounded-md shadow-md">
+            {{ msg.text }}
+          </div>
+        </div>
+      </div>
+
+      <form #registerPeopleForms="ngForm" (ngSubmit)="onSubmit(registerPeopleForms)"
+        class="flex flex-col gap-6 bg-white rounded-xl shadow-lg p-6">
+
+        <!-- Personal Data -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Dados Pessoais</legend>
+          
+          <!-- Name and Date of birth -->
+          <div class="flex flex-col sm:flex-row gap-4 mt-4"> 
+            <!-- Name -->
+            <div class="w-full">
+              <label for="nomeCompleto" class="text-sm font-medium text-black">Nome Completo</label>
+              <input type="text" id="nomeCompleto" name="nomeCompleto" [(ngModel)]="person.nomeCompleto" #nomeCompleto="ngModel" required
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                placeholder="Nome completo"
+                class="w-full mt-1 px-4 py-2 border rounded-lg text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': nomeCompleto.invalid && registerPeopleForms.submitted}">
+            </div>
+            
+            <!-- Date of birth  -->
+            <div class="w-full">
+              <label for="dataNascimento" class="text-sm font-medium text-black">Data de Nascimento</label>
+              <input type="date" id="dataNascimento" name="dataNascimento" [(ngModel)]="person.dataNascimento"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+ 
+                #dataNascimento="ngModel" required
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': dataNascimento.invalid && registerPeopleForms.submitted}"
+                [ngModel]="person.dataNascimento | date:'yyyy-MM-dd'"
+                > 
+            </div>
+
+            <!-- Sexo -->
+            <div class="w-full ">
+              <label for="sexo" class="text-sm font-medium text-black">Sexo</label>
+              <select
+                id="sexo"
+                name="sexo"
+                [(ngModel)]="person.sexo"
+                #sexo="ngModel"
+                required
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': sexo.invalid && registerPeopleForms.submitted}"
+              >
+                <option value="" disabled selected>Selecione</option>
+                <option *ngFor="let genre of genres" [value]="genre.code">
+                  {{ genre.type }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Other personal data -->
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <!-- Select Documents -->
+            <div class="lg:w-1/2">
+              <label for="tipo" class="text-sm font-medium text-black">Documento</label>
+              <select
+                id="tipo"
+                name="tipo"
+                [(ngModel)]="person.tipo"
+                #tipo="ngModel"
+                required
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': tipo.invalid && registerPeopleForms.submitted}"
+                [disabled]="isEditMode || isViewMode || disableDocInput"
+                >
+                <option value="" disabled selected>Escolha uma opção</option>
+                <option value="cpf">CPF</option>
+                <option value="passaporte">Passaporte</option>
+              </select>
+            </div>
+              
+            <!-- Input -->
+            <div *ngIf="person.tipo" class="w-full" >
+              <label for="documento" class="text-sm font-medium text-black">
+                Digite {{ person.tipo === 'cpf' ? (person.tipo | uppercase) : (person.tipo | titlecase) }}
+              </label>
+              <input
+                type="text"
+                id="documento"
+                name="documento"
+                [(ngModel)]="person.documento"
+                #documento="ngModel"
+                [mask]="person.tipo === 'cpf' ? '000.000.000-00' : ''"
+                [pattern]="person.tipo === 'passaporte' ? '^[A-Za-z]{2}[0-9]{6}$' : ''"
+                placeholder="{{ person.tipo === 'cpf' ? 'Ex: 123.456.789-00' : 'Ex: AB123456' }}"
+                maxlength="{{ person.tipo === 'passaporte' ? 8 : null }}"
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': documento.invalid && registerPeopleForms.submitted}"
+                required
+                [disabled]="isEditMode || isViewMode || disableDocInput"
+>
+            </div>
+            
+            <!-- Celular -->
+            <div class="w-full">
+              <label for="celular" class="text-sm font-medium text-black">Celular</label>
+              <input type="text" id="celular" name="celular" [(ngModel)]="person.celular" #celular="ngModel" required
+                [disabled]="isViewMode && !isEditMode ? true : false"
+ 
+                placeholder="Ex: (00) 00000-0000" mask="(00) 00000-0000"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': celular.invalid && registerPeopleForms.submitted}">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Credentials -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Credenciais para Login</legend>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <!-- E-mail -->
+            <div class="w-full">
+              <label for="email" class="text-sm font-medium text-black">Email</label>
+              <input type="email" id="email" name="email" [(ngModel)]="person.email" #email="ngModel" required
+                placeholder="email@gmail.com"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': email.invalid && registerPeopleForms.submitted}"
+                [disabled]="isEditMode">
+            </div>
+
+            <!-- Password -->
+            <div class="w-full relative">
+              <label for="senha" class="text-sm font-medium text-black">Senha</label>
+
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="senha"
+                name="senha"
+                [(ngModel)]="person.senha"
+                #senha="ngModel"
+                placeholder="Digite uma senha"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+ 
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500 pr-10"
+                [ngClass]="{
+                  'border-red-500':
+                    registerPeopleForms.submitted &&
+                    (
+                      (!isEditMode && (!person.senha || person.senha.length < 6)) ||
+                      (isEditMode && person.senha && person.senha.length < 6) ||
+                      (isAdmin && isEditMode && person.senha && person.senha.length < 6)
+                    )
+                }"
+                [required]="!isEditMode"
+              />
+
+              <!-- Ícone olho -->
+              <button
+                type="button"
+                (click)="togglePassword()"
+                class="absolute right-3 top-12 transform -translate-y-1/2 text-gray-500 hover:text-black"
+              >
+                <img
+                  [src]="showPassword ? '/hide.png' : '/view.png'"
+                  alt="Mostrar senha"
+                  class="w-5 h-5"
+                />
+              </button>
+            </div>
+
+          </div>
+        </fieldset>
+
+        <!-- Parents' details -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Dados dos Pais</legend>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <div class="w-full">
+              <label for="nomePai" class="text-sm font-medium text-black">Nome do Pai</label>
+              <input type="text" id="nomePai" name="nomePai" [(ngModel)]="person.nomePai" 
+                placeholder="Nome do Pai"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
+              >
+							</div>
+
+            <div class="w-full">
+              <label for="nomeMae" class="text-sm font-medium text-black">Nome da Mãe</label>
+              <input type="text" id="nomeMae" name="nomeMae" [(ngModel)]="person.nomeMae" #nomeMae="ngModel" required
+                placeholder="Nome da Mãe"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+								[ngClass]="{'border-red-500': nomeMae.invalid && registerPeopleForms.submitted}">
+							</div>
+          </div>
+        </fieldset>
+
+        <!-- Address -->
+        <fieldset class="border border-gray-300 rounded-lg p-4">
+          <legend class="text-lg font-bold px-2">Endereço</legend>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <div class="w-full sm:w-1/2">
+              <label for="CEP" class="text-sm font-medium text-black">CEP</label>
+              <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required							 
+                [disabled]="isViewMode && !isEditMode ? true : false"
+                placeholder="Ex: 01001-000" 
+                mask="00000-000"
+                (blur)="searchCep()"
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+								[ngClass]="{'border-red-500': cep.invalid && registerPeopleForms.submitted}">
+						</div>
+
+            <div class="w-full">
+              <label for="logradouro" class="text-sm font-medium text-black">Logradouro</label>
+              <input type="text" id="logradouro" name="logradouro" [(ngModel)]="person.logradouro" #logradouro="ngModel" required
+							  placeholder="Ex: Av. Brasil" 
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+								[ngClass]="{'border-red-500': logradouro.invalid && registerPeopleForms.submitted}">
+						</div>
+
+            <div class="w-full sm:w-[200px]">
+              <label for="numero" class="text-sm font-medium text-black">Número</label>
+              <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
+							  placeholder="Ex: 123"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+								[ngClass]="{'border-red-500': numero.invalid && registerPeopleForms.submitted}">
+						</div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <div class="w-full">
+              <label for="complemento" class="text-sm font-medium text-black">Complemento</label>
+              <input type="text" id="complemento" name="complemento" [(ngModel)]="person.complemento" #complemento="ngModel"
+								placeholder="Ex: Casa 5"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
+                >
+						</div>
+            <div class="w-full">
+              <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
+              <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
+								placeholder="Ex: Centro"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500" 
+								[ngClass]="{'border-red-500': bairro.invalid && registerPeopleForms.submitted}"
+                >
+						</div>
+
+            <div class="w-full">
+              <label for="cidade" class="text-sm font-medium text-black">Cidade</label>
+              <input type="text" id="cidade" name="cidade" [(ngModel)]="person.cidade" #cidade="ngModel" required
+							  placeholder="Ex: São Paulo"
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+								[ngClass]="{'border-red-500': cidade.invalid && registerPeopleForms.submitted}">
+						</div>
+
+            <div class="w-full sm:w-1/2">
+              <label for="estado" class="text-sm font-medium text-black">Estado</label>
+              <select
+                id="estado"
+                name="estado"
+                [(ngModel)]="person.estado"
+                #estado="ngModel"
+                required
+                [disabled]="isViewMode && !isEditMode ? true : false"
+
+                class="w-full mt-1 px-4 py-2 border rounded-lg shadow-sm text-sm text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
+                [ngClass]="{'border-red-500': estado.invalid && registerPeopleForms.submitted}"
+              >
+                <option value="" disabled selected>Selecione</option>
+                <option *ngFor="let state of states" [value]="state.acronym">
+                  {{ state.acronym }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Checkbox -->
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="declaration" [(ngModel)]="declarationChecked" name="declaration" />
+          <label for="declaration" class="text-sm text-gray-700">
+            Declaro estar ciente e de acordo com a 
+            <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+              Política de Uso
+            </a> e
+            <a href="https://apifacial.achetickets.com.br/termo" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">
+              Privacidade.
+            </a>
+          </label>
+        </div>
+
+        <!-- General error message -->
+        <p *ngIf="registerPeopleForms.submitted && registerPeopleForms.invalid" class="text-red-500 text-sm text-center mt-2">
+          Por favor, preencha todos os campos em vermelho corretamente.
+        </p>
+
+        <!-- Button -->
+        <app-button  type="submit" [loading]="loading" buttonText={{buttonTitle}}>
+          {{ loading ? 'Salvando...' : 'Salvar' }}
+        </app-button>
+
+      </form>
+    </div>
+
+    <!-- Facial Field -->
+    <div class="flex flex-col gap-5 lg:w-1/2" >
+      <app-face-capture
+        [isEditMode]="isEditMode || isViewMode"         
+        [person]="person"                 
+        [showFaceCapture]="isEditMode || isViewMode" 
+        (showMessage)="addMessage($event.text, $event.type)">
+      </app-face-capture>
+
+      <!-- Document Upload -->
+      <div>
+        <app-file-upload 
+          [person]="person.id" 
+          [isEditMode]="isEditMode"
+          (documentSelected)="onDocumentSelected($event)"
+          (uploadMessage)="addMessage($event.text, $event.type)">
+        </app-file-upload>
+      </div>
+
+      <!-- Card Upload -->
+      <div>
+        <app-card-upload 
+          [person]="person.id" 
+          [isEditMode]="isEditMode"
+          (cardSelected)="onCardSelected($event)"
+          >
+        </app-card-upload>
+      </div>
+      
+    </div>
+  </section>
+</article>

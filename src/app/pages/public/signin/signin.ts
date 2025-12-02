@@ -85,7 +85,7 @@ export class Signin {
 
     const currentRoute = this.router.url.toLowerCase();
     let apiEndpoint = 'Auth/login';
-    let redirectUrl = '/EditarPessoa';
+    let redirectUrl = '/EditarDados';
 
     // In the current route to /auth/token, use token endpoint and redirect admin
     if (currentRoute.includes('/auth/token')) {
@@ -112,7 +112,7 @@ export class Signin {
         if (role === 'U') {
           this.toastr.success('Bem-vindo!', 'Sucesso');
           const payload = JSON.parse(atob(res.token.split('.')[1]));
-          this.router.navigate(['/EditarPessoa'], { state: { person: payload } });
+          this.router.navigate(['/EditarDados'], { state: { person: payload } });
           this.loading = false;
           return;
         }
