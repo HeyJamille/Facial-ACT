@@ -1,4 +1,3 @@
-// Bibliotecas
 import { ToastrService } from 'ngx-toastr';
 import {
   AfterViewInit,
@@ -13,10 +12,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-
-// Services
 import { AuthService } from '../../services/auth-service/auth-service';
 import { ApiService } from '../../services/api-service/api-service';
+import * as faceapi from 'face-api.js';
 
 @Component({
   selector: 'app-face-capture',
@@ -26,6 +24,7 @@ import { ApiService } from '../../services/api-service/api-service';
 })
 export class FaceCapture implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('overlayCanvas') overlayCanvasRef!: ElementRef<HTMLCanvasElement>; // FACE-API
 
   @Input() isEditMode: boolean = false;
   @Input() person: any;
@@ -44,7 +43,7 @@ export class FaceCapture implements AfterViewInit {
   isAdmin = false;
   isViewMode = false;
 
-  private canvas!: HTMLCanvasElement;
+  private canvas!: HTMLCanvasElement; // Declaração da variável canvas
   private stream: MediaStream | null = null;
 
   constructor(
@@ -60,17 +59,91 @@ export class FaceCapture implements AfterViewInit {
       this.api.getPersonById(this.person.id).subscribe({
         next: (res: any) => {
           this.integracaoOcorrencia = res.integracaoOcorrencia;
-          this.facialIntegrada = res.facialIntegrada; // S ou outro valor
+          this.facialIntegrada = res.facialIntegrada;
         },
         error: (err) => console.error('Erro ao buscar usuário:', err),
       });
     }
   }
 
-  ngOnInit(): void {
+  getButtonState() {
+    if (this.facialIntegrada === '' && this.integracaoOcorrencia === '') {
+      return { showSend: true, showRepeat: true, disabled: false };
+    } else if (this.facialIntegrada === 'S') {
+      return { showSend: false, showRepeat: false, disabled: true };
+    } else if (
+      this.facialIntegrada === 'N' &&
+      this.integracaoOcorrencia === 'Aguardando Validação'
+    ) {
+      return { showSend: false, showRepeat: false, disabled: true };
+    } else if (this.errorImagem === true) {
+      return { showSend: true, showRepeat: true, disabled: false };
+    } else {
+      return { showSend: false, showRepeat: true, disabled: true };
+    }
+  }
+
+  async showImage() {
+    const url = this.router.url;
+    const isViewingPerson = url.includes('VisualizarPessoa');
+
+    const userId =
+      this.person?.id ||
+      (isViewingPerson && this.isAdmin ? this.person?.id : this.auth.getUserInfo()?.id);
+
+    if (!userId) return;
+
+    const token = this.auth.getToken();
+    if (!token) return;
+
+    try {
+      const data = await this.api.fetchFacialBase64(userId, token);
+
+      if (data?.base64) {
+        this.imagecaptured = data.base64.startsWith('data:')
+          ? data.base64
+          : `data:image/jpeg;base64,${data.base64}`;
+
+        this.api.getPersonById(userId).subscribe({
+          next: (res: any) => {
+            this.facialIntegrada = res.facialIntegrada;
+            this.integracaoOcorrencia = res.integracaoOcorrencia;
+
+            if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
+              this.imageSent = true;
+              this.showCamera = false;
+            } else {
+              this.imageSent = false;
+            }
+
+            this.homeCapture = false;
+          },
+          error: () => {
+            this.imageSent = false;
+          },
+        });
+      } else {
+        this.imagecaptured = null;
+        this.imageSent = false;
+        this.homeCapture = true;
+        this.showCamera = false;
+
+        if (!isViewingPerson && !this.isAdmin) {
+          this.showMessage.emit({
+            text: 'Facial liberada para cadastro',
+            type: 'success',
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao buscar imagem facial:', err);
+      this.toastr.error('Falha ao carregar facial');
+    }
+  }
+
+  async ngOnInit(): Promise<void> {
     this.showImage();
 
-    // Verify if is admin
     this.isAdmin = this.auth.getUserInfo()?.role === 'A';
 
     const url = this.router.url;
@@ -79,8 +152,12 @@ export class FaceCapture implements AfterViewInit {
       this.isViewMode = true;
     } else if (url.includes('EditarPessoa')) {
       this.isEditMode = true;
-    } else if (url.includes('RegistrarPessoa')) {
-      this.isEditMode = false;
+    }
+
+    try {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/face-models/');
+    } catch (err) {
+      console.error('Erro ao carregar modelos:', err);
     }
   }
 
@@ -106,12 +183,117 @@ export class FaceCapture implements AfterViewInit {
       .getUserMedia({ video: true })
       .then((stream) => {
         this.stream = stream;
-        this.videoRef.nativeElement.srcObject = stream;
+        const video = this.videoRef.nativeElement;
+
+        video.srcObject = stream;
+
+        video.onloadedmetadata = () => {
+          video.play();
+          this.startFaceDetection(); // FACE-API
+        };
       })
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
   }
 
-  // capture and put in localStorage
+  async startFaceDetection() {
+    const video = this.videoRef.nativeElement;
+    const overlay = this.overlayCanvasRef.nativeElement;
+
+    if (!video || !overlay) {
+      console.error('VIDEO OU CANVAS NÃO ENCONTRADO');
+      return;
+    }
+
+    // É necessário definir width e height após o vídeo carregar para pegar os valores corretos
+    overlay.width = video.videoWidth;
+    overlay.height = video.videoHeight;
+
+    const ctx = overlay.getContext('2d');
+
+    if (!ctx) {
+      console.error('Contexto 2D não disponível no canvas.');
+      return;
+    }
+
+    const drawFixedCircle = () => {
+      const centerX = overlay.width / 2;
+      const centerY = overlay.height / 2;
+      const radius = 150;
+
+      // Desenha o círculo fixo (guia)
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    };
+
+    const loopDetection = async () => {
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+      drawFixedCircle();
+
+      // 👇 CHAMA A FUNÇÃO QUE DETECTA E ATUALIZA A MENSAGEM
+      await this.detectFace(ctx, video);
+
+      // Precisa do ChangeDetectorRef para garantir que o Angular saiba que a variável mudou
+      this.cd.detectChanges();
+
+      requestAnimationFrame(loopDetection);
+    };
+
+    loopDetection();
+  }
+
+  async detectFace(ctx: CanvasRenderingContext2D, video: HTMLVideoElement) {
+    try {
+      const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+
+      // 1. SE ROSTO NÃO FOR DETECTADO:
+      // A mensagem já está visível (controlada pelo showCamera no HTML).
+      // Apenas desabilite o botão.
+      if (!result) {
+        // Não altere showFacePositionMessage
+        return;
+      }
+
+      // 2. SE ROSTO FOI DETECTADO:
+      // Desenha o círculo sobre o rosto
+      const box = result.box;
+      const radius = Math.max(box.width, box.height) / 2;
+      const centerX = box.x + box.width / 2;
+      const centerY = box.y + box.height / 2;
+
+      ctx!.strokeStyle = 'lime';
+      ctx!.lineWidth = 4;
+      ctx!.beginPath();
+      ctx!.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx!.stroke();
+
+      // Verifica se o rosto está dentro do círculo fixo
+      const faceIsInside = this.isFaceInsideCircle(box);
+
+      // IMPORTANTE: Removida a linha this.showFacePositionMessage = !faceIsInside;
+    } catch (e) {
+      console.error('Erro na detecção:', e);
+    }
+  }
+
+  // Função que verifica se o rosto está dentro do círculo fixo
+  isFaceInsideCircle(box: faceapi.Box): boolean {
+    const centerX = this.overlayCanvasRef.nativeElement.width / 2;
+    const centerY = this.overlayCanvasRef.nativeElement.height / 2;
+    const radius = 150;
+
+    const faceCenterX = box.x + box.width / 2;
+    const faceCenterY = box.y + box.height / 2;
+
+    const distance = Math.sqrt(
+      Math.pow(faceCenterX - centerX, 2) + Math.pow(faceCenterY - centerY, 2)
+    );
+
+    return distance < radius;
+  }
+
   captureImage() {
     if (this.imageSent) return;
 
@@ -124,14 +306,10 @@ export class FaceCapture implements AfterViewInit {
 
     this.imagecaptured = this.canvas.toDataURL('image/jpeg');
     this.stopCamera();
-    //localStorage.setItem('imagecaptured', this.imagecaptured);
   }
 
   sendImage() {
-    if (this.imageSent) {
-      //this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
-      return;
-    }
+    if (this.imageSent) return;
 
     if (!this.imagecaptured) {
       this.toastr.warning('Nenhuma captura facial capturada.');
@@ -148,19 +326,15 @@ export class FaceCapture implements AfterViewInit {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Updates status immediately before sending
     this.facialIntegrada = 'N';
     this.integracaoOcorrencia = 'Aguardando Validação';
     this.imageSent = true;
     this.showCamera = false;
     this.homeCapture = false;
-    //this.saveLocalStorage();
 
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
         this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
-
-        // Update api
         this.api
           .updateIntegration(userId, {
             facialIntegrada: this.facialIntegrada,
@@ -177,124 +351,15 @@ export class FaceCapture implements AfterViewInit {
     });
   }
 
-  getButtonState() {
-    // Case 1: Facial awaiting validation → hide all
-    if (this.facialIntegrada === '' && this.integracaoOcorrencia === '') {
-      //console.log('CASO 1');
-      return { showSend: true, showRepeat: true, disabled: false };
-    } else if (this.facialIntegrada === 'S') {
-      //console.log('CASO 2');
-      return { showSend: false, showRepeat: false, disabled: true };
-    } else if (
-      this.facialIntegrada === 'N' &&
-      this.integracaoOcorrencia === 'Aguardando Validação'
-    ) {
-      //console.log('CASO 3');
-      return { showSend: false, showRepeat: false, disabled: true };
-    } else if (this.errorImagem === true) {
-      return { showSend: true, showRepeat: true, disabled: false };
-    } else {
-      //console.log('CASO 4');
-      return { showSend: false, showRepeat: true, disabled: true };
-    }
-  }
-
   repeatCapture() {
-    //if (this.imageSent) return;
-
     this.showCamera = true;
     this.errorImagem = true;
     this.isEditMode = true;
-    //console.log('Dados', this.isEditMode);
     this.imagecaptured = null;
     this.auth.clearImageLocalStorage();
     this.imageSent = false;
     this.homeCapture = false;
     this.startCapture();
-  }
-
-  async showImage() {
-    const url = this.router.url;
-
-    // Check if you are on the ViewPerson route
-    const isViewingPerson = url.includes('VisualizarPessoa');
-
-    // Always prioritize this.person.id if it exists
-    const userId =
-      this.person?.id ||
-      (isViewingPerson && this.isAdmin ? this.person?.id : this.auth.getUserInfo()?.id);
-    //console.log('ID usado para buscar imagem:', userId);
-
-    if (!userId) {
-      //console.warn('Nenhum ID de pessoa encontrado.');
-      return;
-    }
-
-    const token = this.auth.getToken();
-    if (!token) {
-      //console.warn('Token não encontrado.');
-      return;
-    }
-
-    try {
-      // Search image by person ID
-      const data = await this.api.fetchFacialBase64(userId, token);
-      //console.log('Retorno da API:', data);
-
-      if (data?.base64) {
-        // Mounts base64 correctly
-        this.imagecaptured = data.base64.startsWith('data:')
-          ? data.base64
-          : `data:image/jpeg;base64,${data.base64}`;
-
-        // Search for information about the person
-        this.api.getPersonById(userId).subscribe({
-          next: (res: any) => {
-            this.facialIntegrada = res.facialIntegrada;
-            this.integracaoOcorrencia = res.integracaoOcorrencia;
-            //this.saveLocalStorage();
-
-            if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
-              this.imageSent = true;
-              this.showCamera = false;
-            } else {
-              this.imageSent = false;
-            }
-
-            this.homeCapture = false;
-          },
-          error: () => {
-            this.imageSent = false;
-          },
-        });
-      } else {
-        /* If you don't have an image, try localStorage
-        const storedImage = localStorage.getItem('imagecaptured');
-        if (storedImage) {
-          this.imagecaptured = storedImage;
-          this.imageSent = false;
-          this.homeCapture = false;
-          this.showCamera = false;
-          return;
-        }
-        */
-        // No image → releases capture
-        this.imagecaptured = null;
-        this.imageSent = false;
-        this.homeCapture = true;
-        this.showCamera = false;
-
-        if (!isViewingPerson && !this.isAdmin) {
-          this.showMessage.emit({
-            text: 'Facial liberada para cadastro',
-            type: 'success',
-          });
-        }
-      }
-    } catch (err) {
-      console.error('Erro ao buscar imagem facial:', err);
-      this.toastr.error('Falha ao carregar facial');
-    }
   }
 
   private stopCamera() {
@@ -317,14 +382,4 @@ export class FaceCapture implements AfterViewInit {
     }
     return new File([u8arr], filename, { type: mime });
   }
-
-  /*
-  private saveLocalStorage() {
-    if (this.imagecaptured) localStorage.setItem('imagecaptured', this.imagecaptured);
-    if (this.facialIntegrada)
-      localStorage.setItem('facialIntegrada', this.facialIntegrada.toString());
-    if (this.integracaoOcorrencia)
-      localStorage.setItem('integracaoOcorrencia', this.integracaoOcorrencia);
-  }
-    */
 }

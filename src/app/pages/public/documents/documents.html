@@ -1,44 +1,49 @@
-<app-header></app-header>
+<article class="min-h-screen flex flex-col">
+  <app-header></app-header>
 
-<article class="min-h-screen flex items-start justify-center bg-gray-100">   
-  <section class="flex flex-col justify-center md:flex-row md:items-end text-center gap-7 w-full m-5">
-    <!--
-    <div class="flex flex-col items-center self-start md:m-5 cursor-pointer">
-      <img src="arrow-left.png" class="w-9 h-9 " [routerLink]="'/RegistrarPessoa'">
-      <p>Anterior</p>
-    </div>
-    -->
+  <article class="flex-1 flex items-start justify-center bg-gray-100">   
+    <section class="flex flex-col justify-center md:flex-row md:items-end text-center gap-7 w-full m-5">
+      <!--
+      <div class="flex flex-col items-center self-start md:m-5 cursor-pointer">
+        <img src="arrow-left.png" class="w-9 h-9 " [routerLink]="'/RegistrarPessoa'">
+        <p>Anterior</p>
+      </div>
+      -->
 
-    <!-- Document Upload -->
-    <div>
-      <app-file-upload 
-        [person]="personId" 
-        [isEditMode]="isEditMode"
-        (documentSelected)="onDocumentSelected($event)"
-        >
-      </app-file-upload>
-    </div>
+      <!-- Document Upload -->
+      <div>
+        <app-file-upload 
+          [person]="personId" 
+          [isEditMode]="isEditMode"
+          (documentSelected)="onDocumentSelected($event)"
+          >
+        </app-file-upload>
+      </div>
 
-    <!-- Card Upload -->
-    <div>
-      <app-card-upload 
-        [person]="personId" 
-        [isEditMode]="isEditMode"
-        (cardSelected)="onCardSelected($event)"
-        >
-      </app-card-upload>
-    </div>
-  
-    <div class="flex flex-col items-center self-start md:m-5 " 
-      [ngClass]="{
-        'cursor-pointer opacity-100': (documentUploaded || cardUploaded),
-        'cursor-not-allowed opacity-40': !documentUploaded && !cardUploaded
-      }"
-      [routerLink]="documentUploaded || cardUploaded ? '/CapturaFacial' : null"
-    >
-      <img src="arrow-right.png" class="w-9 h-9" >
-      <p>Próximo</p>
-    </div>
-  </section>
-  
+      <!-- Card Upload -->
+      <div>
+        <app-card-upload 
+          [person]="personId" 
+          [isEditMode]="isEditMode"
+          (cardSelected)="onCardSelected($event)"
+          >
+        </app-card-upload>
+      </div>
+    
+    
+      <a class="flex flex-col items-center self-end md:self-start md:m-5 " 
+        [ngClass]="{
+          'cursor-pointer opacity-100': (documentUploaded || cardUploaded),
+          'cursor-not-allowed opacity-40': !documentUploaded && !cardUploaded
+        }"
+        [href]="documentUploaded || cardUploaded ? '/CapturaFacial' : null"
+      >
+        <img src="arrow-right.png" class="w-9 h-9" >
+        <p>Próximo</p>
+      </a>
+    </section>
+  </article>
 </article>
+
+
+

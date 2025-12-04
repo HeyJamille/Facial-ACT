@@ -24,9 +24,10 @@ export class CardUpload implements OnChanges {
   @Input() isEditMode = false;
 
   cardToUpload?: File;
-  previewUrlCard?: string;
   isPdf = false;
   cardUploaded = false;
+  imagePreview: string | null = null;
+  pdfPreviewUrl: string | null = null; // URL do PDF
 
   isAdmin = false;
   isViewMode = false;
@@ -77,7 +78,7 @@ export class CardUpload implements OnChanges {
           //console.log('arquivoCarteirinha encontrado:', res.arquivoCarteirinha);
           this.cardUploaded = true;
           this.isEditMode = false;
-          this.previewUrlCard = res.arquivoCarteirinha;
+          this.imagePreview = res.arquivoCarteirinha;
           //this.toastr.info('Documento já enviado.');
         } else {
           this.isEditMode = true;
@@ -92,27 +93,54 @@ export class CardUpload implements OnChanges {
     });
   }
 
-  onCardSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
+  // Componente .ts (Exemplo)
+  onCardSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
       this.cardToUpload = file;
+
+      // Verifica o tipo de arquivo
+      this.isPdf = file.type === 'application/pdf';
       this.cardSelected.emit(file);
-      this.handlePreview(file);
+
+      if (this.isPdf) {
+        // Para PDF, define um valor para que o bloco de preview (*ngIf="imagePreview") seja ativado.
+        this.imagePreview = 'pdf-selected';
+      } else if (file.type.startsWith('image/')) {
+        // Para imagens, cria o DataURL para exibição
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imagePreview = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
     }
   }
 
-  private handlePreview(file: File) {
+  // Função para gerar o preview do arquivo (imagem ou PDF)
+  handlePreview(file: File) {
+    console.log('Arquivo selecionado:', file);
+
     if (file.type === 'application/pdf') {
+      // Caso seja PDF
       this.isPdf = true;
-      this.previewUrlCard = undefined;
+      this.imagePreview = null; // Limpa a preview de imagem
+      this.pdfPreviewUrl = URL.createObjectURL(file); // Gera uma URL do PDF
+
+      // Mostra a mensagem de erro, se o PDF não for aceito
+      this.toastr.error('PDF não é aceito. Por favor, envie uma imagem.', 'Erro de Upload');
     } else if (file.type.startsWith('image/')) {
+      // Caso seja uma imagem
       this.isPdf = false;
       const reader = new FileReader();
-      reader.onload = () => (this.previewUrlCard = reader.result as string);
-      reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+        console.log('Imagem preview gerada:', this.imagePreview);
+      };
+      reader.readAsDataURL(file); // Gera a URL da imagem
     } else {
-      this.toastr.warning('Tipo de arquivo não suportado. Envie uma imagem ou PDF.');
+      // Caso seja um tipo de arquivo não permitido
+      this.toastr.error('Tipo de arquivo não permitido. Envie apenas imagens.', 'Erro de Upload');
     }
   }
 
@@ -131,7 +159,7 @@ export class CardUpload implements OnChanges {
         this.toastr.success('Documento enviado com sucesso!');
         this.cardUploaded = true;
         this.isEditMode = false;
-        this.previewUrlCard = this.previewUrlCard || undefined;
+        this.imagePreview = this.imagePreview || null;
       },
       error: () => this.toastr.error('Erro ao enviar documento.'),
     });
@@ -140,7 +168,7 @@ export class CardUpload implements OnChanges {
   resetUpload() {
     this.cardUploaded = false;
     this.isEditMode = true;
-    this.previewUrlCard = undefined;
+    this.imagePreview = null;
     this.cardToUpload = undefined;
   }
 }

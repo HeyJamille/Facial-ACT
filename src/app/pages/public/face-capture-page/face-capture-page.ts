@@ -12,22 +12,24 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 // Services
 import { AuthService } from '../../../services/auth-service/auth-service';
 import { ApiService } from '../../../services/api-service/api-service';
 import { Header } from '../../../components/header/header';
 import { FaceCapture } from '../../../components/face-capture/face-capture';
+import * as faceapi from 'face-api.js';
 
 @Component({
   selector: 'app-face-capture-page',
   templateUrl: './face-capture-page.html',
   standalone: true,
-  imports: [CommonModule, Header, RouterLink],
+  imports: [CommonModule, Header],
 })
 export class FaceCapturePage implements AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('overlayCanvas') overlayCanvasRef!: ElementRef<HTMLCanvasElement>; // FACE-API
 
   @Input() isEditMode: boolean = false;
   @Input() person: any;
@@ -69,7 +71,7 @@ export class FaceCapturePage implements AfterViewInit {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.showImage();
 
     // Verify if is admin
@@ -81,8 +83,12 @@ export class FaceCapturePage implements AfterViewInit {
       this.isViewMode = true;
     } else if (url.includes('EditarPessoa')) {
       this.isEditMode = true;
-    } else if (url.includes('RegistrarPessoa')) {
-      this.isEditMode = false;
+    }
+
+    try {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/face-models/');
+    } catch (err) {
+      console.error('Erro ao carregar modelos:', err);
     }
   }
 
@@ -108,9 +114,119 @@ export class FaceCapturePage implements AfterViewInit {
       .getUserMedia({ video: true })
       .then((stream) => {
         this.stream = stream;
-        this.videoRef.nativeElement.srcObject = stream;
+        const video = this.videoRef.nativeElement;
+
+        video.srcObject = stream;
+
+        video.onloadedmetadata = () => {
+          video.play();
+          this.startFaceDetection(); // FACE-API
+        };
       })
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
+  }
+
+  async startFaceDetection() {
+    const video = this.videoRef.nativeElement;
+
+    // Verifique se o ViewChild foi inicializado corretamente
+    if (!this.overlayCanvasRef?.nativeElement) {
+      console.error('Canvas não encontrado');
+      return;
+    }
+
+    const overlay = this.overlayCanvasRef.nativeElement;
+
+    if (!video || !overlay) {
+      console.error('VIDEO OU CANVAS NÃO ENCONTRADO');
+      return;
+    }
+
+    // Define o tamanho do canvas conforme o vídeo
+    overlay.width = video.videoWidth;
+    overlay.height = video.videoHeight;
+
+    const ctx = overlay.getContext('2d');
+
+    if (!ctx) {
+      console.error('Contexto 2D não disponível no canvas.');
+      return;
+    }
+
+    // Desenha o círculo fixo no centro da tela
+    const drawFixedCircle = () => {
+      const centerX = overlay.width / 2; // Posição central do vídeo/canvas
+      const centerY = overlay.height / 2; // Posição central do vídeo/canvas
+      const radius = 150; // Tamanho fixo do círculo
+
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+    };
+
+    // Função para manter a detecção em tempo real
+    const loopDetection = async () => {
+      // Limpa o canvas
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+      // Desenha o círculo fixo na tela
+      drawFixedCircle();
+
+      // Detecção de rosto
+      await this.detectFace(ctx, video);
+
+      // Continuar o loop de animação
+      requestAnimationFrame(loopDetection);
+    };
+
+    loopDetection(); // Inicia a detecção em loop
+  }
+
+  async detectFace(ctx: CanvasRenderingContext2D, video: HTMLVideoElement) {
+    try {
+      // Detecta o rosto
+      const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+
+      // Se não detectar o rosto, não faz nada
+      if (!result) {
+        return;
+      }
+
+      // Desenha o círculo sobre o rosto detectado
+      const box = result.box;
+      const radius = Math.max(box.width, box.height) / 2;
+      const centerX = box.x + box.width / 2;
+      const centerY = box.y + box.height / 2;
+
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Verifica se o rosto está dentro do círculo
+      const faceIsInside = this.isFaceInsideCircle(box);
+    } catch (e) {
+      console.error('Erro na detecção:', e);
+    }
+  }
+
+  // Função que verifica se o rosto está dentro do círculo fixo
+  isFaceInsideCircle(box: faceapi.Box): boolean {
+    const centerX = this.overlayCanvasRef.nativeElement.width / 2;
+    const centerY = this.overlayCanvasRef.nativeElement.height / 2;
+    const radius = 150;
+
+    const faceCenterX = box.x + box.width / 2;
+    const faceCenterY = box.y + box.height / 2;
+
+    const distance = Math.sqrt(
+      Math.pow(faceCenterX - centerX, 2) + Math.pow(faceCenterY - centerY, 2)
+    );
+
+    return distance < radius;
   }
 
   // capture and put in localStorage

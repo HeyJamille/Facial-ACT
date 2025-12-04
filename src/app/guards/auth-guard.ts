@@ -26,7 +26,13 @@ export class AuthGuard implements CanActivate {
     const userInfo = this.auth.getUserInfo();
 
     // Checking admin routes
-    const adminRoutes = ['ListarPessoa', 'ValidacaoDocumentos'];
+    const adminRoutes = [
+      'ListarPessoa',
+      'ValidacaoDocumentos',
+      'VisualizarDados',
+      'Pesquisa',
+      'Inicio',
+    ];
     const url = state.url.startsWith('/') ? state.url.slice(1) : state.url;
 
     if (adminRoutes.includes(url) && userInfo?.role !== 'A') {

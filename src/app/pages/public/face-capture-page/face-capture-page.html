@@ -1,99 +1,122 @@
-<app-header></app-header>
+<article class="min-h-screen flex flex-col">
+  <app-header></app-header>
 
-<article class="min-h-screen flex items-start justify-center bg-gray-100">
-  <section class="flex flex-col justify-center items-center text-center gap-7 w-full m-5">    
-    <div class="flex flex-col md:flex-row mt-4">
-      <!-- 
-      <div class="flex flex-col items-center self-start mb-5 md:m-5 cursor-pointer">
-        <img src="arrow-left.png" class="w-9 h-9 " [routerLink]="'/Documentos'">
-        <p>Anterior</p>
-      </div>
-      -->
-
-      <div class="w-full bg-white rounded-lg shadow-lg p-6">
-        <!-- Instructions for a good capture -->
-        <div *ngIf="homeCapture && !imagecaptured" class="flex flex-col items-center mt-5 text-gray-700">
-          <p class="text-2xl text-center text-black font-bold mb-5">Para uma boa captura facial:</p>
-          <ul class="text-sm ml-5 text-start list-decimal mt-2 space-y-1">
-            <li>Esteja em um <strong>ambiente bem iluminado.</strong></li>
-            <li><strong>Não use</strong> óculos escuros, bonés ou máscaras.</li>
-            <li>Mantenha uma distância adequada da câmera (não muito perto, nem muito longe).</li>
-            <li>Posicione a câmera ao nível dos olhos, mantendo o <strong>rosto centralizado</strong> na tela.</li>
-          </ul>
+  <article class="flex-1 flex items-start justify-center bg-gray-100">
+    <section class="flex flex-col justify-center items-center text-center gap-7 w-full m-5">    
+      <div class="flex flex-col md:flex-row mt-4">
+        <!-- 
+        <div class="flex flex-col items-center self-start mb-5 md:m-5 cursor-pointer">
+          <img src="arrow-left.png" class="w-9 h-9 " [routerLink]="'/Documentos'">
+          <p>Anterior</p>
         </div>
+        -->
 
-        <!-- Start Button (appears only if there is no captured image) -->
-        <div *ngIf=" homeCapture && !imagecaptured" class="flex justify-center mt-5">
-          <button class="w-35 bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
-                  (click)="startCapture()"
+        <div class="w-full bg-white rounded-lg shadow-lg p-6">
+          <!-- Instructions for a good capture -->
+          <div *ngIf="homeCapture && !imagecaptured" class="flex flex-col items-center mt-5 text-gray-700">
+            <p class="text-2xl text-center text-black font-bold mb-5">Para uma boa captura facial:</p>
+            <ul class="text-sm ml-5 text-start list-decimal mt-2 space-y-1">
+              <li>Esteja em um <strong>ambiente bem iluminado.</strong></li>
+              <li><strong>Não use</strong> óculos escuros, bonés ou máscaras.</li>
+              <li>Mantenha uma distância adequada da câmera (não muito perto, nem muito longe).</li>
+              <li>Posicione a câmera ao nível dos olhos, mantendo o <strong>rosto centralizado</strong> na tela.</li>
+            </ul>
+          </div>
+
+          <!-- Start Button (appears only if there is no captured image) -->
+          <div *ngIf=" homeCapture && !imagecaptured" class="flex justify-center mt-5">
+            <button class="w-35 bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
+                    (click)="startCapture()"
+                    >
+              Iniciar Captura
+            </button>
+          </div>
+
+          <!-- Camera (only appears if capturing and the image has not been sent) -->
+          <div *ngIf="showCamera" class="flex flex-col items-center">
+            <!-- Container que segura vídeo + canvas -->
+            <div class="relative w-full">
+              <!-- Vídeo -->
+              <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
+
+              <!-- Canvas por cima do vídeo -->
+              <canvas 
+                #overlayCanvas 
+                class="absolute top-0 left-0 w-full h-full pointer-events-none"
+              ></canvas>
+            </div>
+
+            <!-- Botão de captura -->
+            <button 
+              class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition mt-4"
+              (click)="captureImage()"
+              id="captureButton"
+            >
+              Capturar
+            </button>
+
+            <!-- Mensagem para o usuário -->
+            <div  class="text-center text-red-600 mt-4">
+              Posicione seu rosto dentro do círculo.
+            </div>
+          </div>
+
+          <!-- Captured image (preview da foto) -->
+          <div *ngIf="imagecaptured" class="flex flex-col items-center mt-4 space-y-2">
+            <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" /> 
+
+            <!-- Buttons only appear after capturing image -->
+            <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
+              <!-- Submit button (appears only if facialIntegrada === 'S') -->
+              <div *ngIf="getButtonState().showSend">
+                <button
+                  class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
+                  (click)="sendImage()"
                   >
-            Iniciar Captura
-          </button>
-        </div>
+                  Enviar
+                </button>
+              </div>
 
-        <!-- Camera (only appears if capturing and the image has not been sent) -->
-        <div *ngIf="showCamera" class="flex flex-col items-center">
-          <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
-          <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-                  (click)="captureImage()">
-            Capturar
-          </button>
-        </div>
-
-        <!-- Captured image (preview da foto) -->
-        <div *ngIf="imagecaptured" class="flex flex-col items-center mt-4 space-y-2">
-          <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" /> 
-
-          <!-- Buttons only appear after capturing image -->
-          <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
-            <!-- Submit button (appears only if facialIntegrada === 'S') -->
-            <div *ngIf="getButtonState().showSend">
-              <button
-                class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold flex items-center justify-center cursor-pointer hover:bg-gray-900 transition"
-                (click)="sendImage()"
-                >
-                Enviar
-              </button>
+              <div *ngIf="getButtonState().showRepeat">
+                <button
+                  class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
+                  (click)="repeatCapture()"
+                  >
+                  Repetir Captura
+                </button>
+              </div>
             </div>
 
-            <div *ngIf="getButtonState().showRepeat">
-              <button
-                class="w-full bg-yellow-400 text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
-                (click)="repeatCapture()"
-                >
-                Repetir Captura
-              </button>
+            <!-- Validation Status -->
+            <div *ngIf="isEditMode && (facialIntegrada === 'N' && integracaoOcorrencia === 'Aguardando Validação') || (errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== '')" class="flex items-center  gap-2">
+              <label class="text-sm font-medium text-gray-700"> 
+                Status:
+              </label>
+              
+              <p class="text-sm font-semibold"
+              [ngClass]="{
+                'text-green-600': facialIntegrada === 'S',
+                'text-red-600': facialIntegrada !== 'S'
+              }">
+                {{ integracaoOcorrencia }}
+              </p>
             </div>
           </div>
-
-          <!-- Validation Status -->
-          <div *ngIf="isEditMode && (facialIntegrada === 'N' && integracaoOcorrencia === 'Aguardando Validação') || (errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== '')" class="flex items-center  gap-2">
-            <label class="text-sm font-medium text-gray-700"> 
-              Status:
-            </label>
-            
-            <p class="text-sm font-semibold"
-            [ngClass]="{
-              'text-green-600': facialIntegrada === 'S',
-              'text-red-600': facialIntegrada !== 'S'
-            }">
-              {{ integracaoOcorrencia }}
-            </p>
-          </div>
         </div>
-      </div>
 
-      <div 
-        class="flex flex-col items-center self-start mt-5  md:m-5 cursor-pointer"
-        [ngClass]="{
-          'cursor-pointer opacity-100': imageSent,
-          'cursor-not-allowed opacity-40': !imageSent
-        }"
-        [routerLink]="imageSent ? '/RevisaoFinal' : null"
-      >
-        <img src="arrow-right.png" class="w-9 h-9" >
-        <p>Próximo</p>
+        <a 
+          class="flex flex-col items-center self-end md:self-start mt-5  md:m-5 cursor-pointer"
+          [ngClass]="{
+            'cursor-pointer opacity-100': imageSent,
+            'cursor-not-allowed opacity-40': !imageSent
+          }"
+          [href]="imageSent ? '/RevisaoFinal' : null"
+        >
+          <img src="arrow-right.png" class="w-9 h-9" >
+          <p>Próximo</p>
+        </a>
       </div>
-    </div>
-  </section>
+    </section>
+  </article>
 </article>
+

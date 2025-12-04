@@ -1,20 +1,14 @@
-// Bibliotescas
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { ApiService } from '../../services/api-service/api-service';
+import { AuthService } from '../../services/auth-service/auth-service';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-
-// Services
-import { ApiService } from '../../services/api-service/api-service';
-
-// Components
 import { Button } from '../ui/button/button';
-import { AuthService } from '../../services/auth-service/auth-service';
 
 @Component({
   selector: 'app-file-upload',
-  standalone: true,
   templateUrl: './file-upload.html',
   imports: [CommonModule, FormsModule, Button],
 })
@@ -25,7 +19,9 @@ export class FileUpload implements OnChanges {
   @Input() isEditMode = false;
 
   fileToUpload?: File;
-  previewUrl?: string;
+  imagePreview: string | null = null;
+  pdfPreviewUrl: string | null = null; // URL do PDF
+
   isPdf = false;
   fileUploaded = false;
 
@@ -39,28 +35,9 @@ export class FileUpload implements OnChanges {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    // Verify if is admin
-    this.isAdmin = this.auth.getUserInfo()?.role === 'A';
-
-    const url = this.router.url;
-
-    if (url.includes('VisualizarPessoa')) {
-      this.isViewMode = true;
-    } else if (url.includes('EditarPessoa')) {
-      this.isEditMode = true;
-    } else if (url.includes('RegistrarPessoa')) {
-      this.isEditMode = false;
-    }
-
-    //console.log('isViewMode', this.isViewMode);
-    //console.log('isEditMode', this.isEditMode);
-    //console.log('isAdmin', this.isAdmin);
-  }
-
   ngOnChanges(changes: SimpleChanges) {
     if (changes['person'] && this.person) {
-      //console.log('person recebido:', this.person);
+      // Atualiza o estado do upload quando a pessoa mudar
       this.checkDocument();
     }
   }
@@ -76,7 +53,7 @@ export class FileUpload implements OnChanges {
           //console.log('arquivoDocumento encontrado:', res.arquivoDocumento);
           this.fileUploaded = true;
           this.isEditMode = false;
-          this.previewUrl = res.arquivoDocumento;
+          this.imagePreview = res.arquivoDocumento;
           //this.toastr.info('Documento já enviado.');
         } else {
           this.isEditMode = true;
@@ -96,30 +73,58 @@ export class FileUpload implements OnChanges {
     });
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
+  // Componente .ts (Exemplo)
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
       this.fileToUpload = file;
+
+      // Verifica o tipo de arquivo
+      this.isPdf = file.type === 'application/pdf';
       this.documentSelected.emit(file);
-      this.handlePreview(file);
+
+      if (this.isPdf) {
+        // Para PDF, define um valor para que o bloco de preview (*ngIf="imagePreview") seja ativado.
+        this.imagePreview = 'pdf-selected';
+      } else if (file.type.startsWith('image/')) {
+        // Para imagens, cria o DataURL para exibição
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imagePreview = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
     }
   }
 
-  private handlePreview(file: File) {
+  // Função para gerar o preview do arquivo (imagem ou PDF)
+  handlePreview(file: File) {
+    console.log('Arquivo selecionado:', file);
+
     if (file.type === 'application/pdf') {
+      // Caso seja PDF
       this.isPdf = true;
-      this.previewUrl = undefined;
+      this.imagePreview = null; // Limpa a preview de imagem
+      this.pdfPreviewUrl = URL.createObjectURL(file); // Gera uma URL do PDF
+
+      // Mostra a mensagem de erro, se o PDF não for aceito
+      this.toastr.error('PDF não é aceito. Por favor, envie uma imagem.', 'Erro de Upload');
     } else if (file.type.startsWith('image/')) {
+      // Caso seja uma imagem
       this.isPdf = false;
       const reader = new FileReader();
-      reader.onload = () => (this.previewUrl = reader.result as string);
-      reader.readAsDataURL(file);
+      reader.onload = () => {
+        this.imagePreview = reader.result as string;
+        console.log('Imagem preview gerada:', this.imagePreview);
+      };
+      reader.readAsDataURL(file); // Gera a URL da imagem
     } else {
-      this.toastr.warning('Tipo de arquivo não suportado. Envie uma imagem ou PDF.');
+      // Caso seja um tipo de arquivo não permitido
+      this.toastr.error('Tipo de arquivo não permitido. Envie apenas imagens.', 'Erro de Upload');
     }
   }
 
+  // Enviar o arquivo para o backend
   sendImage() {
     if (!this.fileToUpload || !this.person) {
       this.toastr.warning('Selecione um documento primeiro.');
@@ -133,16 +138,17 @@ export class FileUpload implements OnChanges {
         this.toastr.success('Documento enviado com sucesso!');
         this.fileUploaded = true;
         this.isEditMode = false;
-        this.previewUrl = this.previewUrl || undefined;
+        this.imagePreview = this.imagePreview || null;
       },
       error: () => this.toastr.error('Erro ao enviar documento.'),
     });
   }
 
+  // Função para resetar o estado do upload
   resetUpload() {
     this.fileUploaded = false;
     this.isEditMode = true;
-    this.previewUrl = undefined;
+    this.imagePreview = null;
     this.fileToUpload = undefined;
   }
 }

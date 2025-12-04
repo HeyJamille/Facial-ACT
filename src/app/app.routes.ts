@@ -25,6 +25,7 @@ export const routes: Routes = [
   { path: 'Auth/token', component: Signin },
   { path: 'Auth/login', component: Signin },
 
+  /* PUBLIC */
   {
     path: 'RegistrarPessoa',
     component: RegisterPeople,
@@ -50,6 +51,8 @@ export const routes: Routes = [
     component: ReviewPeople,
     canActivate: [AuthGuard],
   },
+
+  /* PRIVATE */
   {
     path: 'VisualizarDados',
     component: ReviewPeople,
@@ -70,6 +73,7 @@ export const routes: Routes = [
     component: Dashboard,
     canActivate: [AuthGuard],
   },
+
   { path: 'AcessoBloqueado', component: AccessDenied },
   { path: '**', component: NotFound },
 ];

@@ -16,17 +16,45 @@
         </div>
 
         <!-- Camera (only appears if capturing and the image has not been sent) -->
-        <div *ngIf="showCamera" class="flex flex-col items-center">
-          <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
-          <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition"
-                  (click)="captureImage()">
+        <div *ngIf="showCamera" class="flex flex-col items-center relative w-full max-w-sm">
+
+          <!-- Container que segura vídeo + canvas -->
+          <div class="relative w-full">
+
+            <!-- Vídeo -->
+            <video 
+              #video 
+              autoplay 
+              playsinline 
+              class="w-full rounded-lg"
+            ></video>
+
+            <!-- Canvas por cima do vídeo -->
+            <canvas 
+              #overlayCanvas 
+              class="absolute top-0 left-0 w-full h-full pointer-events-none"
+            ></canvas>
+
+          </div>
+
+          <!-- Botão de capturar -->
+          <button
+            class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition mt-4"
+            id="captureButton"
+            (click)="captureImage()"
+          >
             Capturar
           </button>
+
+          <!-- Mensagem para o usuário -->
+          <div class="text-center text-red-600 mt-4">
+           Posicione seu rosto dentro do círculo.
+          </div>
         </div>
 
         <!-- Captured image (preview da foto) -->
         <div *ngIf="imagecaptured" class="flex flex-col items-center mt-4 space-y-2">
-          <img [src]="imagecaptured" class="w-full max-w-sm rounded-lg" /> 
+          <img [src]="imagecaptured" class="w-full max-h-80 max-w-sm rounded-lg" /> 
 
           <!-- Buttons only appear after capturing image -->
           <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
@@ -67,6 +95,4 @@
         </div>
       </div>
   </div>
-
-  
 </div>

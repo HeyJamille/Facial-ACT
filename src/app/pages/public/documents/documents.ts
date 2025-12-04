@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { NgxMaskDirective } from 'ngx-mask';
 import { forkJoin, Observable, of, switchMap } from 'rxjs';
@@ -27,7 +27,7 @@ import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-documents',
-  imports: [CommonModule, FormsModule, Header, FileUpload, CardUpload, RouterLink],
+  imports: [CommonModule, FormsModule, Header, FileUpload, CardUpload],
   templateUrl: './documents.html',
 })
 export class Documents {
@@ -57,12 +57,12 @@ export class Documents {
   onDocumentSelected(file: File) {
     this.documentFile = file;
     this.documentUploaded = true;
-    this.toastr.info('Documento anexado com sucesso!');
+    //this.toastr.info('Documento anexado com sucesso!');
   }
 
   onCardSelected(file: File) {
     this.documentFile = file;
     this.cardUploaded = true;
-    this.toastr.info('Carteirinha anexada com sucesso!');
+    //this.toastr.info('Carteirinha anexada com sucesso!');
   }
 }

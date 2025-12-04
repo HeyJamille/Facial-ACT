@@ -116,7 +116,7 @@ export class AuthService {
       // Acessando o valor de 'is' (modifique conforme o nome exato no payload do token)
       this.personId = decodedToken.UsuarioID;
 
-      console.log('Valor de is:', this.personId); // Verifique no console se o valor de 'is' foi extraído corretamente
+      //console.log('Valor de is:', this.personId); // Verifique no console se o valor de 'is' foi extraído corretamente
     } else {
       console.log('Token não encontrado');
     }
