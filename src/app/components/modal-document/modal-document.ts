@@ -1,26 +1,29 @@
 // Bibliotecas
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, Pipe } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationModal } from '../confirmation-modal/confirmation-modal';
 import { Person } from '../../models/person.model';
 import { ToastrService } from 'ngx-toastr';
 import { ApiService } from '../../services/api-service/api-service';
+import { SafeUrlPipe } from '../../services/safeUrlPipe';
 
 @Component({
-  selector: 'app-modal-facial',
-  imports: [CommonModule, FormsModule, ConfirmationModal],
-  templateUrl: './modal-facial.html',
+  selector: 'app-modal-document',
+  imports: [CommonModule, FormsModule, SafeUrlPipe, ConfirmationModal],
+  templateUrl: './modal-document.html',
 })
-export class ModalFacial {
-  @Input() imageBase64: string = '';
-  @Input() personName: string = '';
-  @Input() personID: string = '';
+export class ModalDocument {
+  @Input() isPdf: boolean = false;
+
+  // As outras que você já deve ter:
+  @Input() arquivoUrl: string | null = null;
+  //@Input() person: Person | null = null;
   @Input() person!: Person;
+  //@Input() person!: Person;
 
   @Output() close = new EventEmitter<void>();
 
-  documentType: 'facial' = 'facial';
   showModal = false;
   title = '';
   subtitle = '';
@@ -31,16 +34,22 @@ export class ModalFacial {
     private toastr: ToastrService,
   ) {}
 
+  isZoomed = false;
+
+  toggleZoom() {
+    this.isZoomed = !this.isZoomed;
+  }
+
   openModal(type: 'approve' | 'disapprove') {
     this.actionType = type;
     this.showModal = true;
 
     if (type === 'approve') {
       this.title = 'Aprovar';
-      this.subtitle = 'Deseja realmente aprovar';
+      this.subtitle = 'Digite a data de validade do documento de';
     } else {
       this.title = 'Desaprovar';
-      this.subtitle = 'Deseja realmente desaprovar';
+      this.subtitle = 'Escreva o motivo para desaprovar o documento de';
     }
   }
 
@@ -60,50 +69,31 @@ export class ModalFacial {
     if (isApprove) {
       payload = {
         aprovado: true,
+        validade: event.validade,
         motivoRejeicao: '',
       };
     } else {
       payload = {
         aprovado: false,
+        validade: '',
         motivoRejeicao: event.motivo,
       };
     }
 
     console.log('Payload final para API:', payload);
-    console.log('personID', this.personID);
-    console.log('personName', this.personName);
-    console.log('person', this.person);
-
-    console.log('payload', payload);
-
+    console.log('personID', this.person.id);
     // 2. Passamos 'payload' (sem o 'this', pois é uma variável local da função)
-    this.api.approvarOrDesapproveFacial(this.personID, payload).subscribe({
+    this.api.approvarOrDesapproveDocument(this.person.id, payload).subscribe({
       next: (res) => {
         this.toastr.success(
-          `Facial do usuário ${isApprove ? 'aprovada' : 'reprovada'} com sucesso!`,
+          `Documento do usuário ${isApprove ? 'aprovado' : 'reprovado'} com sucesso!`,
         );
 
         if (!isApprove) {
-          this.person.statusFacial = 'Rejeitado';
+          this.person.statusDocumento = 'Rejeitado';
         } else {
-          this.person.statusFacial = 'Aprovado';
+          this.person.statusDocumento = 'Aprovado';
         }
-
-        const integrationData = {
-          facialIntegrada: isApprove ? 'S' : 'N',
-          integracaoOcorrencia: isApprove
-            ? 'Facial integrada com sucesso'
-            : payload.motivoRejeicao || 'Rejeitado',
-        };
-
-        // 3. Chamada ao updateIntegration passando o ID e o objeto de dados
-        this.api.updateIntegration(this.personID, integrationData).subscribe({
-          next: () => {
-            console.log('Integração atualizada com sucesso');
-          },
-          error: (err) => console.error('Erro ao atualizar integração:', err),
-        });
-
         /* Se foi desaprovado, deletar o documento
         if (!isApprove) {
           const bodyData = {

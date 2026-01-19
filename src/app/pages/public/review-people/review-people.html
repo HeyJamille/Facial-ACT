@@ -350,7 +350,8 @@
       <!-- Document Upload -->
       <div>
         <app-file-upload 
-          [person]="person.id" 
+          *ngIf="person?.id"
+          [person]="person!"
           [isEditMode]="isEditMode"
           (documentSelected)="onDocumentSelected($event)"
           (uploadMessage)="addMessage($event.text, $event.type)">
@@ -360,13 +361,14 @@
       <!-- Card Upload -->
       <div>
         <app-card-upload 
-          [person]="person.id" 
-          [isEditMode]="isEditMode"
+        *ngIf="person?.id"
+          [person]="person!"
+          [isEditMode]="isEditMode "
           (cardSelected)="onCardSelected($event)"
           >
         </app-card-upload>
       </div>
-      
+        
     </div>
   </section>
 </article>

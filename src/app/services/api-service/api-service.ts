@@ -22,7 +22,10 @@ interface SigninResponse {
 export class ApiService {
   private baseUrl = 'https://apifacial.achetickets.com.br/api/';
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+  ) {}
 
   // Signin
   signin(username: string, password: string, endpoint: string): Observable<SigninResponse> {
@@ -66,6 +69,61 @@ export class ApiService {
     return this.http.delete(`${this.baseUrl}Pessoa/${id}`, { headers });
   }
 
+  // Aprovações
+  approvarOrDesapproveCard(
+    personId: string,
+    dados: { aprovado: boolean; validade: string; motivoRejeicao: string },
+  ): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    console.log('dados', dados);
+    // O endpoint com a correção da barra '/'
+    return this.http.patch<any>(`${this.baseUrl}Aprovacoes/Carteirinha/${personId}`, dados, {
+      headers,
+    });
+  }
+
+  approvarOrDesapproveDocument(
+    personId: string,
+    dados: { aprovado: boolean; validade: string; motivoRejeicao: string },
+  ): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    console.log('dados', dados);
+    // O endpoint com a correção da barra '/'
+    return this.http.patch<any>(`${this.baseUrl}Aprovacoes/Documento/${personId}`, dados, {
+      headers,
+    });
+  }
+
+  approvarOrDesapproveFacial(
+    personId: string,
+    dados: { aprovado: boolean; motivoRejeicao: string },
+  ): Observable<any> {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    console.log('dados', dados);
+    // O endpoint com a correção da barra '/'
+    return this.http.patch<any>(`${this.baseUrl}Aprovacoes/Facial/${personId}`, dados, {
+      headers,
+    });
+  }
+
+  // Buscar Aprovações pelo cpf
+  getApproveByCPF(person: Person) {
+    const token = this.auth.getToken();
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    // O endpoint com a correção da barra '/'
+    return this.http.get<any>(
+      `${this.baseUrl}Pessoa/FacialValidada?documento=${person.documento}&tipo=${person.tipo}`,
+      { headers },
+    );
+  }
+
   /* ========================= FILE ============================ */
   uploadFile(id: string, tipo: 'carteirinha' | 'documento', file: File) {
     const token = this.auth.getToken();
@@ -87,11 +145,24 @@ export class ApiService {
     return this.http.post(url, formData, { headers });
   }
 
+  deleteDocument(id: string, bodyData: any): Observable<any> {
+    const token = this.auth.getToken(); // pega o cookie
+    console.log('token', token);
+    console.log('id', id);
+    console.log('bodyData', bodyData);
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    return this.http.delete(`${this.baseUrl}Aprovacoes/Arquivo/${id}`, {
+      headers,
+      body: bodyData, // aqui vai o body
+    });
+  }
+
   // Download File
   downloadFile(
     personId: string,
     token: string,
-    tipo: 'carteirinha' | 'documento'
+    tipo: 'carteirinha' | 'documento',
   ): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -126,7 +197,7 @@ export class ApiService {
   // Get Face Validation
   getFaceValidation(
     docValue: string,
-    docType: 'cpf' | 'passaporte'
+    docType: 'cpf' | 'passaporte',
   ): Observable<FaceValidationResponse> {
     const params = new HttpParams().set('documento', docValue).set('tipo', docType);
 
@@ -143,7 +214,7 @@ export class ApiService {
     return this.http.patch(
       `${this.baseUrl}Facial/Validar${personId}`,
       { statusValidacao: status },
-      { headers }
+      { headers },
     );
   }
 
@@ -155,7 +226,7 @@ export class ApiService {
   // Fetch Facial Base64
   public async fetchFacialBase64(
     personId: string,
-    token: string
+    token: string,
   ): Promise<{ base64: string | null }> {
     try {
       const res = await fetch(`${this.baseUrl}Facial/Base64/${personId}`, {

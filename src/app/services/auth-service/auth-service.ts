@@ -105,20 +105,15 @@ export class AuthService {
   }
 
   // Função para descriptografar o token e acessar o valor de 'is'
-  decodeToken(): void {
-    // Suponha que o token JWT esteja armazenado no localStorage, sessionStorage ou você o tenha de outra maneira
+  decodeToken(): string | null {
     const token = this.getToken();
 
     if (token) {
-      // Decodificando o token
       const decodedToken: any = jwtDecode(token);
 
-      // Acessando o valor de 'is' (modifique conforme o nome exato no payload do token)
-      this.personId = decodedToken.UsuarioID;
-
-      //console.log('Valor de is:', this.personId); // Verifique no console se o valor de 'is' foi extraído corretamente
-    } else {
-      console.log('Token não encontrado');
+      return String(decodedToken.UsuarioID);
     }
+
+    return null;
   }
 }

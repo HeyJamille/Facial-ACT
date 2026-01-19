@@ -33,9 +33,9 @@
           </div>
 
           <!-- Camera (only appears if capturing and the image has not been sent) -->
-          <div *ngIf="showCamera" class="flex flex-col items-center">
+          <div *ngIf="showCamera" class="flex flex-col items-center justify-center ">
             <!-- Container que segura vídeo + canvas -->
-            <div class="relative w-full">
+            <div class="relative max-w-[400px]">
               <!-- Vídeo -->
               <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
 
@@ -88,7 +88,7 @@
             </div>
 
             <!-- Validation Status -->
-            <div *ngIf="isEditMode && (facialIntegrada === 'N' && integracaoOcorrencia === 'Aguardando Validação') || (errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== '')" class="flex items-center  gap-2">
+            <div *ngIf="isEditMode && (facialIntegrada === 'N' && integracaoOcorrencia === 'Aguardando Validação') || (errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== '' && this.facialIntegrada !== undefined && this.integracaoOcorrencia !== undefined)" class="flex items-center  gap-2">
               <label class="text-sm font-medium text-gray-700"> 
                 Status:
               </label>

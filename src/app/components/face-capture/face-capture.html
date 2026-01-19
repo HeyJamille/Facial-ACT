@@ -78,18 +78,19 @@
             </div>
           </div>
 
-          <!-- Validation Status -->
-          <div *ngIf="isEditMode && (facialIntegrada === 'N' && integracaoOcorrencia === 'Aguardando Validação') || (errorImagem === false && this.facialIntegrada !== '' && this.integracaoOcorrencia !== '')" class="flex items-center  gap-2">
+
+          <!-- Status-->
+          <div class="flex flex-col gap-1 sm:flex-row items-center" *ngIf="getButtonState().message" >
             <label class="text-sm font-medium text-gray-700"> 
               Status:
             </label>
-            
+
             <p class="text-sm font-semibold"
-            [ngClass]="{
-              'text-green-600': facialIntegrada === 'S',
-     'text-red-600': facialIntegrada !== 'S'
-            }">
-              {{ integracaoOcorrencia }}
+              [ngClass]="{
+                'text-green-600': getButtonState().type === 'success',
+                'text-red-600': getButtonState().type === 'error' ||  getButtonState().type === 'info'
+              }">
+              {{ getButtonState().message }}
             </p>
           </div>
         </div>

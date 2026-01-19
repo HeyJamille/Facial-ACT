@@ -4,12 +4,29 @@
     name="filterBy"
     class="border border-gray-400 rounded-lg px-2 py-2 text-sm w-full sm:w-auto"
   >
-    <option value="" disabled selected>Selecione</option>
+    <option value="" disabled selected>Selecione...</option>
+    
     <option value="documento">Documento</option>
-    <option value="email">Email</option>
+    <option value="email">E-mail</option>
+
+    <ng-container *ngIf="isValidacaoPage ">
+      <option value="mostrarTodos">Mostrar Todos</option>
+      <option value="documentosPendentes">Documentos Pendentes</option>
+      <option value="documentosNaoEnviados">Documentos Não Enviados</option>
+      <option value="documentosValidados">Documentos Validados</option>
+
+      <option value="carteirinhasPendentes">Carteirinhas Pendentes</option>
+      <option value="carteirinhasNaoEnviados">Carteirinhas Não Enviadas</option>
+      <option value="carteirinhasValidadas">Carteirinhas Validadas</option>
+
+      <option value="facialPendentes">Facial Pendentes</option>
+      <option value="facialNaoEnviados">Facial Não Enviadas</option>
+      <option value="facialValidadas">Facial Validadas</option>
+    </ng-container>
   </select>
 
   <input
+  *ngIf="!isTextInputDisabled"
     type="text"
     placeholder="Digite aqui..."
     [(ngModel)]="term"

@@ -1,6 +1,14 @@
 // Bibliotecas
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, Input } from '@angular/core'; // Removed OnInit and signals
+import {
+  Component,
+  EventEmitter,
+  Output,
+  Input,
+  ChangeDetectorRef,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
@@ -11,9 +19,12 @@ import { ModalFacial } from '../modal-facial/modal-facial';
 
 // Services
 import { ApiService } from '../../services/api-service/api-service';
-
 import { AuthService } from '../../services/auth-service/auth-service';
 import { UtilsService } from '../../utils/utils-service';
+import { ModalDocument } from '../modal-document/modal-document';
+import { forkJoin } from 'rxjs';
+import { ModalAllDocument } from '../modal-all-document/modal-all-document';
+import { ModalCard } from '../modal-card/modal-card';
 
 export interface AuthField {
   name: keyof Person;
@@ -29,14 +40,14 @@ export interface Table {
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalFacial],
+  imports: [CommonModule, FormsModule, ModalFacial, ModalDocument, ModalAllDocument, ModalCard],
   templateUrl: './table.html',
 })
 export class Table {
-  @Input() data: Person[] = []; // Data is received from the parent
+  @Input() data: Person[] = [];
   @Input() fields: AuthField[] = [];
   @Input() actions: string[] = [];
-  @Input() actionType: 'icons' | 'select' = 'icons';
+  @Input() actionType: 'icons' | 'select' | 'check' = 'icons';
 
   @Output() actionEvent = new EventEmitter<{ action: string; id: string }>();
   @Output() editPerson = new EventEmitter<string>();
@@ -47,81 +58,59 @@ export class Table {
   currentFacialId: string | null = null;
   facialData: { [key: string]: string } = {};
 
-  showDocument = false;
   currentDocumentId?: string;
   documentData: Record<string, string> = {};
 
-  showCard = false;
   currentCardId?: string;
   cardData: Record<string, string> = {};
 
+  showDocument = false;
+  showCard = false;
+
   selectedAction: { [key: string]: string } = {};
+  arquivoUrl: string | null = null;
+  isPdf: boolean = false;
+  selectPerson: Person | null = null;
+
+  showModalAllDocument = false;
+  arquivosTodos = {
+    facial: '' as string | null,
+    documentoUrl: '' as string | null,
+    carteirinhaUrl: '' as string | null,
+    isDocumentoPdf: false,
+    isCarteirinhaPdf: false,
+  };
+
+  resultados: any[] = [];
+  pollingInterval: any;
 
   constructor(
     private api: ApiService,
     private router: Router,
     private toastr: ToastrService,
     private auth: AuthService,
-    public utils: UtilsService
+    public utils: UtilsService,
+    private cdr: ChangeDetectorRef, // Adicione o ChangeDetectorRef
   ) {}
 
   ngOnChanges() {
     if (this.data?.length) {
+      this.verificarDocumentos();
+
       this.data.forEach((person) => {
         if (!this.selectedAction[person.id]) {
-          this.selectedAction[person.id] = ''; // show “Selecionar”
+          this.selectedAction[person.id] = '';
         }
       });
     }
   }
-  /*
-  openFacial(personId: string) {
-    this.api.getFacialBase64(personId).subscribe({
-      next: (res: any) => {
-        let base64Str = '';
 
-        // Check if res is base64 object
-        if (res && typeof res === 'object' && res.base64) {
-          base64Str = res.base64;
-        } else if (typeof res === 'string') {
-          try {
-            const parsed = JSON.parse(res);
-            base64Str = parsed.base64;
-          } catch (err) {
-            console.error('Erro ao parsear JSON da API', err);
-          }
-        }
-
-        if (!base64Str) {
-          this.toastr.error('Nenhuma imagem encontrada', 'Erro');
-          return;
-        }
-
-        // Remove prefix if exists
-        const cleanBase64 = base64Str.replace(/^data:image\/\w+;base64,/, '');
-        const byteCharacters = atob(cleanBase64);
-        const byteNumbers = new Array(byteCharacters.length)
-          .fill(0)
-          .map((_, i) => byteCharacters.charCodeAt(i));
-        const byteArray = new Uint8Array(byteNumbers);
-
-        // Creates blob and opens in new tab
-        const blob = new Blob([byteArray], { type: 'image/png' });
-        const url = window.URL.createObjectURL(blob);
-        window.open(url, '_blank');
-      },
-      error: () => this.toastr.error('Erro ao carregar a foto facial', 'Erro'),
-    });
-  }
- */
   async onActionChange(event: Event, person: Person) {
     const value = (event.target as HTMLSelectElement).value;
 
     if (value === 'visualizar-facial') {
-      //console.log('Chamando API para pegar facial de', person.id);
-
       try {
-        // Get Token
+        this.selectPerson = person;
         const token = this.auth.getToken();
 
         if (!token) {
@@ -136,20 +125,15 @@ export class Table {
           return;
         }
 
-        // Store LocalStorage
+        // REMOVE QUALQUER CAPTURA FACIAL ANTERIOR
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith('facial_'))
+          .forEach((key) => localStorage.removeItem(key));
+
+        // SALVA SOMENTE A ATUAL
         localStorage.setItem(`facial_${person.id}`, data.base64);
 
-        // Read localStorage
-        const base64FromStorage = localStorage.getItem(`facial_${person.id}`);
-        if (!base64FromStorage) {
-          this.toastr.error('Erro ao recuperar a imagem do armazenamento', 'Erro');
-          return;
-        }
-
-        // Store no objects for internal control (optional)
-        this.facialData[person.id] = base64FromStorage;
-
-        // Open the modal
+        this.facialData[person.id] = data.base64;
         this.openFacialModal(person.id, person.nomeCompleto);
       } catch (err) {
         console.error('Erro ao carregar a captura facial', err);
@@ -159,12 +143,14 @@ export class Table {
 
     if (value === 'visualizar-documento') {
       const token = this.auth.getToken();
+      this.selectPerson = person;
+
       if (!token) {
         this.toastr.error('Usuário não autenticado', 'Erro');
         return;
       }
 
-      const tipoArquivo: 'carteirinha' | 'documento' = 'documento';
+      const tipoArquivo = 'documento';
 
       this.api.downloadFile(person.id, token, tipoArquivo).subscribe({
         next: (blob: Blob) => {
@@ -173,20 +159,13 @@ export class Table {
             return;
           }
 
-          const extension = blob.type.split('/')[1] || 'pdf';
-          const fileName = `documento_${person.id}.${extension}`;
-
-          const link = document.createElement('a');
-          const url = window.URL.createObjectURL(blob);
-          link.href = url;
-          link.download = fileName;
-          link.click();
-          window.URL.revokeObjectURL(url);
-
-          this.toastr.success('Baixando documento!');
+          this.isPdf = blob.type === 'application/pdf';
+          if (this.arquivoUrl) URL.revokeObjectURL(this.arquivoUrl);
+          this.arquivoUrl = URL.createObjectURL(blob);
+          //this.showDocument = true;
+          this.openDocumentModal(person.id);
         },
         error: (err) => {
-          console.error('Erro ao baixar documento:', err);
           this.toastr.error('Nenhum documento encontrado.');
         },
       });
@@ -194,44 +173,35 @@ export class Table {
 
     if (value === 'visualizar-carteirinha') {
       const token = this.auth.getToken();
+      this.selectPerson = person;
+
       if (!token) {
         this.toastr.error('Usuário não autenticado', 'Erro');
         return;
       }
 
-      const tipoArquivo: 'carteirinha' | 'documento' = 'carteirinha';
+      const tipoArquivo = 'carteirinha';
 
       this.api.downloadFile(person.id, token, tipoArquivo).subscribe({
         next: (blob: Blob) => {
           if (!blob) {
-            this.toastr.warning('Nenhuma carteirinha encontrada.');
+            this.toastr.warning('Nenhuma carteirinha encontrado.');
             return;
           }
 
-          const extension = blob.type.split('/')[1] || 'pdf';
-          const fileName = `carteirinha${person.id}.${extension}`;
-
-          const link = document.createElement('a');
-          const url = window.URL.createObjectURL(blob);
-          link.href = url;
-          link.download = fileName;
-          link.click();
-          window.URL.revokeObjectURL(url);
-
-          this.toastr.success('Baixando carteirinha!');
+          this.isPdf = blob.type === 'application/pdf';
+          if (this.arquivoUrl) URL.revokeObjectURL(this.arquivoUrl);
+          this.arquivoUrl = URL.createObjectURL(blob);
+          //this.showCard = true;
+          this.openCardModal(person.id);
         },
         error: (err) => {
-          console.error('Erro ao baixar carteirinha:', err);
           this.toastr.error('Nenhuma carteirinha encontrada.');
         },
       });
     }
-
-    // Reset select
-    this.selectedAction[person.id] = '';
   }
 
-  // Optional function for icons
   onAction(action: string, id: string) {
     this.actionEvent.emit({ action, id });
   }
@@ -245,9 +215,6 @@ export class Table {
   }
 
   openFacialModal(personId: string, personName: string) {
-    console.log('Abrindo modal para pessoa:', personId);
-    console.log('Abrindo modal para pessoa:', personName);
-
     this.currentFacialId = personId;
     this.currentPersonName = personName;
     this.showFacial = true;
@@ -261,5 +228,51 @@ export class Table {
   openCardModal(personId: string) {
     this.currentCardId = personId;
     this.showCard = true;
+  }
+
+  verificarDocumentos() {
+    this.data.forEach((person) => {
+      this.api.getApproveByCPF(person).subscribe({
+        next: (response) => {
+          //console.log('response', response);
+          // Atualizamos a referência da pessoa diretamente no array 'data'
+          // Certifique-se de que os nomes dos campos (facial, arquivoDocumento, etc)
+          // coincidem com o que a sua API retorna.
+
+          person.iconFacial = response.iconFacial;
+          person.iconDocumento = response.iconDocumento;
+          person.iconCarteirinha = response.iconCarteirinha;
+
+          person.statusFacial = response.statusFacial; // Esperado 'S' ou 'N' conforme seu HTML
+          person.statusDocumento = response.statusDocumento; // Ajuste conforme o retorno da API
+          person.statusCarteirinha = response.statusCarteirinha; // Esperado boolean
+
+          //console.log(`Dados atualizados para ${person.nomeCompleto}:`, response);
+        },
+        error: (err) => {
+          console.error('Erro ao consultar pessoa');
+        },
+      });
+    });
+  }
+
+  // Método para fechar qualquer modal e resetar o select da pessoa
+  fecharModais() {
+    if (this.selectPerson) {
+      // Primeiro limpamos o visual do select
+      this.selectedAction[this.selectPerson.id] = '';
+    }
+
+    // Depois fechamos as flags de controle
+    this.showFacial = false;
+    this.showDocument = false;
+    this.showCard = false;
+    this.showModalAllDocument = false;
+
+    // Por último limpamos a referência da pessoa
+    this.selectPerson = null;
+
+    // Força o Angular a atualizar a tela
+    this.cdr.detectChanges();
   }
 }

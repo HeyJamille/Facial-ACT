@@ -10,19 +10,35 @@
       ✕
     </button>
     
-    <!-- Facial Image -->
-    <div class="flex justify-center items-center" *ngIf="imageBase64">
-      <img
-        [src]="imageBase64"
-        alt="Captura Facial"
-        class="max-h-[60vh] w-auto object-contain rounded"
-      />
+    <!-- Document Image -->
+    <div class="flex justify-center items-center overflow-hidden" *ngIf="arquivoUrl">
+      
+     <iframe
+        *ngIf="isPdf"
+        [src]="arquivoUrl | safeUrl"
+        class="w-auto h-[500px] rounded border-0"
+      ></iframe>
+
+      <div class="flex justify-center items-start overflow-auto max-h-[80vh] w-full custom-scroll">
+        <img
+          *ngIf="!isPdf"
+          [src]="arquivoUrl"
+          alt="Documento"
+          (click)="toggleZoom()"
+          [ngClass]="{
+            'max-h-[70vh] w-auto': !isZoomed,
+            'max-h-[1000px] w-full object-cover': isZoomed
+          }"
+          class="rounded transition-all duration-300 cursor-zoom-in shadow-xl"
+        />
+      </div>
+      
     </div>
 
     <!-- Approve and disapprove buttons -->
     <div class="flex items-center justify-center gap-4 pt-5">
       <button 
-        *ngIf="person.statusFacial !== 'Facial Aprovada'"
+        *ngIf="person.statusDocumento !== 'Documento Aprovado'"
         class="bg-green-600 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-green-700  cursor-pointer"
         (click)="openModal('approve')"
       >
@@ -42,13 +58,11 @@
       [showModal]="showModal"
       [title]="title"
       [subtitle]="subtitle"
-      [personName]="personName"
+      [personName]="person.nomeCompleto"
       (confirm)="confirmAction($event)"
       (cancel)="closeModal()"
       [actionType]="actionType"
-      [documentType]="documentType"
     ></app-confirmation-modal>
-
-    
   </div>
+
 </div>

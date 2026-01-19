@@ -1,6 +1,6 @@
 // BIbliotecas
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
@@ -20,7 +20,7 @@ import { ApiService } from '../../../services/api-service/api-service';
 @Component({
   selector: 'app-list-people',
   standalone: true,
-  imports: [CommonModule, FormsModule, Table, ConfirmationModal, Header, Filter],
+  imports: [CommonModule, FormsModule, ConfirmationModal, Header, Filter, Table],
   templateUrl: './list-people.html',
 })
 export class ListPeople implements OnInit {

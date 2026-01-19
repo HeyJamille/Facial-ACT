@@ -18,11 +18,34 @@
       <p class="text-sm text-gray-600">{{ subtitle }} <strong>{{ personName }}</strong>?</p>
     </div>
     
+    <div class="px-6 py-4 bg-gray-50/50">
+      <div *ngIf="actionType === 'approve' && documentType !== 'facial'" class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-500 uppercase">Data de Validade</label>
+        <input 
+          type="date" 
+          name="validade"
+          [(ngModel)]="validade"
+          (change)="validade = $any($event.target).value"
+          class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white text-sm"
+        />
+      </div>
+
+      <div *ngIf="actionType === 'disapprove'" class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-500 uppercase">Motivo da Rejeição</label>
+        <textarea 
+          [(ngModel)]="motivo"
+          rows="3"
+          placeholder="Ex: Documento com baixa visibilidade ou vencido..."
+          class="w-full p-2.5 border border-gray-300 rounded-lg text-gray-500 focus:ring-2 focus:ring-red-500 outline-none bg-white text-sm"
+        ></textarea>
+      </div>
+
+    </div>
+
     <!-- Button -->
-    <app-button type="submit" [loading]="loading" (click)="confirm.emit()">
+    <app-button type="submit" [loading]="loading" (click)="onConfirm()">
       {{ loading ? 'Salvando...' : 'Confirmar' }}
     </app-button>
-
   </div>
 </div>
 

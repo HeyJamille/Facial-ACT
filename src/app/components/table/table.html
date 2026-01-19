@@ -1,101 +1,152 @@
-<div class="overflow-x-auto">
-  <table class="min-w-full border border-gray-200 rounded-lg shadow overflow-hidden">
-    <!-- Header -->
+<div class="overflow-x-auto rounded-lg border border-gray-200 shadow-md">
+  <table class="min-w-full border-collapse bg-white">
     <thead class="bg-black text-white">
       <tr>
-        <th *ngFor="let col of fields" class="py-3 px-full text-center uppercase text-xs font-semibold tracking-wider">
+        <th *ngFor="let col of fields" 
+            class="p-3 uppercase text-[11px] font-bold tracking-widest text-center whitespace-nowrap">
           {{ col.label }}
         </th>
-        <th class="py-3 px-5 text-center uppercase text-xs font-semibold tracking-wider">Ação</th>
+        <th class="p-3 uppercase text-[11px] font-bold tracking-widest text-center whitespace-nowrap">
+          Ações
+        </th>
       </tr>
     </thead>
 
-    <!-- Body Table -->
-    <tbody>
-      <tr *ngFor="let person of data" class="bg-white hover:bg-gray-100 transition-colors duration-200 border-b border-gray-200">
-        <!-- People list -->
-        <td *ngFor="let col of fields" 
-            class="py-2 px-5 text-center text-sm text-gray-700 truncate"
-            title="{{ person[col.name] }}">
+    <tbody class="divide-y divide-gray-200">
+      <tr *ngFor="let person of data" class="hover:bg-gray-50 transition-colors duration-200">
 
-          <!-- Date of birth -->
-          <span *ngIf="(col.name === 'dataNascimento' || col.name === 'dataEnvioFacial') && person[col.name]">
+        <td *ngFor="let col of fields" 
+            class="text-sm text-gray-700 px-4 p-3 text-center align-middle"
+            [title]="person[col.name] || ''">
+
+          <span *ngIf="col.name === 'nomeCompleto' && person[col.name]" 
+                class="inline-block max-w-[180px] truncate font-medium align-middle">
+            {{ person[col.name] }}
+          </span>
+
+          <span *ngIf="(col.name === 'dataNascimento' || col.name === 'dataEnvioFacial') && person[col.name]" class="whitespace-nowrap">
             {{ person[col.name] | date:'dd/MM/yyyy' }}
           </span>
 
-          <!-- Phone -->
-          <span *ngIf="col.name === 'celular' && person[col.name]">
+          <span *ngIf="col.name === 'celular' && person[col.name]" class="whitespace-nowrap">
             {{ utils.maskPhone(person[col.name]) }}
           </span>
 
-          <!-- Type -->
-          <span *ngIf="col.name === 'tipo' && person[col.name]">
-            {{ person[col.name] === 'cpf' ? (person[col.name] | uppercase) : person[col.name] }}
+          <span *ngIf="col.name === 'tipo' && person[col.name]" 
+                class="uppercase font-bold text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
+            {{ person[col.name] }}
           </span>
 
-          <!-- CPF or Passport -->
-          <span *ngIf="col.name === 'documento'">
+          <span *ngIf="col.name === 'documento' && person[col.name]" class="font-mono text-xs whitespace-nowrap">
             {{ utils.maskId(person[col.name], col.name) }}
           </span>
 
-          <!-- Email -->
-          <span *ngIf="col.name === 'email' && person[col.name]">
+          <span *ngIf="col.name === 'email' && person[col.name]" class="lowercase text-xs">
             {{ utils.maskEmail(person[col.name]) }}
           </span>
 
-          <!-- Other fields -->
-          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'tipo' && col.name !== 'documento' && col.name !== 'email'">
-            {{ person[col.name] }}
+          <div *ngIf="col.name === 'statusDocs'" class="inline-flex flex-col items-start gap-1.5 py-1">
+            <div class="flex items-center gap-2">
+              <img [src]="person.iconFacial === 'S' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
+              <span [ngClass]="person.iconFacial === 'S' ? 'text-green-600' : 'text-red-600'" 
+                    class="text-[10px] font-bold uppercase tracking-tight">
+               {{ person.statusFacial }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <img [src]="person.iconDocumento === 'S' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
+              <span [ngClass]="person.iconDocumento === 'S' ? 'text-green-600' : 'text-red-600'" 
+                    class="text-[10px] font-bold uppercase tracking-tight">
+                {{ person.statusDocumento }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <img [src]="person.iconCarteirinha === 'S' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
+              <span [ngClass]="person.iconCarteirinha === 'S' ? 'text-green-600' : 'text-red-600'" 
+                    class="text-[10px] font-bold uppercase tracking-tight">
+                {{ person.statusCarteirinha  }}
+              </span>
+            </div>
+          </div>
+
+          <span *ngIf="col.name !== 'dataNascimento' && col.name !== 'celular' && col.name !== 'dataEnvioFacial' && col.name !== 'tipo' && col.name !== 'documento' && col.name !== 'email' && col.name !== 'statusDocs' && col.name !== 'nomeCompleto'">
+            {{ person[col.name] || '-' }}
           </span>
         </td>
 
-        <!-- Actions -->
-        <td class="py-2 flex justify-center gap-2">
-          <!-- Select -->
-          <ng-container *ngIf="actionType === 'select'">
-            <div>
+        <td class="py-3 px-2 text-center align-middle border-l border-gray-50">
+          <div class="flex justify-center items-center">
+            
+            <ng-container *ngIf="actionType === 'select'">
               <select
-                class="border border-gray-300 rounded-lg px-2 py-1 mx-6 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="border border-gray-300 rounded-md px-2 py-1.5 text-xs focus:ring-2 focus:ring-black bg-white cursor-pointer transition-all min-w-[130px]"
                 [(ngModel)]="selectedAction[person.id]"
                 (change)="onActionChange($event, person)"
               >
-                <option value="" disabled>Selecionar</option> <!-- initial placeholder -->
-                <option [disabled]="!person.arquivoFacial" value="visualizar-facial">Visualizar Facial</option>
-                <option [disabled]="!person.arquivoDocumento" value="visualizar-documento">Visualizar Documento</option>
-                <option [disabled]="!person.arquivoCarteirinha" value="visualizar-carteirinha">Visualizar Carteirinha</option>
-                <option value="visualizar-todos">Visualizar Todos</option>
+                <option value="" disabled selected>Ações...</option>
+                <option [disabled]="!person.arquivoFacial" value="visualizar-facial">Ver Facial</option>
+                <option [disabled]="!person.arquivoDocumento" value="visualizar-documento">Ver Documento</option>
+                <option [disabled]="!person.arquivoCarteirinha" value="visualizar-carteirinha">Ver Carteirinha</option>
               </select>
-            </div>
-          </ng-container>
+            </ng-container>
 
-          <!-- Icons -->
-          <ng-container *ngIf="actionType === 'icons'" class="px-2 py-1 mx-6" >
-            <button 
-              *ngIf="actions.includes('editar')" 
-              (click)="onAction('editar', person.id)">
-              <img src="/pencil.png" alt="Editar" class="w-4 h-5 cursor-pointer">
-            </button>
-            <button 
-              *ngIf="actions.includes('deletar')" 
-              (click)="onAction('deletar', person.id)">
-              <img src="/trash.png" alt="Deletar" class="w-4 h-5 cursor-pointer">
-            </button>
-          </ng-container>
+            <ng-container *ngIf="actionType === 'icons'">
+              <div class="flex justify-center items-center gap-3 ">
+                <button *ngIf="actions.includes('editar')" (click)="onAction('editar', person.id)" class="hover:opacity-60 transition-opacity">
+                  <img src="/pencil.png" alt="Editar"  class="w-auto h-4">
+                </button>
+                <button *ngIf="actions.includes('deletar')" (click)="onAction('deletar', person.id)" class="hover:opacity-60 transition-opacity">
+                  <img src="/trash.png" alt="Deletar"  class="w-auto h-4">
+                </button>
+              </div>
+            </ng-container>
+          </div>
         </td>
       </tr>
     </tbody>
   </table>
 </div>
 
+
+@if (selectPerson) {
 <app-modal-facial
   *ngIf="showFacial && currentFacialId"
   [imageBase64]="facialData[currentFacialId!]"
   [personName]="currentPersonName"
   [personID]="currentFacialId"
-  (close)="showFacial = false"
+  [person]="selectPerson"
+  (close)="fecharModais()"
 ></app-modal-facial>
+}
 
 
+@if (selectPerson) {
+<app-modal-document
+  *ngIf="showDocument"
+  [arquivoUrl]="arquivoUrl"
+  [isPdf]="isPdf"
+  [person]="selectPerson"
+  (close)="fecharModais()"
+></app-modal-document>
+}
 
+@if (selectPerson) {
+<app-modal-card
+  *ngIf="showCard"
+  [arquivoUrl]="arquivoUrl"
+  [isPdf]="isPdf"
+  [person]="selectPerson"
+  (close)="fecharModais()"
+></app-modal-card>
+}
 
-
+@if (selectPerson) {
+<app-modal-all-document
+  *ngIf="showModalAllDocument"
+  [arquivosTodos]="arquivosTodos"
+  [person]="selectPerson"
+ (close)="fecharModais()"
+></app-modal-all-document>
+}

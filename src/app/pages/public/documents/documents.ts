@@ -31,8 +31,8 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './documents.html',
 })
 export class Documents {
-  person: any;
-  personId: string = '';
+  person!: Person;
+  personId!: string;
 
   documentFile?: File;
   declarationChecked: boolean = false;
@@ -44,14 +44,34 @@ export class Documents {
 
   messages: { text: string; type: 'success' | 'error' }[] = [];
 
-  constructor(private toastr: ToastrService, private router: Router, private auth: AuthService) {}
+  isLoading = false;
+
+  constructor(
+    private toastr: ToastrService,
+    private router: Router,
+    private auth: AuthService,
+    private apiService: ApiService,
+  ) {}
 
   ngOnInit(): void {
-    this.auth.decodeToken();
+    const id = this.auth.decodeToken();
 
-    this.personId = this.auth.personId; // Acessa o 'id' após a decodificação
+    if (!id) {
+      console.error('ID não encontrado no token');
+      return;
+    }
 
-    console.log('ID do usuário:', this.personId); // Verifique o id no console
+    this.personId = id;
+
+    this.apiService.getPersonById(id).subscribe({
+      next: (person: Person) => {
+        this.person = person;
+        console.log('Person carregado:', person);
+      },
+      error: (err) => {
+        console.error('Erro ao buscar Person', err);
+      },
+    });
   }
 
   onDocumentSelected(file: File) {

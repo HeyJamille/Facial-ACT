@@ -1,20 +1,26 @@
-import { ToastrService } from 'ngx-toastr';
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
   Component,
+  OnInit,
+  OnDestroy,
+  OnChanges,
+  AfterViewInit,
+  ViewChild,
   ElementRef,
-  EventEmitter,
   Input,
   Output,
+  EventEmitter,
   SimpleChanges,
-  ViewChild,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import * as faceapi from 'face-api.js';
+import { interval, Subscription, startWith, switchMap, takeWhile } from 'rxjs';
+
 import { AuthService } from '../../services/auth-service/auth-service';
 import { ApiService } from '../../services/api-service/api-service';
-import * as faceapi from 'face-api.js';
+import { Person } from '../../models/person.model';
 
 @Component({
   selector: 'app-face-capture',
@@ -22,83 +28,131 @@ import * as faceapi from 'face-api.js';
   standalone: true,
   imports: [CommonModule],
 })
-export class FaceCapture implements AfterViewInit {
+export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @ViewChild('video') videoRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('overlayCanvas') overlayCanvasRef!: ElementRef<HTMLCanvasElement>; // FACE-API
+  @ViewChild('overlayCanvas') overlayCanvasRef!: ElementRef<HTMLCanvasElement>;
 
   @Input() isEditMode: boolean = false;
-  @Input() person: any;
+  @Input() person!: Person;
   @Input() showFaceCapture: boolean = false;
   @Output() showMessage = new EventEmitter<{ text: string; type: 'success' | 'error' }>();
 
+  // Estados da UI
   imagecaptured: string | null = null;
   homeCapture: boolean = true;
   showCamera: boolean = false;
   imageSent: boolean = false;
   errorImagem: boolean = false;
+  isAdmin = false;
+  isViewMode = false;
+  isDocumentsPage = false;
 
+  // Status de Integração
   integracaoOcorrencia?: string;
   facialIntegrada?: string | number;
 
-  isAdmin = false;
-  isViewMode = false;
-
-  private canvas!: HTMLCanvasElement; // Declaração da variável canvas
+  private canvas!: HTMLCanvasElement;
   private stream: MediaStream | null = null;
+  private pollingSub: Subscription | null = null; // Controle do RxJS
 
   constructor(
     private auth: AuthService,
     private api: ApiService,
     private toastr: ToastrService,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
+
+  ngOnInit(): void {
+    this.isDocumentsPage = this.router.url.includes('/Documentos');
+    this.isAdmin = this.auth.getUserInfo()?.role === 'A';
+
+    const url = this.router.url;
+    if (url.includes('VisualizarPessoa')) {
+      this.isViewMode = true;
+    } else if (url.includes('EditarPessoa')) {
+      this.isEditMode = true;
+    }
+
+    this.loadModels();
+    this.showImage();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['person'] && this.person?.id) {
-      this.api.getPersonById(this.person.id).subscribe({
-        next: (res: any) => {
-          this.integracaoOcorrencia = res.integracaoOcorrencia;
-          this.facialIntegrada = res.facialIntegrada;
-        },
-        error: (err) => console.error('Erro ao buscar usuário:', err),
-      });
+      this.showImage();
+      this.startPolling(); // Inicia o monitoramento se necessário
     }
   }
 
-  getButtonState() {
-    if (this.facialIntegrada === '' && this.integracaoOcorrencia === '') {
-      return { showSend: true, showRepeat: true, disabled: false };
-    } else if (this.facialIntegrada === 'S') {
-      return { showSend: false, showRepeat: false, disabled: true };
-    } else if (
-      this.facialIntegrada === 'N' &&
-      this.integracaoOcorrencia === 'Aguardando Validação'
-    ) {
-      return { showSend: false, showRepeat: false, disabled: true };
-    } else if (this.errorImagem === true) {
-      return { showSend: true, showRepeat: true, disabled: false };
-    } else {
-      return { showSend: false, showRepeat: true, disabled: true };
+  ngOnDestroy(): void {
+    this.stopPolling();
+    this.stopCamera();
+  }
+
+  ngAfterViewInit(): void {
+    this.canvas = document.createElement('canvas');
+  }
+
+  async loadModels() {
+    try {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/face-models/');
+    } catch (err) {
+      console.error('Erro ao carregar modelos face-api:', err);
+    }
+  }
+
+  // --- LÓGICA DE POLLING ---
+
+  startPolling() {
+    // Se o status já for final (Aprovado ou Rejeitado), não inicia o polling
+    if (this.person?.facialAprovada !== null && this.person?.facialAprovada !== undefined) {
+      return;
+    }
+
+    this.stopPolling(); // Limpa assinatura anterior se existir
+
+    this.pollingSub = interval(5000)
+      .pipe(
+        startWith(0),
+        // Busca os dados atualizados da pessoa
+        switchMap(() => this.api.getPersonById(this.person.id)),
+        // Continua enquanto o status for nulo/indefinido. 'true' inclui o resultado que quebra a condição.
+        takeWhile(
+          (res: any) => res.facialAprovada === null || res.facialAprovada === undefined,
+          true,
+        ),
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.person = res;
+          this.facialIntegrada = res.facialIntegrada;
+          this.integracaoOcorrencia = res.integracaoOcorrencia;
+          this.cd.detectChanges();
+        },
+        error: (err) => console.error('Erro no polling de status:', err),
+      });
+  }
+
+  private stopPolling() {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
+      this.pollingSub = null;
     }
   }
 
   async showImage() {
-    const url = this.router.url;
-    const isViewingPerson = url.includes('VisualizarPessoa');
-
+    const isViewingPerson = this.router.url.includes('VisualizarPessoa');
     const userId =
       this.person?.id ||
       (isViewingPerson && this.isAdmin ? this.person?.id : this.auth.getUserInfo()?.id);
 
     if (!userId) return;
-
     const token = this.auth.getToken();
     if (!token) return;
 
     try {
       const data = await this.api.fetchFacialBase64(userId, token);
-
       if (data?.base64) {
         this.imagecaptured = data.base64.startsWith('data:')
           ? data.base64
@@ -106,90 +160,116 @@ export class FaceCapture implements AfterViewInit {
 
         this.api.getPersonById(userId).subscribe({
           next: (res: any) => {
+            this.person = res;
             this.facialIntegrada = res.facialIntegrada;
             this.integracaoOcorrencia = res.integracaoOcorrencia;
-
-            if (this.facialIntegrada === 'S' || this.facialIntegrada === 'N') {
-              this.imageSent = true;
-              this.showCamera = false;
-            } else {
-              this.imageSent = false;
-            }
-
+            this.imageSent = res.facialIntegrada === 'S' || res.facialIntegrada === 'N';
             this.homeCapture = false;
-          },
-          error: () => {
-            this.imageSent = false;
+            this.startPolling(); // Inicia monitoramento após carregar dados iniciais
           },
         });
       } else {
-        this.imagecaptured = null;
-        this.imageSent = false;
-        this.homeCapture = true;
-        this.showCamera = false;
-
-        if (!isViewingPerson && !this.isAdmin) {
-          this.showMessage.emit({
-            text: 'Facial liberada para cadastro',
-            type: 'success',
-          });
-        }
+        this.resetCaptureState();
       }
     } catch (err) {
-      console.error('Erro ao buscar imagem facial:', err);
       this.toastr.error('Falha ao carregar facial');
     }
   }
 
-  async ngOnInit(): Promise<void> {
-    this.showImage();
-
-    this.isAdmin = this.auth.getUserInfo()?.role === 'A';
-
-    const url = this.router.url;
-
-    if (url.includes('VisualizarPessoa')) {
-      this.isViewMode = true;
-    } else if (url.includes('EditarPessoa')) {
-      this.isEditMode = true;
-    }
-
-    try {
-      await faceapi.nets.tinyFaceDetector.loadFromUri('/face-models/');
-    } catch (err) {
-      console.error('Erro ao carregar modelos:', err);
-    }
+  private resetCaptureState() {
+    this.imagecaptured = null;
+    this.imageSent = false;
+    this.homeCapture = true;
+    this.showCamera = false;
   }
 
-  ngAfterViewInit(): void {
-    this.canvas = document.createElement('canvas');
+  getButtonState() {
+    const p = this.person;
+
+    // 1. SE JÁ FOI APROVADO MANUALMENTE (Fim de jogo)
+    if (p.facialAprovada === true || this.facialIntegrada === 'S') {
+      console.log('CASO 1 FACIAL');
+      return {
+        showSend: false,
+        showRepeat: false,
+        disabled: true,
+        message: 'Aprovado',
+        type: 'success',
+      };
+    }
+
+    // 2. SE ESTÁ AGUARDANDO (Independente de ter sido reprovado antes)
+    // Após o sendImage(), integracaoOcorrencia volta a ser 'Aguardando Validação'
+    if (this.integracaoOcorrencia === 'Aguardando Validação') {
+      console.log('CASO 2 FACIAL');
+      return {
+        showSend: false,
+        showRepeat: false,
+        disabled: true,
+        message: 'Aguardando Validação',
+        type: 'error',
+      };
+    }
+
+    if (p.facialIntegrada === 'N' && this.person.integracaoOcorrencia !== null) {
+      console.log('CASO 3 FACIAL');
+      return {
+        showSend: true,
+        showRepeat: true,
+        disabled: false,
+        message: p.integracaoOcorrencia || 'Rejeitado',
+        type: 'error',
+      };
+    }
+
+    // 2. SE ESTÁ AGUARDANDO (Independente de ter sido reprovado antes)
+    // Após o sendImage(), integracaoOcorrencia volta a ser 'Aguardando Validação'
+    if (p.facialAprovada === false && this.person.motivoRejeicaoFacial !== null) {
+      console.log('CASO 4 FACIAL');
+      return {
+        showSend: true,
+        showRepeat: true,
+        disabled: false,
+        message: p.motivoRejeicaoFacial || 'Rejeitado',
+        type: 'error',
+      };
+    }
+
+    // 5. ERRO AUTOMÁTICO (Caso N e não seja "Aguardando")
+    if (this.facialIntegrada === 'N' && this.integracaoOcorrencia) {
+      console.log('CASO 5 FACIAL');
+      return {
+        showSend: true,
+        showRepeat: true,
+        disabled: false,
+        message: this.integracaoOcorrencia,
+        type: 'error',
+      };
+    }
+
+    console.log('CASO 6 FACIAL');
+    // CASO PADRÃO: Novo envio
+    return { showSend: true, showRepeat: true, disabled: false, message: null, type: null };
   }
+
+  // --- CÂMERA E CAPTURA ---
 
   startCapture() {
     if (this.imageSent) {
-      this.toastr.info('Captura facial já cadastrada. Não é possível enviar outra.');
+      this.toastr.info('Captura facial já cadastrada.');
       return;
     }
-
     this.homeCapture = false;
     this.showCamera = true;
 
-    if (!navigator.mediaDevices?.getUserMedia) {
-      this.toastr.warning('Câmera não suportada neste navegador.');
-      return;
-    }
-
     navigator.mediaDevices
-      .getUserMedia({ video: true })
+      ?.getUserMedia({ video: true })
       .then((stream) => {
         this.stream = stream;
-        const video = this.videoRef.nativeElement;
-
-        video.srcObject = stream;
-
-        video.onloadedmetadata = () => {
-          video.play();
-          this.startFaceDetection(); // FACE-API
+        this.videoRef.nativeElement.srcObject = stream;
+        this.videoRef.nativeElement.onloadedmetadata = () => {
+          this.videoRef.nativeElement.play();
+          this.startFaceDetection();
         };
       })
       .catch(() => this.toastr.error('Erro ao acessar a câmera.'));
@@ -198,188 +278,104 @@ export class FaceCapture implements AfterViewInit {
   async startFaceDetection() {
     const video = this.videoRef.nativeElement;
     const overlay = this.overlayCanvasRef.nativeElement;
+    if (!video || !overlay) return;
 
-    if (!video || !overlay) {
-      console.error('VIDEO OU CANVAS NÃO ENCONTRADO');
-      return;
-    }
-
-    // É necessário definir width e height após o vídeo carregar para pegar os valores corretos
     overlay.width = video.videoWidth;
     overlay.height = video.videoHeight;
-
     const ctx = overlay.getContext('2d');
 
-    if (!ctx) {
-      console.error('Contexto 2D não disponível no canvas.');
-      return;
-    }
-
-    const drawFixedCircle = () => {
-      const centerX = overlay.width / 2;
-      const centerY = overlay.height / 2;
-      const radius = 150;
-
-      // Desenha o círculo fixo (guia)
-      ctx.strokeStyle = 'lime';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.stroke();
-    };
-
-    const loopDetection = async () => {
-      ctx.clearRect(0, 0, overlay.width, overlay.height);
-      drawFixedCircle();
-
-      // 👇 CHAMA A FUNÇÃO QUE DETECTA E ATUALIZA A MENSAGEM
-      await this.detectFace(ctx, video);
-
-      // Precisa do ChangeDetectorRef para garantir que o Angular saiba que a variável mudou
+    const loop = async () => {
+      if (!this.showCamera) return;
+      ctx?.clearRect(0, 0, overlay.width, overlay.height);
+      this.drawGuide(ctx!, overlay.width, overlay.height);
+      await this.detectFace(ctx!, video);
       this.cd.detectChanges();
-
-      requestAnimationFrame(loopDetection);
+      requestAnimationFrame(loop);
     };
+    loop();
+  }
 
-    loopDetection();
+  drawGuide(ctx: CanvasRenderingContext2D, w: number, h: number) {
+    ctx.strokeStyle = 'lime';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(w / 2, h / 2, 150, 0, Math.PI * 2);
+    ctx.stroke();
   }
 
   async detectFace(ctx: CanvasRenderingContext2D, video: HTMLVideoElement) {
-    try {
-      const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
-
-      // 1. SE ROSTO NÃO FOR DETECTADO:
-      // A mensagem já está visível (controlada pelo showCamera no HTML).
-      // Apenas desabilite o botão.
-      if (!result) {
-        // Não altere showFacePositionMessage
-        return;
-      }
-
-      // 2. SE ROSTO FOI DETECTADO:
-      // Desenha o círculo sobre o rosto
-      const box = result.box;
-      const radius = Math.max(box.width, box.height) / 2;
-      const centerX = box.x + box.width / 2;
-      const centerY = box.y + box.height / 2;
-
-      ctx!.strokeStyle = 'lime';
-      ctx!.lineWidth = 4;
-      ctx!.beginPath();
-      ctx!.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx!.stroke();
-
-      // Verifica se o rosto está dentro do círculo fixo
-      const faceIsInside = this.isFaceInsideCircle(box);
-
-      // IMPORTANTE: Removida a linha this.showFacePositionMessage = !faceIsInside;
-    } catch (e) {
-      console.error('Erro na detecção:', e);
+    const result = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+    if (result) {
+      const { x, y, width, height } = result.box;
+      ctx.strokeStyle = 'blue';
+      ctx.beginPath();
+      ctx.arc(x + width / 2, y + height / 2, Math.max(width, height) / 2, 0, Math.PI * 2);
+      ctx.stroke();
     }
   }
 
-  // Função que verifica se o rosto está dentro do círculo fixo
-  isFaceInsideCircle(box: faceapi.Box): boolean {
-    const centerX = this.overlayCanvasRef.nativeElement.width / 2;
-    const centerY = this.overlayCanvasRef.nativeElement.height / 2;
-    const radius = 150;
-
-    const faceCenterX = box.x + box.width / 2;
-    const faceCenterY = box.y + box.height / 2;
-
-    const distance = Math.sqrt(
-      Math.pow(faceCenterX - centerX, 2) + Math.pow(faceCenterY - centerY, 2)
-    );
-
-    return distance < radius;
-  }
-
   captureImage() {
-    if (this.imageSent) return;
-
     const video = this.videoRef.nativeElement;
     this.canvas.width = video.videoWidth;
     this.canvas.height = video.videoHeight;
-
-    const ctx = this.canvas.getContext('2d');
-    ctx?.drawImage(video, 0, 0, this.canvas.width, this.canvas.height);
-
+    this.canvas.getContext('2d')?.drawImage(video, 0, 0);
     this.imagecaptured = this.canvas.toDataURL('image/jpeg');
     this.stopCamera();
   }
 
   sendImage() {
-    if (this.imageSent) return;
-
-    if (!this.imagecaptured) {
-      this.toastr.warning('Nenhuma captura facial capturada.');
-      return;
-    }
+    if (!this.imagecaptured || this.imageSent) return;
 
     const userId = this.person?.id || this.auth.getUserInfo()?.id;
-    if (!userId) {
-      this.toastr.error('Usuário não encontrado.', 'Erro');
-      return;
-    }
-
     const file = this.dataURLtoFile(this.imagecaptured, 'facial.jpg');
     const formData = new FormData();
     formData.append('file', file);
 
-    this.facialIntegrada = 'N';
-    this.integracaoOcorrencia = 'Aguardando Validação';
-    this.imageSent = true;
-    this.showCamera = false;
-    this.homeCapture = false;
-
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
-        this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
+        this.toastr.success('Captura facial enviada!');
+
+        this.person.facialAprovada = null;
+        this.person.motivoRejeicaoFacial = '';
+
         this.api
           .updateIntegration(userId, {
-            facialIntegrada: this.facialIntegrada,
-            integracaoOcorrencia: this.integracaoOcorrencia,
+            facialIntegrada: 'N',
+            integracaoOcorrencia: 'Aguardando Validação',
           })
-          .subscribe({
-            next: () => {},
-            error: () => this.toastr.error('Erro ao atualizar status da integração.'),
+          .subscribe(() => {
+            this.imageSent = true;
+            this.facialIntegrada = 'N';
+            this.integracaoOcorrencia = 'Aguardando Validação';
+            this.startPolling(); // Começa a vigiar a resposta do backend
           });
       },
-      error: () => {
-        this.toastr.error('Erro ao enviar captura facial.', 'Erro');
-      },
+      error: () => this.toastr.error('Erro ao enviar.'),
     });
   }
 
   repeatCapture() {
-    this.showCamera = true;
-    this.errorImagem = true;
-    this.isEditMode = true;
     this.imagecaptured = null;
-    this.auth.clearImageLocalStorage();
     this.imageSent = false;
-    this.homeCapture = false;
+    this.errorImagem = true;
     this.startCapture();
   }
 
   private stopCamera() {
     if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
+      this.stream.getTracks().forEach((t) => t.stop());
       this.stream = null;
     }
-    this.videoRef.nativeElement.srcObject = null;
     this.showCamera = false;
   }
 
   private dataURLtoFile(dataurl: string, filename: string) {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)![1];
+    const arr = dataurl.split(','),
+      mime = arr[0].match(/:(.*?);/)![1];
     const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
+    let n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) u8arr[n] = bstr.charCodeAt(n);
     return new File([u8arr], filename, { type: mime });
   }
 }
