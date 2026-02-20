@@ -1,0 +1,123 @@
+html, body {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #ffffff; 
+    overflow: hidden; 
+    color: #374151;
+}
+
+#popupBox {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh; 
+    padding: 15px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.title {
+    font-size: 1.25rem;
+    text-align: center;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    flex-shrink: 0; 
+}
+
+.btn-close {
+    position: absolute; right: 10px; top: 10px;
+    background: #f3f4f6; border: none; border-radius: 50%;
+    width: 30px; height: 30px; cursor: pointer; color: #9ca3af;
+    z-index: 10;
+}
+
+.content-area {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0; 
+}
+
+.camera-container, .preview-container {
+    position: relative;
+    flex: 1; 
+    width: 100%;
+    min-height: 0; 
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+video, #photo-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+#photo-preview {
+    transform: none; 
+}
+
+.overlay-guide {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+}
+.guide-circle {
+    width: min(60vw, 60vh); 
+    height: min(60vw, 60vh);
+    border: 3px solid lime;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1000px rgba(0,0,0,0.4);
+}
+
+.footer-area {
+    flex-shrink: 0; 
+    padding-top: 10px;
+}
+
+.alert-message {
+    text-align: center;
+    color: #dc2626;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.btn-black {
+    width: 100%;
+    background: #000000;
+    color: #ffffff;
+    font-size: 0.875rem;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-yellow {
+    background: #facc15;
+    color: #ffffff;
+    margin-top: 8px;
+}
+
+/* Cores específicas para Ceará / Fortaleza */
+.tema-ceara .btn-send {
+  background-color: #008143; /* Verde (exemplo: cores da bandeira) */
+  border-color: #f7d117;     /* Amarelo */
+}
+
+.tema-ceara .btn-yellow {
+  background-color: #f7d117;
+  color: #000;
+}
+
+.fade-in { animation: fadeIn 0.3s ease-in; height: 100%; display: flex; flex-direction: column; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

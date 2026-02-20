@@ -35,7 +35,7 @@
           <!-- Camera (only appears if capturing and the image has not been sent) -->
           <div *ngIf="showCamera" class="flex flex-col items-center justify-center ">
             <!-- Container que segura vídeo + canvas -->
-            <div class="relative max-w-[400px]">
+            <div class="relative sm:w-[400px]">
               <!-- Vídeo -->
               <video #video autoplay playsinline class="w-full max-w-sm rounded-lg mb-4"></video>
 
@@ -119,4 +119,3 @@
     </section>
   </article>
 </article>
-

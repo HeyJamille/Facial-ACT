@@ -66,21 +66,23 @@ export class Documents {
     this.apiService.getPersonById(id).subscribe({
       next: (person: Person) => {
         this.person = person;
-        console.log('Person carregado:', person);
+        //console.log('Person carregado:', person);
       },
       error: (err) => {
-        console.error('Erro ao buscar Person', err);
+        this.toastr.error('Erro ao buscar Person', err);
       },
     });
   }
 
   onDocumentSelected(file: File) {
+    //console.log('Documento selecionado:', file);
     this.documentFile = file;
     this.documentUploaded = true;
     //this.toastr.info('Documento anexado com sucesso!');
   }
 
   onCardSelected(file: File) {
+    //console.log('Carteirinha selecionada:', file);
     this.documentFile = file;
     this.cardUploaded = true;
     //this.toastr.info('Carteirinha anexada com sucesso!');

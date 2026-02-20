@@ -26,6 +26,37 @@
         [actionType]="'select'"
       >
       </app-table>
+
+      <div *ngIf="currentFilter?.filterBy !== 'email' && currentFilter?.filterBy !== 'documento' && filteredPeople.length !== 0 && !isBuscaGlobal" class="flex items-center justify-center space-x-4 mt-10 mb-10">
+        
+        <button 
+          (click)="prevPage()" 
+          [disabled]="isLoading || paginaUI === 1"
+          class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all cursor-pointer">
+          <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+          Anterior
+        </button>
+
+        <div class="flex items-center">
+          <span class="text-sm text-gray-700">
+            Página <span class="font-bold">{{ paginaUI }}</span> 
+          </span>
+        </div>
+
+        <button 
+          (click)="nextPage()" 
+          [disabled]="isLoading || filteredPeople.length < 1 || !canGoNext"
+          class="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all cursor-pointer">
+          Próximo
+          <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+        </button>
+
+      </div>
+      
+      <!-- Optional message when there are no results -->
+      <p *ngIf="!isLoading && filteredPeople.length === 0" class="text-center text-gray-500 mt-6">
+        Nenhum resultado encontrado para o filtro selecionado.
+      </p>
     </div>
   </section>
 </article>

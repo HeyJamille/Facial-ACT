@@ -11,6 +11,7 @@ import { Person } from '../../models/person.model';
 
 // Pages
 import { FaceValidationResponse } from '../../pages/public/verify-cpf/verify-cpf';
+import { Dashboard } from '../../models/dashboard.model';
 
 // gitignore
 interface SigninResponse {
@@ -32,11 +33,32 @@ export class ApiService {
     return this.http.post<SigninResponse>(`${this.baseUrl}${endpoint}`, { username, password });
   }
 
+  // DashBoard
+  getDashboard() {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    // Agora o Angular sabe que o retorno segue a estrutura da interface
+    return this.http.get<Dashboard>(`${this.baseUrl}Dashboard`, { headers });
+  }
+
   /* ========================= PERSON ============================ */
   getPeople(): Observable<Person[]> {
     const token = this.auth.getToken(); // pega token do admin
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http.get<Person[]>(`${this.baseUrl}Pessoa`, { headers });
+  }
+
+  getPeoplePagination(paginaAtual: number): Observable<any[]> {
+    const token = this.auth.getToken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+    // Lógica solicitada: x + 1 e tamanho 20
+    const params = new HttpParams()
+      .set('Pagina', (paginaAtual + 1).toString())
+      .set('tamanhoPagina', '100');
+
+    return this.http.get<any[]>(`${this.baseUrl}Pessoa/Paginacao`, { headers, params });
   }
 
   // List People by ID
@@ -77,7 +99,7 @@ export class ApiService {
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
-    console.log('dados', dados);
+    //('dados', dados);
     // O endpoint com a correção da barra '/'
     return this.http.patch<any>(`${this.baseUrl}Aprovacoes/Carteirinha/${personId}`, dados, {
       headers,
@@ -91,7 +113,7 @@ export class ApiService {
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
-    console.log('dados', dados);
+    //console.log('dados', dados);
     // O endpoint com a correção da barra '/'
     return this.http.patch<any>(`${this.baseUrl}Aprovacoes/Documento/${personId}`, dados, {
       headers,
@@ -105,7 +127,7 @@ export class ApiService {
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
-    console.log('dados', dados);
+    //console.log('dados', dados);
     // O endpoint com a correção da barra '/'
     return this.http.patch<any>(`${this.baseUrl}Aprovacoes/Facial/${personId}`, dados, {
       headers,
@@ -125,31 +147,34 @@ export class ApiService {
   }
 
   /* ========================= FILE ============================ */
-  uploadFile(id: string, tipo: 'carteirinha' | 'documento', file: File) {
+  uploadFile(id: string, tipo: 'carteirinha' | 'documento', file: File, verso: boolean = false) {
     const token = this.auth.getToken();
-    if (!token) {
-      console.error('Token não encontrado!');
-    }
-
     const formData = new FormData();
 
-    // Send to backend
+    // Se o seu backend espera o nome do campo dinâmico baseado no verso:
+    const campoNome = verso ? 'arquivoVersoCarteirinha' : 'arquivoCarteirinha';
+
+    formData.append(campoNome, file);
     formData.append('file', file);
+
+    // Opcional: manter o 'file' caso o backend exija essa chave fixa
+    // formData.append('file', file);
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    const url = `${this.baseUrl}Pessoa/UploadArquivo/${id}?tipo=${tipo}`;
+    // A URL recebe o valor booleano
+    const url = `${this.baseUrl}Pessoa/UploadArquivo/${id}?tipo=${tipo}&verso=${verso}`;
 
     return this.http.post(url, formData, { headers });
   }
 
   deleteDocument(id: string, bodyData: any): Observable<any> {
     const token = this.auth.getToken(); // pega o cookie
-    console.log('token', token);
-    console.log('id', id);
-    console.log('bodyData', bodyData);
+    //console.log('token', token);
+    //console.log('id', id);
+    //console.log('bodyData', bodyData);
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     return this.http.delete(`${this.baseUrl}Aprovacoes/Arquivo/${id}`, {
@@ -163,15 +188,19 @@ export class ApiService {
     personId: string,
     token: string,
     tipo: 'carteirinha' | 'documento',
+    verso: boolean = false,
   ): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    return this.http.get(`${this.baseUrl}Pessoa/DownloadArquivo/${personId}?tipo=${tipo}`, {
-      headers,
-      responseType: 'blob',
-    });
+    return this.http.get(
+      `${this.baseUrl}Pessoa/DownloadArquivo/${personId}?tipo=${tipo}&verso=${verso}`,
+      {
+        headers,
+        responseType: 'blob',
+      },
+    );
   }
 
   /* ========================= FACIAL ============================ */

@@ -1,57 +1,54 @@
-<app-header></app-header>
+<!-- Loading -->
+<app-loading *ngIf="isLoading"></app-loading>
 
-<article class="min-h-screen bg-gray-100 p-5">
+<article *ngIf="!isLoading" class="flex flex-col h-screen"> 
+  <app-header></app-header>
 
-  <section class="flex flex-col xl:flex-row gap-5 mt-5">
-    <div class="flex flex-col gap-5 w-full">
-      <!-- Cards-->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <!-- Card 1 -->
-        <div class="bg-white rounded-2xl shadow-md p-5">
-          <h2 class="text-lg font-semibold">Pessoas Cadastradas</h2>
-          <p class="text-gray-600 text-2xl">200</p>
-        </div>
+  <section class="bg-gray-100 p-5 flex-1 overflow-y-auto"> 
+     <section class="flex flex-col xl:flex-row gap-5 mt-5 max-w-7xl mx-auto">
+      
+      <div class="flex flex-col gap-5 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div class="bg-white rounded-2xl shadow-md p-5">
+            <h2 class="text-lg font-semibold">Pessoas Cadastradas</h2>
+            <p class="text-gray-600 text-2xl">{{ totalPessoas }}</p>
+          </div>
 
-        <!-- Card 2 -->
-        <div class="bg-white rounded-2xl shadow-md p-5">
-          <h2 class="text-lg font-semibold">Faciais Cadastradas</h2>
-          <p class="text-gray-600 text-2xl">200</p>
-        </div>
+          <div class="bg-white rounded-2xl shadow-md p-5">
+            <h2 class="text-lg font-semibold">Faciais Cadastradas</h2>
+            <p class="text-gray-600 text-2xl">{{ faciaisCadastradas }}</p>
+          </div>
 
-        <!-- Card 3 -->
-        <div class="bg-white rounded-2xl shadow-md p-5">
-          <h2 class="text-lg font-semibold">Faciais Não Validadas</h2>
-          <p class="text-gray-600 text-2xl">200</p>
-        </div>
-      </div>
-
-      <!-- Graphics -->
-      <div class="flex flex-col gap-5 md:flex-row w-full">
-        <div class="bg-white rounded-2xl shadow-md p-5 w-full">    
-          <h2 class="text-lg font-semibold mb-4 text-center">Distribuição por Gênero</h2>
-
-          <div class="flex flex-col justify-center items-center h-72 ">
-            <canvas id="pieChart" width="300" height="300"></canvas>
+          <div class="bg-white rounded-2xl shadow-md p-5">
+            <h2 class="text-lg font-semibold">Faciais Não Validadas</h2>
+            <p class="text-gray-600 text-2xl">{{ faciaisNaoValidadas }}</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-md p-5 w-full">    
-          <h2 class="text-lg font-semibold mb-4 text-center">Distribuição por Idade</h2>
-
-          <div class="flex flex-col justify-center items-center h-72 ">
-            <canvas id="barChart" width="300" height="300"></canvas>
+        <div class="flex flex-col gap-5 md:flex-row w-full">
+          <div class="bg-white rounded-2xl shadow-md p-5 w-full">    
+            <h2 class="text-lg font-semibold mb-4 text-center">Distribuição por Gênero</h2>
+            <div class="flex flex-col justify-center items-center h-72">
+              <canvas id="pieChart" width="300" height="300"></canvas>
+            </div>
           </div>
-        </div>
-      </div> 
-    </div>
-        
-    <div class="bg-white rounded-2xl shadow-md p-5 w-full lg:w-[70%]">
-      <h2 class="text-lg font-semibold mb-4 text-center">Cadastros realizados por Mês</h2>
 
-      <div class="flex justify-center items-center">
-        <canvas id="monthlyChart" width="800" height="600" class="max-w-full"></canvas>
+          <div class="bg-white rounded-2xl shadow-md p-5 w-full">    
+            <h2 class="text-lg font-semibold mb-4 text-center">Distribuição por Idade</h2>
+            <div class="flex flex-col justify-center items-center h-72">
+              <canvas id="barChart" width="300" height="300"></canvas>
+            </div>
+          </div>
+        </div> 
       </div>
-    </div>
+          
+      <div class="bg-white rounded-2xl shadow-md p-5 w-full lg:w-[70%]">
+        <h2 class="text-lg font-semibold mb-4 text-center">Cadastros realizados por Mês</h2>
+        <div class="flex justify-center items-center">
+          <canvas id="monthlyChart" width="800" height="600" class="max-w-full"></canvas>
+        </div>
+      </div>
+
+    </section>
   </section>
-  
 </article>

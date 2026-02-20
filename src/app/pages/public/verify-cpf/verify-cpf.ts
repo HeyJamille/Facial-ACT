@@ -34,7 +34,7 @@ export class VerifyCPF {
     private toastr: ToastrService,
     private api: ApiService,
     private auth: AuthService,
-    private utils: UtilsService
+    private utils: UtilsService,
   ) {}
 
   ngOnInit() {
@@ -91,8 +91,8 @@ export class VerifyCPF {
     // Navegar para a página de registro
     this.router.navigate(['/RegistrarPessoa']);
 
-    console.log('doctype:', docType);
-    console.log('docValue:', docValue);
+    //console.log('doctype:', docType);
+    //console.log('docValue:', docValue);
 
     // Chamada de validação facial
     this.checkFaceValidation(docValue, docType as 'cpf' | 'passaporte');
@@ -115,7 +115,7 @@ export class VerifyCPF {
         } else {
           this.toastr.warning(
             'Você ainda não tem facial cadastrada ou validada, realize seu cadastro.',
-            'Atenção'
+            'Atenção',
           );
 
           // globally release the guard

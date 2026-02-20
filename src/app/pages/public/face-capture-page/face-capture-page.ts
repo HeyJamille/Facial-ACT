@@ -56,7 +56,7 @@ export class FaceCapturePage implements AfterViewInit {
     private api: ApiService,
     private toastr: ToastrService,
     private router: Router,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -223,7 +223,7 @@ export class FaceCapturePage implements AfterViewInit {
     const faceCenterY = box.y + box.height / 2;
 
     const distance = Math.sqrt(
-      Math.pow(faceCenterX - centerX, 2) + Math.pow(faceCenterY - centerY, 2)
+      Math.pow(faceCenterX - centerX, 2) + Math.pow(faceCenterY - centerY, 2),
     );
 
     return distance < radius;
@@ -278,7 +278,10 @@ export class FaceCapturePage implements AfterViewInit {
       next: () => {
         this.toastr.success('Captura facial enviada com sucesso!', 'Sucesso');
 
-        // Update api
+        this.person.facialAprovada = null;
+        this.person.motivoRejeicaoFacial = '';
+
+        /* Update api
         this.api
           .updateIntegration(userId, {
             facialIntegrada: this.facialIntegrada,
@@ -288,6 +291,7 @@ export class FaceCapturePage implements AfterViewInit {
             next: () => {},
             error: () => this.toastr.error('Erro ao atualizar status da integração.'),
           });
+          */
       },
       error: () => {
         this.toastr.error('Erro ao enviar captura facial.', 'Erro');
@@ -313,7 +317,7 @@ export class FaceCapturePage implements AfterViewInit {
       return { showSend: true, showRepeat: true, disabled: false };
     } else {
       //console.log('CASO 4');
-      return { showSend: false, showRepeat: true, disabled: true };
+      return { showSend: true, showRepeat: true, disabled: true };
     }
   }
 

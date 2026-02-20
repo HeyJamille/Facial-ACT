@@ -68,7 +68,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     this.isAdmin = this.auth.getUserInfo()?.role === 'A';
 
     const url = this.router.url;
-    if (url.includes('VisualizarPessoa')) {
+    if (url.includes('VisualizarDados')) {
       this.isViewMode = true;
     } else if (url.includes('EditarPessoa')) {
       this.isEditMode = true;
@@ -183,6 +183,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     this.showCamera = false;
   }
 
+  /* 
   getButtonState() {
     const p = this.person;
 
@@ -250,6 +251,137 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     console.log('CASO 6 FACIAL');
     // CASO PADRÃO: Novo envio
     return { showSend: true, showRepeat: true, disabled: false, message: null, type: null };
+  }
+  */
+
+  getButtonState() {
+    if (
+      this.isDocumentsPage &&
+      this.person.statusFacial === 'Facial Não enviado(a)' &&
+      this.person.arquivoFacial === null
+    ) {
+      return {
+        showSend: true,
+        showRepeat: false,
+        showDelete: false,
+        message: this.person.statusFacial,
+        disabled: true,
+        type: 'error',
+      };
+    }
+
+    if (
+      this.isViewMode &&
+      this.person.statusFacial === 'Facial Não enviado(a)' &&
+      this.person.arquivoFacial === null
+    ) {
+      return {
+        showSend: false,
+        showRepeat: false,
+        showDelete: false,
+        message: this.person.statusFacial,
+        disabled: true,
+        type: 'error',
+      };
+    }
+
+    if (
+      this.person.statusFacial === 'Facial Não enviado(a)' &&
+      this.person.arquivoFacial === null
+    ) {
+      //console.log('CASO 1');
+      return {
+        showSend: true,
+        showRepeat: true,
+        showDelete: false,
+        message: this.person.statusFacial,
+        disabled: false,
+        type: 'error',
+      };
+    }
+
+    if (this.person.statusFacial === 'Facial Pendente' && this.person.arquivoFacial !== null) {
+      //console.log('CASO 3');
+      return {
+        showSend: false,
+        showRepeat: false,
+        showDelete: false,
+        message: this.person.statusFacial,
+        disabled: true,
+        type: 'error',
+      };
+    }
+
+    if (this.integracaoOcorrencia === 'Aguardando Validação') {
+      //console.log('CASO 4 FACIAL');
+      return {
+        showSend: false,
+        showRepeat: false,
+        disabled: true,
+        message: this.person.integracaoOcorrencia,
+        type: 'error',
+      };
+    }
+
+    if (
+      (this.person.statusFacial === 'Facial Rejeitada' || this.person.facialAprovada === false) &&
+      this.person.arquivoFacial !== null &&
+      this.person.motivoRejeicaoFacial !== null
+    ) {
+      //console.log('CASO 4 facial');
+      return {
+        showSend: true,
+        showRepeat: true,
+        showDelete: true,
+        message: this.person.motivoRejeicaoFacial,
+        disabled: false,
+        type: 'error',
+      };
+    }
+
+    if (this.person.facialIntegrada !== 'S' && this.person.integracaoOcorrencia !== '') {
+      //console.log('CASO 5 facial');
+      return {
+        showSend: true,
+        showRepeat: true,
+        showDelete: false,
+        message: this.person.integracaoOcorrencia,
+        disabled: false,
+        type: 'error',
+      };
+    }
+
+    if (
+      (this.person.statusFacial === 'Facial Aprovada' && this.person.arquivoFacial !== null) ||
+      (this.person.facialIntegrada === 'S' && this.person.integracaoOcorrencia !== '')
+    ) {
+      //console.log('CASO 2');
+      return {
+        showSend: false,
+        showRepeat: false,
+        showDelete: false,
+        message: this.person.statusFacial || this.person.integracaoOcorrencia,
+        disabled: true,
+        type: 'success',
+      };
+    }
+
+    /*
+    if (this.fileUploaded === true && this.person.statusFacial !== 'Facial Rejeitado') {
+      console.log('CASO 4');
+      return { showSend: false, showRepeat: false, showDelete: false, disabled: true };
+    }
+    */
+
+    //console.log('CASO 7');
+    return {
+      showSend: true,
+      showRepeat: true,
+      showDelete: false,
+      message: this.person.statusFacial,
+      disabled: false,
+      type: 'error',
+    };
   }
 
   // --- CÂMERA E CAPTURA ---
@@ -331,6 +463,23 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     const formData = new FormData();
     formData.append('file', file);
 
+    this.facialIntegrada = 'N';
+    this.integracaoOcorrencia = 'Aguardando Validação';
+
+    this.api
+      .deleteDocument(userId, { facial: true, documento: false, carteirinha: false })
+      .subscribe({
+        next: () => {
+          console.log('Facial deletada com sucesso!');
+        },
+        error: (err) => {
+          const backendMessage =
+            err?.error?.message ||
+            JSON.stringify(err?.error) ||
+            'Erro desconhecido, contate o suporte.';
+        },
+      });
+
     this.api.uploadFacial(userId, formData).subscribe({
       next: () => {
         this.toastr.success('Captura facial enviada!');
@@ -338,6 +487,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
         this.person.facialAprovada = null;
         this.person.motivoRejeicaoFacial = '';
 
+        /*
         this.api
           .updateIntegration(userId, {
             facialIntegrada: 'N',
@@ -349,6 +499,8 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
             this.integracaoOcorrencia = 'Aguardando Validação';
             this.startPolling(); // Começa a vigiar a resposta do backend
           });
+          */
+        this.startPolling();
       },
       error: () => this.toastr.error('Erro ao enviar.'),
     });

@@ -18,6 +18,9 @@ export class ModalCard {
 
   // As outras que você já deve ter:
   @Input() arquivoUrl: string | null = null;
+  @Input() arquivoUrlFrente: string = '';
+  @Input() arquivoUrlVerso: string = '';
+
   @Input() personName: string = '';
   @Input() personID: string = '';
   @Input() person!: Person;
@@ -30,7 +33,13 @@ export class ModalCard {
   subtitle = '';
   actionType: 'approve' | 'disapprove' | null = null;
 
-  constructor(private api: ApiService, private toastr: ToastrService) {}
+  zoomFrente = false;
+  zoomVerso = false;
+
+  constructor(
+    private api: ApiService,
+    private toastr: ToastrService,
+  ) {}
 
   isZoomed = false;
 
@@ -44,10 +53,10 @@ export class ModalCard {
 
     if (type === 'approve') {
       this.title = 'Aprovar';
-      this.subtitle = 'Deseja realmente aprovar';
+      this.subtitle = 'Digite a data de validade da carteirinha de';
     } else {
-      this.title = 'Desaprovar';
-      this.subtitle = 'Deseja realmente desaprovar';
+      this.title = 'Recusar';
+      this.subtitle = 'Escreva o motivo para recusar a carteirinha de';
     }
   }
 
@@ -83,13 +92,13 @@ export class ModalCard {
     this.api.approvarOrDesapproveCard(this.person.id, payload).subscribe({
       next: (res) => {
         this.toastr.success(
-          `Carteirinha do usuário ${isApprove ? 'aprovada' : 'reprovada'} com sucesso!`
+          `Carteirinha do usuário ${isApprove ? 'aprovada' : 'reprovada'} com sucesso!`,
         );
 
         if (!isApprove) {
-          this.person.statusCarteirinha = 'Rejeitado';
+          this.person.statusCarteirinha = 'Carteirinha Rejeitada';
         } else {
-          this.person.statusCarteirinha = 'Aprovado';
+          this.person.statusCarteirinha = 'Carteirinha Aprovada';
         }
 
         this.showModal = false;
@@ -97,6 +106,7 @@ export class ModalCard {
         this.close.emit();
       },
       error: (err) => {
+        //console.log('a');
         const backendMessage =
           err?.error?.message ||
           JSON.stringify(err?.error) ||

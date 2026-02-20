@@ -7,7 +7,7 @@
     class="mt-4">
       <div class="w-full bg-white rounded-lg shadow-lg p-6">
         <!-- Start Button (appears only if there is no captured image) -->
-        <div *ngIf=" homeCapture && !imagecaptured" class="flex justify-center">
+        <div *ngIf=" homeCapture && !imagecaptured && !isViewMode" class="flex justify-center">
           <button class="w-full bg-black text-white text-sm py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-gray-900 transition disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed"
                   (click)="startCapture()"
                    >
@@ -15,8 +15,12 @@
           </button>
         </div>
 
+        <span class="text-gray-600 text-sm font-medium px-5 block cursor-not-allowed opacity-50" *ngIf="isViewMode && !imagecaptured">
+          Usuário administrador — envio de documento desabilitado.
+        </span>
+
         <!-- Camera (only appears if capturing and the image has not been sent) -->
-        <div *ngIf="showCamera" class="flex flex-col items-center relative w-full max-w-sm">
+        <div *ngIf="showCamera" class="flex flex-col items-center relative w-full">
 
           <!-- Container que segura vídeo + canvas -->
           <div class="relative w-full">
@@ -57,7 +61,7 @@
           <img [src]="imagecaptured" class="w-full max-h-80 max-w-sm rounded-lg" /> 
 
           <!-- Buttons only appear after capturing image -->
-          <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured">
+          <div class="flex flex-col w-full space-y-2" *ngIf="imagecaptured && !isViewMode">
             <!-- Submit button (appears only if facialIntegrada === 'S') -->
             <div *ngIf="getButtonState().showSend">
               <button
@@ -79,8 +83,8 @@
           </div>
 
 
-          <!-- Status-->
-          <div class="flex flex-col gap-1 sm:flex-row items-center" *ngIf="getButtonState().message" >
+          <!-- Status -->
+          <div class="flex flex-row gap-1 items-center" *ngIf="getButtonState().message" >
             <label class="text-sm font-medium text-gray-700"> 
               Status:
             </label>
@@ -93,6 +97,30 @@
               {{ getButtonState().message }}
             </p>
           </div>
+        
+        <!-- Status
+         <div class="flex flex-col gap-1 sm:flex-row items-center" *ngIf="person.statusFacial && !isDocumentsPage">
+        <div class="flex gap-2">
+          <label class="text-sm font-medium text-gray-700"> 
+            Status:
+          </label>
+          <p class="text-sm font-semibold"
+            [ngClass]="{
+              'text-green-600': person.statusFacial === 'Facial Aprovada',
+              'text-red-600': person.statusFacial !== 'Facial Aprovada'
+            }">
+            {{ person.statusFacial }}
+          </p>
+        </div>
+        
+        <ng-container *ngIf="person.statusFacial === 'Facial Rejeitada' && person.motivoRejeicaoFacial">
+          <div class="flex gap-2">
+            <span class="text-sm text-gray-700">Motivo:</span>
+            <span class="text-sm font-medium text-red-600">{{ person.motivoRejeicaoFacial }}</span>
+          </div>
+        </ng-container>
+      </div>
+      -->
         </div>
       </div>
   </div>

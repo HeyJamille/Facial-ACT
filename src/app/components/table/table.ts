@@ -22,7 +22,7 @@ import { ApiService } from '../../services/api-service/api-service';
 import { AuthService } from '../../services/auth-service/auth-service';
 import { UtilsService } from '../../utils/utils-service';
 import { ModalDocument } from '../modal-document/modal-document';
-import { forkJoin } from 'rxjs';
+import { catchError, concat, forkJoin, of } from 'rxjs';
 import { ModalAllDocument } from '../modal-all-document/modal-all-document';
 import { ModalCard } from '../modal-card/modal-card';
 
@@ -57,6 +57,9 @@ export class Table {
   showFacial = false;
   currentFacialId: string | null = null;
   facialData: { [key: string]: string } = {};
+
+  arquivoUrlFrente: string = '';
+  arquivoUrlVerso: string = '';
 
   currentDocumentId?: string;
   documentData: Record<string, string> = {};
@@ -135,9 +138,17 @@ export class Table {
 
         this.facialData[person.id] = data.base64;
         this.openFacialModal(person.id, person.nomeCompleto);
-      } catch (err) {
-        console.error('Erro ao carregar a captura facial', err);
-        this.toastr.error('Erro ao carregar a captura facial', 'Erro');
+      } catch (err: any) {
+        //console.log('err', err.status);
+        if (err.status === 401) {
+          this.toastr.warning(
+            'Sua sessão expirou. Por favor, faça login novamente.',
+            'Sessão Expirada',
+          );
+        } else {
+          console.error('Erro ao carregar a captura facial', err);
+          this.toastr.error('Erro ao carregar a captura facial', 'Erro');
+        }
       }
     }
 
@@ -152,21 +163,51 @@ export class Table {
 
       const tipoArquivo = 'documento';
 
-      this.api.downloadFile(person.id, token, tipoArquivo).subscribe({
-        next: (blob: Blob) => {
-          if (!blob) {
+      // Limpamos URLs antigas antes de começar
+      if (this.arquivoUrlFrente) URL.revokeObjectURL(this.arquivoUrlFrente);
+      if (this.arquivoUrlVerso) URL.revokeObjectURL(this.arquivoUrlVerso);
+      this.arquivoUrlFrente = '';
+      this.arquivoUrlVerso = '';
+
+      const downloadFrente$ = this.api.downloadFile(person.id, token, tipoArquivo, false);
+      const downloadVerso$ = this.api.downloadFile(person.id, token, tipoArquivo, true).pipe(
+        catchError(() => of(null)), // Se falhar o verso, segue o fluxo com null
+      );
+
+      // O concat executa um após o outro
+      concat(downloadFrente$, downloadVerso$).subscribe({
+        next: (blob) => {
+          if (!blob) return;
+
+          // Na primeira emissão (Frente)
+          if (!this.arquivoUrlFrente) {
+            this.isPdf = blob.type === 'application/pdf';
+            this.arquivoUrlFrente = URL.createObjectURL(blob);
+            this.arquivoUrl = this.arquivoUrlFrente; // Referência para o iframe de PDF
+          }
+          // Na segunda emissão (Verso) - Só processa se não for PDF
+          else if (!this.isPdf) {
+            this.arquivoUrlVerso = URL.createObjectURL(blob);
+          }
+        },
+        error: (err) => {
+          if (err.status === 401) {
+            this.toastr.warning(
+              'Sua sessão expirou. Por favor, faça login novamente.',
+              'Sessão Expirada',
+            );
+          } else {
+            console.error(err);
+            this.toastr.error('Erro ao carregar os documentos.');
+          }
+        },
+        complete: () => {
+          // Quando ambos terminarem (ou o PDF terminar e o verso for ignorado/null)
+          if (!this.arquivoUrlFrente) {
             this.toastr.warning('Nenhum documento encontrado.');
             return;
           }
-
-          this.isPdf = blob.type === 'application/pdf';
-          if (this.arquivoUrl) URL.revokeObjectURL(this.arquivoUrl);
-          this.arquivoUrl = URL.createObjectURL(blob);
-          //this.showDocument = true;
           this.openDocumentModal(person.id);
-        },
-        error: (err) => {
-          this.toastr.error('Nenhum documento encontrado.');
         },
       });
     }
@@ -182,21 +223,61 @@ export class Table {
 
       const tipoArquivo = 'carteirinha';
 
-      this.api.downloadFile(person.id, token, tipoArquivo).subscribe({
-        next: (blob: Blob) => {
-          if (!blob) {
-            this.toastr.warning('Nenhuma carteirinha encontrado.');
+      // Limpeza inicial
+      if (this.arquivoUrlFrente) URL.revokeObjectURL(this.arquivoUrlFrente);
+      if (this.arquivoUrlVerso) URL.revokeObjectURL(this.arquivoUrlVerso);
+      this.arquivoUrlFrente = '';
+      this.arquivoUrlVerso = '';
+
+      // 1. Primeiro baixamos a FRENTE
+      this.api.downloadFile(person.id, token, tipoArquivo, false).subscribe({
+        next: (blobFrente) => {
+          if (!blobFrente || blobFrente.size === 0) {
+            this.toastr.warning('Nenhuma carteirinha encontrada.');
             return;
           }
 
-          this.isPdf = blob.type === 'application/pdf';
-          if (this.arquivoUrl) URL.revokeObjectURL(this.arquivoUrl);
-          this.arquivoUrl = URL.createObjectURL(blob);
-          //this.showCard = true;
-          this.openCardModal(person.id);
+          this.isPdf = blobFrente.type === 'application/pdf';
+          this.arquivoUrlFrente = URL.createObjectURL(blobFrente);
+          this.arquivoUrl = this.arquivoUrlFrente;
+
+          // 2. CONDIÇÃO: Se for PDF, abre o modal e PARA aqui.
+          if (this.isPdf) {
+            this.openCardModal(person.id);
+          }
+          // 3. Se NÃO for PDF, busca o verso.
+          else {
+            this.api
+              .downloadFile(person.id, token, tipoArquivo, true)
+              .pipe(catchError(() => of(null)))
+              .subscribe({
+                next: (blobVerso) => {
+                  if (blobVerso && blobVerso.size > 0) {
+                    this.arquivoUrlVerso = URL.createObjectURL(blobVerso);
+                  }
+                  this.openCardModal(person.id);
+                },
+                error: () => this.openCardModal(person.id), // Abre mesmo se o verso falhar
+              });
+          }
         },
         error: (err) => {
-          this.toastr.error('Nenhuma carteirinha encontrada.');
+          if (err.status === 401) {
+            this.toastr.warning(
+              'Sua sessão expirou. Por favor, faça login novamente.',
+              'Sessão Expirada',
+            );
+          } else {
+            if (err.status === 401) {
+              this.toastr.warning(
+                'Sua sessão expirou. Por favor, faça login novamente.',
+                'Sessão Expirada',
+              );
+            } else {
+              console.error(err);
+              this.toastr.error('Erro ao carregar a frente da carteirinha.');
+            }
+          }
         },
       });
     }

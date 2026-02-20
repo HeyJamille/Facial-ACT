@@ -31,13 +31,14 @@ export class Filter {
   @Output() search = new EventEmitter<{ term: string; filterBy: string }>();
 
   ngOnInit() {
+    //console.log('entrando no filter');
     // Verifica se a URL atual contém 'validacao-documentos' (ou o nome da sua rota)
     this.isValidacaoPage = this.router.url.includes('ValidacaoDocumentos');
 
-    this.filterBy = this.isValidacaoPage ? 'documentosPendentes' : 'documento';
+    this.filterBy = this.isValidacaoPage ? '' : 'documento';
 
     // Opcional: Log para você conferir no console
-    console.log('Página de validação?', this.isValidacaoPage);
+    //console.log('Página de validação?', this.isValidacaoPage);
   }
 
   onSearch() {
@@ -70,20 +71,22 @@ export class Filter {
       'documentosNaoEnviados',
       'documentosValidados',
       'carteirinhasPendentes',
-      'carteirinhasNaoEnviados',
+      'carteirinhasNaoEnviadas',
       'carteirinhasValidadas',
       'facialPendentes',
-      'facialNaoEnviados',
+      'facialNaoEnviadas',
       'facialValidadas',
     ];
 
     return statusFilters.includes(this.filterBy);
   }
 
-  // No filter.ts
   onFilterChange() {
     if (this.isTextInputDisabled) {
       this.term = ''; // Limpa o campo se ele for desabilitado
     }
+    // IMPORTANTE: Emita o evento assim que o select mudar!
+    // Se você não emitir aqui, o Pai só saberá do filtro quando você clicar no botão de busca.
+    this.search.emit({ term: this.term, filterBy: this.filterBy });
   }
 }

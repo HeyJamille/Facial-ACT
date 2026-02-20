@@ -18,12 +18,15 @@ import { Dashboard } from './pages/private/dashboard/dashboard';
 import { FaceCapturePage } from './pages/public/face-capture-page/face-capture-page';
 import { Documents } from './pages/public/documents/documents';
 import { ReviewPeople } from './pages/public/review-people/review-people';
+import { IframeFacial } from './pages/public/iframe-facial/iframe-facial';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'VerificarFacial', pathMatch: 'full' },
   { path: 'VerificarFacial', component: VerifyCPF },
   { path: 'Auth/token', component: Signin },
   { path: 'Auth/login', component: Signin },
+  { path: 'Captura/Facial/:id/:arquivo', component: IframeFacial },
+  { path: 'Captura/Facial/:id', component: IframeFacial },
 
   /* PUBLIC */
   {

@@ -1,100 +1,73 @@
-<ng-template #content> 
+<ng-template #content>
   <div>
-    <div class="my-4">
-      <h2 class="text-2xl text-center sm:text-start font-bold">Anexar Carteira de Estudante</h2>
-      <p class="text-black  text-center sm:text-start text-sm mt-1">
-        Caso seja estudante, anexe sua carteirinha.
-      </p>
+    <div class="my-4 text-center sm:text-start">
+      <h2 class="text-2xl font-bold">Anexar Carteira de Estudante</h2>
+      <p class="text-black text-sm mt-1">Caso seja estudante, anexe sua carteirinha.</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-lg p-6 h-auto flex flex-col justify-center items-center gap-2">
+    <div class="bg-white rounded-xl shadow-lg p-6 h-auto flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row gap-4 w-full" *ngIf="!arquivoUrlCarteirinha && !isPdf">
+        <div class="flex-1">
+          <div *ngIf="!imagePreviewFrente"
+            class="flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg border-gray-400 bg-gray-50 opacity-60 cursor-pointer hover:opacity-100 transition-all"
+            (click)="!isViewMode && fileInputFrente.click()">
+            <img src="exit.png" class="w-8 h-8 mb-1 opacity-50"/>
+            <p class="text-xs font-semibold mt-1">Frente da Carteirinha</p>
+            <input #fileInputFrente type="file" accept="image/*,.pdf" class="hidden" (change)="onFileSelected($event, 'frente')" />
+          </div>
 
-      <!-- Upload Area  && !imagePreview -->
-      <ng-container *ngIf="(person.statusCarteirinha === 'Carteirinha Rejeitada' || person.statusCarteirinha === 'Carteirinha Não enviado(a)') && !imagePreview && !arquivoUrlCarteirinha">
-        <div
-          class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg border-gray-400 bg-gray-50 opacity-50 cursor-pointer "
-          [ngClass]="{
-            'cursor-not-allowed': isViewMode,
-            'cursor-pointer': !isViewMode
-          }"
-          (click)="!isViewMode && fileInput.click()"
-        >
-          <img src="exit.png" alt="Upload Icon" class="w-9 h-9 mb-2"/>
-
-          <span class="text-gray-600 text-sm font-medium text-center  px-5" *ngIf="isViewMode">
-            Usuário administrador — envio de carteirinha desabilitada.
-          </span>
-          
-          <span class="text-gray-600 text-sm font-medium text-center px-5" *ngIf="!isViewMode">
-            Clique para selecionar a carteirinha aqui
-          </span>
-
-          <input
-            #fileInput
-            type="file"
-            accept=".pdf,image/*"
-            class="hidden "
-            [disabled]="isViewMode"
-            (change)="onFileSelected($event)"
-          />
+          <div *ngIf="imagePreviewFrente" class="flex flex-col items-center flex-1">
+            <div class="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+              <img [src]="imagePreviewFrente | safeUrl" class="max-h-[85%] w-full object-contain" />
+            </div>
+            <p class="text-xs font-semibold mt-1">Frente</p>
+          </div>
         </div>
-      </ng-container>
 
-      <!-- Preview -->
-      <div  class="w-full flex flex-col items-center">
-      
-        <!-- IMAGEM -->
-          <ng-container *ngIf="!isPdf && (imagePreview || arquivoUrlCarteirinha)">
-            <img
-              [src]="(imagePreview || arquivoUrlCarteirinha) | safeUrl"
-              alt="Pré-visualização da Carteirinha"
-              class="mb-4 flex flex-col items-center justify-center max-h-35 w-auto rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4"
-            />
-          </ng-container>
+        <div class="flex-1">
+          <div *ngIf="!imagePreviewVerso"
+            class="flex flex-col items-center justify-center h-32 border-2 border-dashed rounded-lg border-gray-400 bg-gray-50 opacity-60 cursor-pointer hover:opacity-100 transition-all"
+            (click)="!isViewMode && fileInputVerso.click()">
+            <img src="exit.png" class="w-8 h-8 mb-1 opacity-50"/>
+            <p class="text-xs font-semibold mt-1">Verso da Carteirinha</p>
+            <input #fileInputVerso type="file" accept="image/*,.pdf" class="hidden" (change)="onFileSelected($event, 'verso')" />
+          </div>
 
-          <!-- PDF -->
-          <ng-container *ngIf="isPdf && arquivoUrlCarteirinha">
-            <iframe
-              [src]="arquivoUrlCarteirinha | safeUrl"
-              class="mb-2  w-full max-h-35 rounded-lg border-2 border-gray-300"
-              frameborder="0"
-            >
-            </iframe>
-          </ng-container>
-        
-        <!--<p class="text-xs text-gray-500 mt-2">Pré-visualização da carteirinha</p>--> 
+          <div *ngIf="imagePreviewVerso" class="flex flex-col items-center flex-1">
+            <div class="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center"> 
+              <img [src]="imagePreviewVerso | safeUrl" class="max-h-[85%] w-full object-contain" />
+            </div>
+            <p class="text-xs font-semibold mt-1">Verso</p>
+          </div>
+        </div>
 
-        <app-button
-          *ngIf="getButtonState().showSend"
-            type="button"
-            (click)="sendImage()"
-            class="mt-2 w-full"
-            >
-            Enviar Carteirinha
+      </div>
+
+      <div class="w-full" *ngIf="isPdf && (imagePreviewPDF || arquivoUrlCarteirinha)">
+        <iframe 
+          [src]="(imagePreviewPDF || arquivoUrlCarteirinha) | safeUrl" 
+          class="w-full h-64 rounded-lg border-2 border-gray-300"
+          frameborder="0">
+        </iframe>
+      </div>
+
+      <div class="flex flex-col gap-2 w-full mt-2">
+        <app-button *ngIf="getButtonState().showSend" (click)="sendImage()" class="w-full">
+          Enviar Carteirinha
         </app-button>
         
-        <app-button
-            *ngIf="getButtonState().showDelete"
-            type="button"
-            (click)="deleteDocument()"
-            class="mt-2  w-full"
-        >
-            Apagar Documento Anterior
-        </app-button>
-        
-        <button 
-          *ngIf="getButtonState().showRepeat"
-          class="w-full bg-yellow-400 text-white text-sm mt-2 py-2 px-4 rounded-lg font-semibold cursor-pointer hover:bg-yellow-500 transition"
-          type="button" (click)="resetUpload()"
-          
-
-          >
-            Enviar outra Carteirinha
+        <button *ngIf="getButtonState().showRepeat" (click)="resetUpload()"
+          class="w-full bg-yellow-400 text-white text-sm py-2 rounded-lg font-semibold hover:bg-yellow-500 transition cursor-pointer">
+          Enviar outra Carteirinha
         </button>
+
+        <app-button *ngIf="getButtonState().showDelete" (click)="deleteDocument()" class="w-full">
+          Apagar Carteirinha Anterior
+        </app-button>
       </div>
 
       <!-- Status -->
-      <div class="flex flex-col gap-1 sm:flex-row items-center" *ngIf="person.statusCarteirinha && !isDocumentsPage">
+      <div class="flex flex-col gap-1 items-center" *ngIf="person.statusCarteirinha && !isDocumentsPage">
         <div class="flex gap-2">
           <label class="text-sm font-medium text-gray-700"> 
             Status:
@@ -115,9 +88,10 @@
           </div>
         </ng-container>
       </div>
+
     </div>
   </div>
-</ng-template> 
+</ng-template>
 
 <!-- LOADING -->
 <ng-container *ngIf="isLoading && isDocumentsPage; else content">

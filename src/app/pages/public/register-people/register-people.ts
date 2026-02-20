@@ -74,7 +74,7 @@ export class RegisterPeople {
     private toastr: ToastrService,
     private router: Router,
     private auth: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
   ) {
     // Check if there's state passed from navigation
     const nav = this.router.getCurrentNavigation();
@@ -154,7 +154,7 @@ export class RegisterPeople {
             this.showFaceCapture = true;
           }
           return of(resPerson);
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -162,7 +162,7 @@ export class RegisterPeople {
             this.isEditMode || this.isViewMode
               ? 'Cadastro atualizado com sucesso!'
               : 'Cadastro realizado com sucesso!',
-            'Sucesso'
+            'Sucesso',
           );
 
           this.loading = false;
@@ -170,8 +170,8 @@ export class RegisterPeople {
           // Redirect to Documents after 1 second
           if (!this.isEditMode && !this.isViewMode) {
             setTimeout(() => {
-              console.log('personToSend', personToSend);
-              console.log('this.person ', this.person);
+              //console.log('personToSend', personToSend);
+              //console.log('this.person ', this.person);
               // Navegar para a página /Documentos passando o objeto 'pessoa' como estado
               this.router.navigate(['/Documentos'], { state: { personToSend: this.person } });
             }, 1000);

@@ -2,7 +2,7 @@
 @import "ngx-toastr/toastr";
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .toast-center-screen {

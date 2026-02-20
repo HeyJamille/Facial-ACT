@@ -1,0 +1,22 @@
+<div class="flex flex-col items-center h-screen">
+  <!--
+  <button 
+    onclick="const c = document.getElementById('containerIframe'); c.style.display='block'; c.querySelector('iframe').contentWindow.postMessage('abrir', '*')" 
+    style="padding: 10px; cursor: pointer; margin-bottom: 10px; margin-top: 20px;">
+    Cadastrar Facial
+  </button>
+   -->
+
+   <!-- PRODUCAO: src="https://facial.achetickets.com.br/Captura/Facial/dc4a86f7-21e4-4577-901c-80be53c0fa1c/ceara" -->
+  <!-- DEV: src="https://facial.achetickets.com.br/Captura/Facial/dc4a86f7-21e4-4577-901c-80be53c0fa1c/ceara" -->
+  
+  <div id="containerIframe" 
+       style="display: flex;" 
+       class="w-full max-w-[400px] h-[400px] bg-white rounded-lg shadow-lg overflow-hidden m-5">
+    <iframe 
+      src="script-facial/script-facial.html"
+      allow="camera" 
+      class="w-full h-full border-none">
+    </iframe>
+  </div>
+</div>

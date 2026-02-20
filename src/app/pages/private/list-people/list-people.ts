@@ -33,7 +33,11 @@ export class ListPeople implements OnInit {
 
   loading: boolean = false;
 
-  constructor(private router: Router, private toastr: ToastrService, private api: ApiService) {}
+  constructor(
+    private router: Router,
+    private toastr: ToastrService,
+    private api: ApiService,
+  ) {}
 
   // Call data
   ngOnInit() {
@@ -53,8 +57,15 @@ export class ListPeople implements OnInit {
         // Clona para filtro
         this.filteredPeople = [];
       },
-      error: () => {
-        this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
+      error: (err) => {
+        if (err.status === 401) {
+          this.toastr.warning(
+            'Sua sessão expirou. Por favor, faça login novamente.',
+            'Sessão Expirada',
+          );
+        } else {
+          this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
+        }
       },
     });
   }

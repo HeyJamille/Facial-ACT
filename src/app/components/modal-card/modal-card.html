@@ -11,27 +11,50 @@
     </button>
     
     <!-- Card Image -->
-    <div class="flex justify-center items-center overflow-hidden" *ngIf="arquivoUrl">
+    <div class="p-4 overflow-y-auto w-auto max-h-[80vh] custom-scrollbar">
+      @if (isPdf) {
+        <div class="w-full h-[600px]">
+          <iframe [src]="arquivoUrl! | safeUrl" class="w-full h-full rounded-lg border"></iframe>
+        </div>
+      } 
       
-     <iframe
-        *ngIf="isPdf"
-        [src]="arquivoUrl | safeUrl"
-        class="w-auto h-[500px] rounded border-0"
-      ></iframe>
+      @else {
+        <div class="flex flex-col gap-6 items-center ">
+          <div class="w-full max-w-sm">
+            <p class="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wider">Frente da Carteirinha</p>
+            <div class="border-2 border-gray-200 rounded-xl overflow-auto shadow-sm bg-gray-50 max-h-[400px] custom-scrollbar">
+              <img 
+                [src]="arquivoUrlFrente | safeUrl" 
+                class="w-full h-auto object-contain transition-transform duration-300 origin-top-left cursor-zoom-in"
+                [ngStyle]="{ transform: zoomFrente ? 'scale(2.5)' : 'scale(1)' }"
+                (click)="zoomFrente = !zoomFrente"
+                alt="Frente"
+              >
+            </div>
+            <p class="text-[10px] text-gray-400 mt-1 text-center italic">Clique na imagem para aplicar/remover o zoom</p>
+          </div>
 
-      <div class="flex justify-center items-start overflow-auto max-h-[80vh] w-full custom-scroll">
-        <img
-          *ngIf="!isPdf"
-          [src]="arquivoUrl"
-          alt="Documento"
-          (click)="toggleZoom()"
-          [ngClass]="{
-            'max-h-[70vh] w-auto': !isZoomed,
-            'max-h-[1000px] w-full object-cover': isZoomed
-          }"
-          class="rounded transition-all duration-300 cursor-zoom-in shadow-xl"
-        />
-      </div>
+          @if (arquivoUrlVerso) {
+            <div class="w-full max-w-sm mt-6">
+              <p class="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wider">Verso da Carteirinha</p>
+              <div class="border-2 border-gray-200 rounded-xl overflow-auto shadow-sm bg-gray-50 max-h-[400px] custom-scrollbar">
+                <img 
+                  [src]="arquivoUrlVerso | safeUrl" 
+                  class="w-full h-auto object-contain transition-transform duration-300 origin-top-left cursor-zoom-in"
+                  [ngStyle]="{ transform: zoomVerso ? 'scale(2.5)' : 'scale(1)' }"
+                  (click)="zoomVerso = !zoomVerso"
+                  alt="Verso"
+                >
+              </div>
+              <p class="text-[10px] text-gray-400 mt-1 text-center italic">Clique na imagem para aplicar/remover o zoom</p>
+            </div>
+          } @else {
+            <div class="p-4 bg-gray-50 rounded-lg text-gray-400 text-sm border border-dashed">
+              Nenhuma imagem de verso anexada para esta carteirinha.
+            </div>
+          }
+        </div>
+      }
     </div>
 
     <!-- Approve and disapprove buttons -->

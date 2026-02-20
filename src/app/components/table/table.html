@@ -45,26 +45,26 @@
             {{ utils.maskEmail(person[col.name]) }}
           </span>
 
-          <div *ngIf="col.name === 'statusDocs'" class="inline-flex flex-col items-start gap-1.5 py-1">
+          <div *ngIf="col.name === 'statusDocs'" class="inline-flex flex-col items-start gap-1.5 py-1  whitespace-nowrap">
             <div class="flex items-center gap-2">
-              <img [src]="person.iconFacial === 'S' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
-              <span [ngClass]="person.iconFacial === 'S' ? 'text-green-600' : 'text-red-600'" 
+              <img [src]="person.statusFacial === 'Facial Aprovada' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
+              <span [ngClass]="person.statusFacial === 'Facial Aprovada' ? 'text-green-600' : 'text-red-600'" 
                     class="text-[10px] font-bold uppercase tracking-tight">
                {{ person.statusFacial }}
               </span>
             </div>
 
             <div class="flex items-center gap-2">
-              <img [src]="person.iconDocumento === 'S' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
-              <span [ngClass]="person.iconDocumento === 'S' ? 'text-green-600' : 'text-red-600'" 
+              <img [src]="person.statusDocumento === 'Documento Aprovado' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
+              <span [ngClass]="person.statusDocumento === 'Documento Aprovado' ? 'text-green-600' : 'text-red-600'" 
                     class="text-[10px] font-bold uppercase tracking-tight">
                 {{ person.statusDocumento }}
               </span>
             </div>
 
             <div class="flex items-center gap-2">
-              <img [src]="person.iconCarteirinha === 'S' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
-              <span [ngClass]="person.iconCarteirinha === 'S' ? 'text-green-600' : 'text-red-600'" 
+              <img [src]="person.statusCarteirinha === 'Carteirinha Aprovada' ? '/check.png' : '/uncheck.png'" class="w-3.5 h-3.5">
+              <span [ngClass]="person.statusCarteirinha === 'Carteirinha Aprovada' ? 'text-green-600' : 'text-red-600'" 
                     class="text-[10px] font-bold uppercase tracking-tight">
                 {{ person.statusCarteirinha  }}
               </span>
@@ -94,10 +94,10 @@
 
             <ng-container *ngIf="actionType === 'icons'">
               <div class="flex justify-center items-center gap-3 ">
-                <button *ngIf="actions.includes('editar')" (click)="onAction('editar', person.id)" class="hover:opacity-60 transition-opacity">
+                <button *ngIf="actions.includes('editar')" (click)="onAction('editar', person.id)" class="hover:opacity-60 transition-opacity cursor-pointer">
                   <img src="/pencil.png" alt="Editar"  class="w-auto h-4">
                 </button>
-                <button *ngIf="actions.includes('deletar')" (click)="onAction('deletar', person.id)" class="hover:opacity-60 transition-opacity">
+                <button *ngIf="actions.includes('deletar')" (click)="onAction('deletar', person.id)" class="hover:opacity-60 transition-opacity cursor-pointer">
                   <img src="/trash.png" alt="Deletar"  class="w-auto h-4">
                 </button>
               </div>
@@ -126,6 +126,8 @@
 <app-modal-document
   *ngIf="showDocument"
   [arquivoUrl]="arquivoUrl"
+  [arquivoUrlFrente]="arquivoUrlFrente"
+  [arquivoUrlVerso]="arquivoUrlVerso"
   [isPdf]="isPdf"
   [person]="selectPerson"
   (close)="fecharModais()"
@@ -136,6 +138,8 @@
 <app-modal-card
   *ngIf="showCard"
   [arquivoUrl]="arquivoUrl"
+  [arquivoUrlFrente]="arquivoUrlFrente"
+  [arquivoUrlVerso]="arquivoUrlVerso"
   [isPdf]="isPdf"
   [person]="selectPerson"
   (close)="fecharModais()"

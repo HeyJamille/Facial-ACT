@@ -6,7 +6,7 @@
     
     <!-- Close Button -->
     <button
-      class="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 cursor-pointer"
       (click)="cancel.emit()"
     >
       ✕
@@ -15,11 +15,13 @@
     <!-- Text -->
     <div class="space-y-2">
       <h2 class="text-2xl font-bold text-gray-800">{{ title }}</h2> 
-      <p class="text-sm text-gray-600">{{ subtitle }} <strong>{{ personName }}</strong>?</p>
+      <p class="text-sm text-gray-600">
+        {{ subtitle }} <strong>{{ personName }}</strong>{{ subtitle.startsWith('Deseja') ? '?' : '' }}
+      </p>
     </div>
     
-    <div class="px-6 py-4 bg-gray-50/50">
-      <div *ngIf="actionType === 'approve' && documentType !== 'facial'" class="flex flex-col gap-2">
+    <div class="px-6 py-4 ">
+      <div *ngIf="actionType === 'approve' && documentType !== 'facial' && documentType !== 'documento'" class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-500 uppercase">Data de Validade</label>
         <input 
           type="date" 

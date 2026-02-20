@@ -17,6 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { Button } from '../ui/button/button';
 import { Person } from '../../models/person.model';
 import { SafeUrlPipe } from '../../services/safeUrlPipe';
+import { concat } from 'rxjs';
 
 @Component({
   selector: 'app-file-upload',
@@ -29,9 +30,19 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
   @Input() person!: Person;
   @Input() isEditMode = false;
 
-  fileToUpload?: File;
-  imagePreview: string | null = null;
+  //fileToUpload?: File;
+  fileFrenteToUpload?: File;
+  fileVersoToUpload?: File;
+
+  arquivoUrlFrente: string = '';
+  arquivoUrlVerso: string = '';
+
+  //imagePreview: string | null = null;
   pdfPreviewUrl: string | null = null; // URL do PDF
+
+  imagePreviewFrente: string | null = null;
+  imagePreviewVerso: string | null = null;
+  imagePreviewPDF: string | null = null;
 
   isPdf = false;
   fileUploaded = false;
@@ -63,8 +74,8 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
 
     const token = this.auth.getToken();
 
-    console.log('this.person', this.person.UsuarioID);
-    console.log('token', token);
+    //console.log('this.person', this.person.UsuarioID);
+    //console.log('token', token);
 
     //UsuarioID
     if (this.person.id && token) {
@@ -139,84 +150,78 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
   }
 
   showDocument(personId: string, token: string, tipoArquivo: 'carteirinha' | 'documento') {
-    this.api.downloadFile(personId, token, tipoArquivo).subscribe({
-      next: (blob: Blob) => {
-        if (!blob) {
-          this.toastr.warning('Nenhum documento encontrado.');
-          return;
+    // 1. Primeiro buscamos sempre a frente
+    this.api.downloadFile(personId, token, tipoArquivo, false).subscribe({
+      next: (blobFrente: Blob) => {
+        if (!blobFrente || blobFrente.size === 0) return;
+
+        // 2. Verifica se é PDF
+        this.isPdf = blobFrente.type === 'application/pdf';
+
+        // 3. Processa a URL da Frente
+        if (this.arquivoUrlFrente) URL.revokeObjectURL(this.arquivoUrlFrente);
+        this.arquivoUrlFrente = URL.createObjectURL(blobFrente);
+        this.imagePreviewFrente = this.arquivoUrlFrente;
+
+        // Se for PDF, paramos aqui e usamos a URL da frente para o iframe
+        if (this.isPdf) {
+          this.arquivoUrlDocumento = this.arquivoUrlFrente;
+          this.fileUploaded = true;
         }
-
-        // Verifica se é PDF
-        this.isPdf = blob.type === 'application/pdf';
-
-        // Revoga URL anterior para evitar memory leak
-        if (this.arquivoUrlDocumento) {
-          URL.revokeObjectURL(this.arquivoUrlDocumento);
+        // 4. Se NÃO for PDF, busca o verso
+        else {
+          this.api.downloadFile(personId, token, tipoArquivo, true).subscribe({
+            next: (blobVerso: Blob) => {
+              if (blobVerso && blobVerso.size > 0) {
+                if (this.arquivoUrlVerso) URL.revokeObjectURL(this.arquivoUrlVerso);
+                this.arquivoUrlVerso = URL.createObjectURL(blobVerso);
+                this.imagePreviewVerso = this.arquivoUrlVerso;
+              }
+              this.fileUploaded = true;
+            },
+            error: (err) => console.error('Verso não encontrado ou erro:', err),
+          });
         }
-
-        // Cria URL do blob
-        this.arquivoUrlDocumento = URL.createObjectURL(blob);
-
-        // Para imagens, atualiza preview SEMPRE (substitui o preview local)
-        if (!this.isPdf) {
-          this.imagePreview = this.arquivoUrlDocumento;
-        }
-
-        this.fileUploaded = true;
       },
-      error: (err) => {
-        // Se der erro e não houver arquivoUrlDocumento, mantém o imagePreview
-        console.error('Erro ao carregar documento:', err);
-
-        /* Só mostra toast se não houver nenhuma imagem para mostrar
-        if (!this.imagePreview) {
-          this.toastr.error('Erro ao carregar carteirinha.');
-        }
-        */
-      },
+      error: (err) => console.error('Erro ao carregar frente:', err),
     });
   }
 
-  onFileSelected(event: any): void {
+  onFileSelected(event: any, lado: 'frente' | 'verso'): void {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Revoga URL anterior para evitar vazamento de memória
-    if (this.arquivoUrlDocumento && this.arquivoUrlDocumento.startsWith('blob:')) {
-      URL.revokeObjectURL(this.arquivoUrlDocumento);
-    }
-
-    this.fileToUpload = file;
-    this.isPdf = file.type === 'application/pdf';
     this.documentSelected.emit(file);
 
-    // Criamos a URL que o iframe/embed usará
-    this.arquivoUrlDocumento = URL.createObjectURL(file);
-
-    if (this.isPdf) {
-      this.imagePreview = 'pdf-selected'; // Valor dummy para satisfazer o *ngIf do container
-      console.log('PDF pronto para preview:', this.arquivoUrlDocumento);
-    } else if (file.type.startsWith('image/')) {
-      // Para imagens, mantemos o FileReader para gerar o base64 se preferir,
-      // ou usamos a própria arquivoUrlDocumento
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagePreview = e.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      this.toastr.error('Tipo de arquivo não permitido.');
-      this.resetUpload();
+    // Verifica se o arquivo é PDF
+    if (file.type === 'application/pdf') {
+      this.isPdf = true;
+      this.imagePreviewPDF = URL.createObjectURL(file); // Cria preview do PDF
+      this.fileFrenteToUpload = file; // No caso de PDF, geralmente enviamos como 'frente'
+      return;
     }
+
+    this.isPdf = false;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (lado === 'frente') {
+        this.imagePreviewFrente = e.target?.result as string;
+        this.fileFrenteToUpload = file; // Salva o arquivo da frente
+      } else {
+        this.imagePreviewVerso = e.target?.result as string;
+        this.fileVersoToUpload = file; // Salva o arquivo do verso
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   handlePreview(file: File) {
-    console.log('Arquivo selecionado:', file);
+    //console.log('Arquivo selecionado:', file);
 
     if (file.type === 'application/pdf') {
       // Caso seja PDF
       this.isPdf = true;
-      this.imagePreview = null; // Limpa a preview de imagem
+      this.imagePreviewPDF = null; // Limpa a preview de imagem
       this.pdfPreviewUrl = URL.createObjectURL(file); // Gera uma URL do PDF
 
       // Mostra a mensagem de erro, se o PDF não for aceito
@@ -226,8 +231,9 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       this.isPdf = false;
       const reader = new FileReader();
       reader.onload = () => {
-        this.imagePreview = reader.result as string;
-        console.log('Imagem preview gerada:', this.imagePreview);
+        this.imagePreviewVerso = reader.result as string;
+        this.imagePreviewFrente = reader.result as string;
+        //console.log('Imagem preview gerada:', this.imagePreview);
       };
       reader.readAsDataURL(file); // Gera a URL da imagem
     } else {
@@ -237,38 +243,75 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
   }
 
   sendImage() {
-    if (!this.fileToUpload || !this.person) {
-      this.toastr.warning('Selecione um documento primeiro.');
+    if (!this.fileFrenteToUpload || !this.person) {
+      this.toastr.warning('Selecione a frente do Documento.');
       return;
     }
 
-    const tipoArquivo: 'carteirinha' | 'documento' = 'documento';
-    this.api.uploadFile(this.person.id, tipoArquivo, this.fileToUpload).subscribe({
-      next: () => {
-        this.toastr.success('Documento enviado com sucesso!');
+    if (!this.isPdf && !this.fileVersoToUpload) {
+      this.toastr.warning('Para imagens, é obrigatório selecionar a frente e o verso.');
+      return;
+    }
+
+    // Preparamos os Observables
+    const uploadFrente$ = this.api.uploadFile(
+      this.person.id,
+      'documento',
+      this.fileFrenteToUpload,
+      false,
+    );
+    const uploadVerso$ = !this.isPdf
+      ? this.api.uploadFile(this.person.id, 'documento', this.fileVersoToUpload!, true)
+      : null;
+
+    // Se for PDF, envia um. Se imagem, envia um DEPOIS o outro.
+    const uploadFlow$ = this.isPdf ? uploadFrente$ : concat(uploadFrente$, uploadVerso$!);
+
+    uploadFlow$.subscribe({
+      next: (res) => {
+        // O next será chamado para cada arquivo enviado
+        //console.log('Arquivo enviado com sucesso:', res);
+      },
+      error: (err) => {
+        //console.error('Erro no upload:', err);
+        this.toastr.error('Erro ao realizar upload.');
+      },
+      complete: () => {
+        // O complete só roda quando TODOS do concat terminarem
+        this.toastr.success(
+          this.isPdf ? 'Documento em PDF enviado!' : 'Documento Frente e Verso enviados!',
+        );
         this.fileUploaded = true;
         this.isEditMode = false;
 
-        // Atualiza o documento exibido
         const token = this.auth.getToken();
-        if (token) {
+        if (token && this.person.id) {
           this.showDocument(this.person.id, token, 'documento');
         }
       },
-      error: () => this.toastr.error('Erro ao enviar documento.'),
     });
   }
 
   resetUpload() {
     this.fileUploaded = false;
     this.isEditMode = true;
-    this.imagePreview = '';
-    this.fileToUpload = undefined;
+    this.isPdf = false; // Resetar o estado de PDF
+
+    // Importante: Revogar URLs para liberar memória
+    if (this.imagePreviewPDF) {
+      URL.revokeObjectURL(this.imagePreviewPDF);
+      this.imagePreviewPDF = null;
+    }
 
     if (this.arquivoUrlDocumento) {
       URL.revokeObjectURL(this.arquivoUrlDocumento);
       this.arquivoUrlDocumento = '';
     }
+
+    this.imagePreviewVerso = '';
+    this.imagePreviewFrente = '';
+    this.fileFrenteToUpload = undefined;
+    this.fileVersoToUpload = undefined;
   }
 
   deleteDocument() {
@@ -277,7 +320,7 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       .deleteDocument(this.person.id, { facial: false, documento: true, carteirinha: false })
       .subscribe({
         next: () => {
-          console.log('Documento deletado com sucesso!');
+          //console.log('Documento deletado com sucesso!');
           this.resetUpload();
           this.isDeleting = false;
         },
@@ -324,7 +367,7 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       this.person.statusDocumento === 'Documento Não enviado(a)' &&
       this.person.arquivoDocumento === null
     ) {
-      console.log('CASO 1');
+      //console.log('CASO 1');
       return { showSend: true, showRepeat: true, showDelete: false, disabled: false };
     }
 
@@ -332,7 +375,7 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       this.person.statusDocumento === 'Documento Aprovado' &&
       this.person.arquivoDocumento !== null
     ) {
-      console.log('CASO 2');
+      //console.log('CASO 2');
       return { showSend: false, showRepeat: false, showDelete: false, disabled: true };
     }
 
@@ -340,12 +383,12 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       this.person.statusDocumento === 'Documento Pendente' &&
       this.person.arquivoDocumento !== null
     ) {
-      console.log('CASO 3');
+      //console.log('CASO 3');
       return { showSend: false, showRepeat: false, showDelete: false, disabled: true };
     }
 
     if (this.fileUploaded === true && this.person.statusDocumento !== 'Documento Rejeitado') {
-      console.log('CASO 4');
+      //console.log('CASO 4');
       return { showSend: false, showRepeat: false, showDelete: false, disabled: true };
     }
 
@@ -354,7 +397,7 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       this.person.arquivoDocumento !== null &&
       this.person.motivoRejeicaoDocumento !== null
     ) {
-      console.log('CASO 5');
+      //console.log('CASO 5');
       return {
         showSend: false,
         showRepeat: false,
@@ -363,7 +406,7 @@ export class FileUpload implements OnInit, OnChanges, OnDestroy {
       };
     }
 
-    console.log('CASO 6');
+    //console.log('CASO 6');
     return {
       showSend: true,
       showRepeat: true,

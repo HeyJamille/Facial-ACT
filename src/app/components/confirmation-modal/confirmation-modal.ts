@@ -34,9 +34,16 @@ export class ConfirmationModal {
   constructor(private toastr: ToastrService) {}
 
   onConfirm() {
-    if (this.actionType === 'approve' && this.documentType !== 'facial') {
+    this.loading = true;
+
+    if (
+      this.actionType === 'approve' &&
+      this.documentType !== 'facial' &&
+      this.documentType !== 'documento'
+    ) {
       if (!this.validade) {
         this.toastr.error('Selecione a data de validade');
+        this.loading = false;
         return;
       }
 
@@ -50,6 +57,7 @@ export class ConfirmationModal {
       // Verifica se a validade é hoje ou no passado
       if (dataDigitada <= dataHoje) {
         this.toastr.error('A data de validade deve ser posterior ao dia de hoje.');
+        this.loading = false;
         return;
       }
     }
@@ -58,6 +66,7 @@ export class ConfirmationModal {
       this.toastr.error(
         'Para reprovar, é necessário descrever o motivo da rejeição de forma clara.',
       );
+      this.loading = false;
       return;
     }
 

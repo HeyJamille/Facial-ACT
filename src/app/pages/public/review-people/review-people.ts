@@ -197,8 +197,8 @@ export class ReviewPeople {
     this.pageTitle = 'Dados Cadastrais Enviados';
     //this.isViewMode = false;
     this.showMessage = this.router.url === '/RevisaoFinal';
-    console.log('showMessage:', this.showMessage);
-    console.log('this.router.url:', this.router.url);
+    //console.log('showMessage:', this.showMessage);
+    //console.log('this.router.url:', this.router.url);
     this.isEditMode = true;
     this.isAdmin = userInfo?.role === 'A';
     //console.log('isAdmin:', this.isAdmin);

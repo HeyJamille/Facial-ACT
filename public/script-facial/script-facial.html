@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="script-facial.css">
+</head>
+<body>
+
+<div id="popupBox">
+    <!--<button class="btn-close" onclick="fecharModal()">✕</button>-->
+    <!--<div class="title">Captura Facial</div>-->
+
+    <div id="step-camera" class="fade-in">
+        <div class="content-area">
+            <div class="camera-container">
+                <video id="video" autoplay playsinline muted></video>
+                <div class="overlay-guide">
+                    <div class="guide-circle"></div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-area">
+            <button class="btn-black" onclick="captureImage()">Capturar</button>
+            <div class="alert-message">Posicione seu rosto dentro do círculo.</div>
+        </div>
+    </div>
+
+    <div id="step-preview" class="fade-in" style="display: none;">
+        <div class="content-area">
+            <div class="preview-container">
+                <img id="photo-preview" src="" alt="Captura">
+            </div>
+        </div>
+        <div class="footer-area">
+            <button id="btn-send" class="btn-black" onclick="sendImage()">Enviar</button>
+            <button class="btn-black btn-yellow" onclick="repeatCapture()">Repetir Captura</button>
+            <div id="status-container" style="display: none; flex-direction: column; margin-top: 15px;">
+                <p style="font-size: 0.95rem; font-weight: 700; color: #16a34a; margin: 0;">Seu processo de captura de facial foi finalizado com sucesso.</p>
+                <p style="font-size: 0.8rem; font-weight: 600; color: #4b5563; margin: 5px 0 0 0;">Em instantes você receberá um e-mail de confirmação da validação de sua facial.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="script-facial.js"></script>
+</body>
+</html>

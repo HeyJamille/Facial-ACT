@@ -26,7 +26,7 @@
       </div>
 
       <form #registerPeopleForms="ngForm" (ngSubmit)="onSubmit(registerPeopleForms)"
-        class="flex flex-col gap-6 bg-white rounded-xl shadow-lg p-6">
+        class="flex flex-col gap-6 bg-white rounded-xl shadow-lg p-6 ">
 
         <!-- Personal Data -->
         <fieldset class="border border-gray-300 rounded-lg p-4">
@@ -36,7 +36,7 @@
           <div class="flex flex-col sm:flex-row gap-4 mt-4"> 
             <!-- Name -->
             <div class="w-full">
-              <label for="nomeCompleto" class="text-sm font-medium text-black">Nome Completo</label>
+              <label for="nomeCompleto" class="text-sm font-medium text-black">Nome Completo <span class="text-red-500">*</span></label>
               <input type="text" id="nomeCompleto" name="nomeCompleto" [(ngModel)]="person.nomeCompleto" #nomeCompleto="ngModel" required
                 [disabled]="isViewMode && !isEditMode ? true : false"
 
@@ -47,7 +47,7 @@
             
             <!-- Date of birth  -->
             <div class="w-full">
-              <label for="dataNascimento" class="text-sm font-medium text-black">Data de Nascimento</label>
+              <label for="dataNascimento" class="text-sm font-medium text-black">Data de Nascimento <span class="text-red-500">*</span></label>
               <input type="date" id="dataNascimento" name="dataNascimento" [(ngModel)]="person.dataNascimento"
                 [disabled]="isViewMode && !isEditMode ? true : false"
  
@@ -60,7 +60,7 @@
 
             <!-- Sexo -->
             <div class="w-full ">
-              <label for="sexo" class="text-sm font-medium text-black">Sexo</label>
+              <label for="sexo" class="text-sm font-medium text-black">Sexo <span class="text-red-500">*</span></label>
               <select
                 id="sexo"
                 name="sexo"
@@ -125,7 +125,7 @@
             
             <!-- Celular -->
             <div class="w-full">
-              <label for="celular" class="text-sm font-medium text-black">Celular</label>
+              <label for="celular" class="text-sm font-medium text-black">Celular <span class="text-red-500">*</span></label>
               <input type="text" id="celular" name="celular" [(ngModel)]="person.celular" #celular="ngModel" required
                 [disabled]="isViewMode && !isEditMode ? true : false"
  
@@ -143,7 +143,7 @@
           <div class="flex flex-col sm:flex-row gap-4">
             <!-- E-mail -->
             <div class="w-full">
-              <label for="email" class="text-sm font-medium text-black">Email</label>
+              <label for="email" class="text-sm font-medium text-black">Email <span class="text-red-500">*</span></label>
               <input type="email" id="email" name="email" [(ngModel)]="person.email" #email="ngModel" required
                 placeholder="email@gmail.com"
                 class="w-full mt-1 px-4 py-2 border text-sm rounded-lg text-gray-600 border-gray-400 focus:ring focus:outline-none disabled:bg-gray-200 disabled:text-gray-500"
@@ -210,7 +210,7 @@
 							</div>
 
             <div class="w-full">
-              <label for="nomeMae" class="text-sm font-medium text-black">Nome da Mãe</label>
+              <label for="nomeMae" class="text-sm font-medium text-black">Nome da Mãe <span class="text-red-500">*</span></label>
               <input type="text" id="nomeMae" name="nomeMae" [(ngModel)]="person.nomeMae" #nomeMae="ngModel" required
                 placeholder="Nome da Mãe"
                 [disabled]="isViewMode && !isEditMode ? true : false"
@@ -227,7 +227,7 @@
 
           <div class="flex flex-col sm:flex-row gap-4">
             <div class="w-full sm:w-1/2">
-              <label for="CEP" class="text-sm font-medium text-black">CEP</label>
+              <label for="CEP" class="text-sm font-medium text-black">CEP <span class="text-red-500">*</span></label>
               <input type="text" id="cep" name="cep" [(ngModel)]="person.cep" #cep="ngModel" required							 
                 [disabled]="isViewMode && !isEditMode ? true : false"
                 placeholder="Ex: 01001-000" 
@@ -238,7 +238,7 @@
 						</div>
 
             <div class="w-full">
-              <label for="logradouro" class="text-sm font-medium text-black">Logradouro</label>
+              <label for="logradouro" class="text-sm font-medium text-black">Logradouro <span class="text-red-500">*</span></label>
               <input type="text" id="logradouro" name="logradouro" [(ngModel)]="person.logradouro" #logradouro="ngModel" required
 							  placeholder="Ex: Av. Brasil" 
                 [disabled]="isViewMode && !isEditMode ? true : false"
@@ -248,7 +248,7 @@
 						</div>
 
             <div class="w-full sm:w-[200px]">
-              <label for="numero" class="text-sm font-medium text-black">Número</label>
+              <label for="numero" class="text-sm font-medium text-black">Número <span class="text-red-500">*</span></label>
               <input type="text" id="numero" name="numero" [(ngModel)]="person.numero" #numero="ngModel" required
 							  placeholder="Ex: 123"
                 [disabled]="isViewMode && !isEditMode ? true : false"
@@ -269,7 +269,7 @@
                 >
 						</div>
             <div class="w-full">
-              <label for="bairro" class="text-sm font-medium text-black">Bairro</label>
+              <label for="bairro" class="text-sm font-medium text-black">Bairro <span class="text-red-500">*</span></label>
               <input type="text" id="bairro" name="bairro" [(ngModel)]="person.bairro" #bairro="ngModel" required
 								placeholder="Ex: Centro"
                 [disabled]="isViewMode && !isEditMode ? true : false"
@@ -280,7 +280,7 @@
 						</div>
 
             <div class="w-full">
-              <label for="cidade" class="text-sm font-medium text-black">Cidade</label>
+              <label for="cidade" class="text-sm font-medium text-black">Cidade <span class="text-red-500">*</span></label>
               <input type="text" id="cidade" name="cidade" [(ngModel)]="person.cidade" #cidade="ngModel" required
 							  placeholder="Ex: São Paulo"
                 [disabled]="isViewMode && !isEditMode ? true : false"
@@ -290,7 +290,7 @@
 						</div>
 
             <div class="w-full sm:w-1/2">
-              <label for="estado" class="text-sm font-medium text-black">Estado</label>
+              <label for="estado" class="text-sm font-medium text-black">Estado <span class="text-red-500">*</span></label>
               <select
                 id="estado"
                 name="estado"

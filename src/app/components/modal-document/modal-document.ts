@@ -18,16 +18,22 @@ export class ModalDocument {
 
   // As outras que você já deve ter:
   @Input() arquivoUrl: string | null = null;
+  @Input() arquivoUrlFrente: string = '';
+  @Input() arquivoUrlVerso: string = '';
   //@Input() person: Person | null = null;
   @Input() person!: Person;
   //@Input() person!: Person;
 
   @Output() close = new EventEmitter<void>();
 
+  documentType: 'documento' = 'documento';
   showModal = false;
   title = '';
   subtitle = '';
   actionType: 'approve' | 'disapprove' | null = null;
+
+  zoomFrente = false;
+  zoomVerso = false;
 
   constructor(
     private api: ApiService,
@@ -46,10 +52,10 @@ export class ModalDocument {
 
     if (type === 'approve') {
       this.title = 'Aprovar';
-      this.subtitle = 'Digite a data de validade do documento de';
+      this.subtitle = 'Deseja realmente aprovar o documento de';
     } else {
-      this.title = 'Desaprovar';
-      this.subtitle = 'Escreva o motivo para desaprovar o documento de';
+      this.title = 'Recusar';
+      this.subtitle = 'Escreva o motivo para recusar o documento de';
     }
   }
 
@@ -58,10 +64,10 @@ export class ModalDocument {
   }
 
   confirmAction(event: any) {
-    console.log('Dados vindos do modal:', event);
+    //console.log('Dados vindos do modal:', event);
 
     const isApprove = this.actionType === 'approve';
-    console.log('isApprove:', isApprove);
+    //console.log('isApprove:', isApprove);
 
     // 1. Criamos a variável fora do if/else para que ela seja acessível depois
     let payload: any;
@@ -80,8 +86,8 @@ export class ModalDocument {
       };
     }
 
-    console.log('Payload final para API:', payload);
-    console.log('personID', this.person.id);
+    //console.log('Payload final para API:', payload);
+    //console.log('personID', this.person.id);
     // 2. Passamos 'payload' (sem o 'this', pois é uma variável local da função)
     this.api.approvarOrDesapproveDocument(this.person.id, payload).subscribe({
       next: (res) => {
@@ -90,9 +96,9 @@ export class ModalDocument {
         );
 
         if (!isApprove) {
-          this.person.statusDocumento = 'Rejeitado';
+          this.person.statusDocumento = 'Documento Rejeitado';
         } else {
-          this.person.statusDocumento = 'Aprovado';
+          this.person.statusDocumento = 'Documento Aprovado';
         }
         /* Se foi desaprovado, deletar o documento
         if (!isApprove) {

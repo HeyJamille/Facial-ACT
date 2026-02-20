@@ -49,10 +49,10 @@ export class ModalFacial {
   }
 
   confirmAction(event: any) {
-    console.log('Dados vindos do modal:', event);
+    //console.log('Dados vindos do modal:', event);
 
     const isApprove = this.actionType === 'approve';
-    console.log('isApprove:', isApprove);
+    //console.log('isApprove:', isApprove);
 
     // 1. Criamos a variável fora do if/else para que ela seja acessível depois
     let payload: any;
@@ -69,12 +69,12 @@ export class ModalFacial {
       };
     }
 
-    console.log('Payload final para API:', payload);
-    console.log('personID', this.personID);
-    console.log('personName', this.personName);
-    console.log('person', this.person);
+    //console.log('Payload final para API:', payload);
+    //console.log('personID', this.personID);
+    //console.log('personName', this.personName);
+    //console.log('person', this.person);
 
-    console.log('payload', payload);
+    //console.log('payload', payload);
 
     // 2. Passamos 'payload' (sem o 'this', pois é uma variável local da função)
     this.api.approvarOrDesapproveFacial(this.personID, payload).subscribe({
@@ -84,9 +84,9 @@ export class ModalFacial {
         );
 
         if (!isApprove) {
-          this.person.statusFacial = 'Rejeitado';
+          this.person.statusFacial = 'Facial Rejeitada';
         } else {
-          this.person.statusFacial = 'Aprovado';
+          this.person.statusFacial = 'Facial Aprovada';
         }
 
         const integrationData = {
@@ -99,7 +99,7 @@ export class ModalFacial {
         // 3. Chamada ao updateIntegration passando o ID e o objeto de dados
         this.api.updateIntegration(this.personID, integrationData).subscribe({
           next: () => {
-            console.log('Integração atualizada com sucesso');
+            //console.log('Integração atualizada com sucesso');
           },
           error: (err) => console.error('Erro ao atualizar integração:', err),
         });

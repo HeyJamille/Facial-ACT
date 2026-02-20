@@ -1,5 +1,5 @@
-// BIbliotecas
-import { Component, OnInit } from '@angular/core';
+// Bibliotecas
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 
@@ -14,7 +14,7 @@ import { Person } from '../../../models/person.model';
 
 // Services
 import { ApiService } from '../../../services/api-service/api-service';
-import { NgForm } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-documents-validation',
@@ -25,120 +25,212 @@ import { NgForm } from '@angular/forms';
 export class DocumentsValidation implements OnInit {
   showModal = false;
   personID: string | null = null;
-  personName: string = '';
-  peopleList: Person[] = [];
+  personName = '';
+
+  // Dados
+  allPeople: Person[] = [];
   filteredPeople: Person[] = [];
-  isLoading: boolean = true;
+
+  // Paginação
+  pageSize = 100;
+  paginaUI = 1;
+  paginaApi = 1;
+  hasMoreApiData = true;
+
+  // Estados
+  isLoading = true;
+  isBuscaGlobal = false;
+
+  currentFilter: {
+    term: string;
+    filterBy: string;
+  } | null = null;
 
   constructor(
     private toastr: ToastrService,
     private api: ApiService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit() {
-    this.fetchPeople();
+  async ngOnInit() {
+    await this.loadMoreFromApi();
+    this.updateUIPagination();
   }
 
-  fetchPeople() {
-    this.isLoading = true;
-    this.api.getPeople().subscribe({
-      next: (data: any[]) => {
-        // Map each people
-        this.peopleList = data.map((person) => ({
-          ...person,
-          dataEnvioFacial: person.dataEnvioFacial ? new Date(person.dataEnvioFacial) : null,
-        }));
+  // API
+  private async loadMoreFromApi() {
+    if (!this.hasMoreApiData) return;
 
-        // Filters only people with completed documents, ID cards or facial recognition
-        this.filteredPeople = this.peopleList.filter(
-          (person) => person.arquivoDocumento !== null && person.aprovadorDocumentoId === null,
+    try {
+      const data = await firstValueFrom(this.api.getPeoplePagination(this.paginaApi));
+
+      if (!data || data.length === 0) {
+        this.hasMoreApiData = false;
+        return;
+      }
+
+      const mapped = data.map((person: any) => ({
+        ...person,
+        dataEnvioFacial: person.dataEnvioFacial ? new Date(person.dataEnvioFacial) : null,
+      }));
+
+      this.allPeople.push(...mapped);
+      this.paginaApi++;
+    } catch (err: any) {
+      if (err.status === 401) {
+        this.toastr.warning(
+          'Sua sessão expirou. Por favor, faça login novamente.',
+          'Sessão Expirada',
         );
-        console.log('this.filteredPeople ', this.filteredPeople.length);
-        this.isLoading = false;
-      },
-      error: () => {
-        this.toastr.error('Erro ao carregar a lista de pessoas.', 'Erro na API');
-        this.isLoading = false;
-      },
-    });
+        // O Interceptor que criamos cuidará do redirecionamento
+      } else {
+        this.toastr.error('Erro ao carregar dados da API');
+      }
+
+      this.hasMoreApiData = false;
+    }
   }
 
-  onFilter(event: { term: string; filterBy: string }) {
-    // 1. Caso de "Mostrar Tudo": Termo vazio e filtro não é de status especial
+  // PAGINAÇÃO UI
+  private updateUIPagination() {
+    const baseList = this.currentFilter ? this.applyStatusFilter(this.allPeople) : this.allPeople;
+
+    const start = (this.paginaUI - 1) * this.pageSize;
+    const end = start + this.pageSize;
+
+    this.filteredPeople = baseList.slice(start, end);
+
+    this.isLoading = false;
+    this.cdr.detectChanges();
+  }
+
+  async nextPage() {
+    //this.isLoading = true;
+    this.paginaUI++;
+
+    while (this.allPeople.length < this.paginaUI * this.pageSize && this.hasMoreApiData) {
+      await this.loadMoreFromApi();
+    }
+
+    this.updateUIPagination();
+  }
+
+  prevPage() {
+    if (this.paginaUI > 1) {
+      this.paginaUI--;
+      this.updateUIPagination();
+    }
+  }
+
+  // FILTRO
+  async onFilter(event: { term: string; filterBy: string }) {
+    this.currentFilter = event;
+    this.paginaUI = 1;
+    this.isLoading = true;
+
+    const term = event.term?.trim().toLowerCase() || '';
+    const filterBy = event.filterBy;
+
     const statusFilters = [
       'documentosPendentes',
       'documentosNaoEnviados',
       'documentosValidados',
-
       'carteirinhasPendentes',
       'carteirinhasNaoEnviadas',
       'carteirinhasValidadas',
-
       'facialPendentes',
       'facialNaoEnviadas',
       'facialValidadas',
     ];
 
-    if (!event.term?.trim() && !statusFilters.includes(event.filterBy)) {
-      this.filteredPeople = [...this.peopleList];
-      console.log('this.filteredPeople ', this.filteredPeople.length);
+    const textFilters = ['email', 'documento'];
+
+    // FILTRO DE STATUS
+    if (statusFilters.includes(filterBy)) {
+      this.isBuscaGlobal = false;
+
+      while (this.hasMoreApiData) {
+        await this.loadMoreFromApi();
+      }
+
+      this.updateUIPagination();
       return;
     }
 
-    const termLower = event.term?.toLowerCase();
+    // BUSCA GLOBAL (EMAIL / DOCUMENTO)
+    if (textFilters.includes(filterBy) && term) {
+      this.isBuscaGlobal = true;
 
-    this.filteredPeople = this.peopleList.filter((person) => {
-      // 1. Lógica para Documentos Validados - Documento ok
-      if (event.filterBy === 'documentosValidados') {
-        return person.statusDocumento === 'Documento Aprovado';
+      // garante todos os dados
+      while (this.hasMoreApiData) {
+        await this.loadMoreFromApi();
       }
 
-      // 2. Lógica para Documentos Não Enviados - Faltando o envio
-      if (event.filterBy === 'documentosNaoEnviados') {
-        return person.statusDocumento === 'Documento Não enviado';
+      this.filteredPeople = this.allPeople.filter((person: any) => {
+        const value = person[filterBy as keyof Person];
+        return value ? String(value).toLowerCase().includes(term) : false;
+      });
+
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    // LIMPAR FILTRO
+    if (!term) {
+      this.isBuscaGlobal = false;
+      this.currentFilter = null;
+      this.updateUIPagination();
+    }
+  }
+
+  // FILTRO DE STATUS (GLOBAL)
+  private applyStatusFilter(list: Person[]): Person[] {
+    const filterBy = this.currentFilter?.filterBy;
+
+    return list.filter((person) => {
+      if (filterBy === 'documentosValidados') {
+        return person.statusDocumento?.trim() === 'Documento Aprovado';
+      }
+      if (filterBy === 'documentosNaoEnviados') {
+        return person.statusDocumento?.includes('Documento Não enviado');
+      }
+      if (filterBy === 'documentosPendentes') {
+        return person.statusDocumento?.trim() === 'Documento Pendente Aprovação';
       }
 
-      // 3. Lógica para Documentos Pendentes - Aguardando validação
-      if (event.filterBy === 'documentosPendentes') {
-        return person.statusDocumento === 'Documento Pendente';
+      if (filterBy === 'carteirinhasValidadas') {
+        return person.statusCarteirinha?.trim() === 'Carteirinha Aprovada';
+      }
+      if (filterBy === 'carteirinhasNaoEnviadas') {
+        return person.statusCarteirinha?.includes('Carteirinha Não enviado');
+      }
+      if (filterBy === 'carteirinhasPendentes') {
+        return person.statusCarteirinha?.trim() === 'Carteirinha Pendente Aprovação';
       }
 
-      // 1. Lógica para Carteirinhas Validados - Documento ok
-      if (event.filterBy === 'carteirinhasValidadas') {
-        return person.statusCarteirinha === 'Carteirinha Aprovada';
+      if (filterBy === 'facialValidadas') {
+        return person.statusFacial?.trim() === 'Facial Aprovada';
+      }
+      if (filterBy === 'facialNaoEnviadas') {
+        return person.statusFacial?.includes('Facial Não enviada');
+      }
+      if (filterBy === 'facialPendentes') {
+        return person.statusFacial?.trim() === 'Facial Pendente Aprovação';
       }
 
-      // 2. Lógica para Carteirinhas Não Enviados - Faltando o envio
-      if (event.filterBy === 'carteirinhasNaoEnviadas') {
-        return person.statusCarteirinha === 'Carteirinha Não enviada';
-      }
-
-      // 3. Lógica para Carteirinhas Pendentes - Aguardando validação
-      if (event.filterBy === 'carteirinhasPendentes') {
-        return person.statusCarteirinha === 'Carteirinha Pendente';
-      }
-
-      // 1. Lógica para Facial Validados - Documento ok
-      if (event.filterBy === 'facialValidadas') {
-        return person.statusFacial === 'Facial Aprovada';
-      }
-
-      // 2. Lógica para Facial Não Enviados - Faltando o envio
-      if (event.filterBy === 'facialNaoEnviadas') {
-        return person.statusFacial === 'Facial Não enviada';
-      }
-
-      // 3. Lógica para Facial Pendentes - Aguardando validação
-      if (event.filterBy === 'facialPendentes') {
-        return person.statusFacial === 'Facial Pendente';
-      }
-
-      console.log('this.filteredPeople ', this.filteredPeople.length);
-
-      // 5. Filtro padrão (Busca por texto em Nome, Email, Documento, etc)
-      const value = person[event.filterBy as keyof Person];
-      if (!value) return false;
-      return String(value).toLowerCase().includes(termLower);
+      return true;
     });
+  }
+
+  get canGoNext(): boolean {
+    const baseList = this.currentFilter ? this.applyStatusFilter(this.allPeople) : this.allPeople;
+
+    const totalPages = Math.ceil(baseList.length / this.pageSize);
+
+    // pode avançar se:
+    // - ainda existe página no front
+    // - ou ainda existe dado para vir da API
+    return this.paginaUI < totalPages || this.hasMoreApiData;
   }
 }
