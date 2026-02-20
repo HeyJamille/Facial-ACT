@@ -36,6 +36,8 @@ export class ModalCard {
   zoomFrente = false;
   zoomVerso = false;
 
+  temCarteirinha: boolean = false; // Crie esta variável aqui
+
   constructor(
     private api: ApiService,
     private toastr: ToastrService,
@@ -51,12 +53,19 @@ export class ModalCard {
     this.actionType = type;
     this.showModal = true;
 
+    // Atualiza a variável da classe
+    this.temCarteirinha = !!this.arquivoUrlFrente;
+
     if (type === 'approve') {
       this.title = 'Aprovar';
-      this.subtitle = 'Digite a data de validade da carteirinha de';
+      if (this.temCarteirinha) {
+        this.subtitle = 'Digite a data de validade da carteirinha de';
+      } else {
+        this.subtitle = 'Deseja realmente aprovar o documento de';
+      }
     } else {
       this.title = 'Recusar';
-      this.subtitle = 'Escreva o motivo para recusar a carteirinha de';
+      this.subtitle = 'Escreva o motivo para recusar o documento de';
     }
   }
 

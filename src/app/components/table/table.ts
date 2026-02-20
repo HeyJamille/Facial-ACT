@@ -22,7 +22,7 @@ import { ApiService } from '../../services/api-service/api-service';
 import { AuthService } from '../../services/auth-service/auth-service';
 import { UtilsService } from '../../utils/utils-service';
 import { ModalDocument } from '../modal-document/modal-document';
-import { catchError, concat, forkJoin, of } from 'rxjs';
+import { catchError, concat, forkJoin, from, of } from 'rxjs';
 import { ModalAllDocument } from '../modal-all-document/modal-all-document';
 import { ModalCard } from '../modal-card/modal-card';
 
@@ -77,12 +77,21 @@ export class Table {
 
   showModalAllDocument = false;
   arquivosTodos = {
-    facial: '' as string | null,
-    documentoUrl: '' as string | null,
-    carteirinhaUrl: '' as string | null,
+    facial: '',
     isDocumentoPdf: false,
     isCarteirinhaPdf: false,
+    // Adicione estas 4 propriedades aqui:
+    urlDocFrente: '',
+    urlDocVerso: '',
+    urlCardFrente: '',
+    urlCardVerso: '',
   };
+
+  // URLs específicas para o "Visualizar Tudo"
+  urlDocFrente: string = '';
+  urlDocVerso: string = '';
+  urlCardFrente: string = '';
+  urlCardVerso: string = '';
 
   resultados: any[] = [];
   pollingInterval: any;
@@ -110,11 +119,12 @@ export class Table {
 
   async onActionChange(event: Event, person: Person) {
     const value = (event.target as HTMLSelectElement).value;
+    const token = this.auth.getToken();
 
     if (value === 'visualizar-facial') {
       try {
         this.selectPerson = person;
-        const token = this.auth.getToken();
+        //const token = this.auth.getToken();
 
         if (!token) {
           this.toastr.error('Usuário não autenticado', 'Erro');
@@ -153,7 +163,7 @@ export class Table {
     }
 
     if (value === 'visualizar-documento') {
-      const token = this.auth.getToken();
+      //const token = this.auth.getToken();
       this.selectPerson = person;
 
       if (!token) {
@@ -213,7 +223,7 @@ export class Table {
     }
 
     if (value === 'visualizar-carteirinha') {
-      const token = this.auth.getToken();
+      //const token = this.auth.getToken();
       this.selectPerson = person;
 
       if (!token) {
@@ -281,6 +291,96 @@ export class Table {
         },
       });
     }
+
+    if (value === 'visualizar-tudo') {
+      this.selectPerson = person;
+      const token = this.auth.getToken();
+
+      if (!token) {
+        this.toastr.error('Usuário não autenticado');
+        return;
+      }
+
+      // Reinicia o objeto para não mostrar lixo de chamadas anteriores
+      this.arquivosTodos = {
+        facial: '',
+        isDocumentoPdf: false,
+        isCarteirinhaPdf: false,
+        urlDocFrente: '',
+        urlDocVerso: '',
+        urlCardFrente: '',
+        urlCardVerso: '',
+      };
+
+      const facial$ = from(this.api.fetchFacialBase64(person.id, token)).pipe(
+        catchError(() => of(null)),
+      );
+      const docFrente$ = this.api
+        .downloadFile(person.id, token, 'documento', false)
+        .pipe(catchError(() => of(null)));
+      const docVerso$ = this.api
+        .downloadFile(person.id, token, 'documento', true)
+        .pipe(catchError(() => of(null)));
+      const cardFrente$ = this.api
+        .downloadFile(person.id, token, 'carteirinha', false)
+        .pipe(catchError(() => of(null)));
+      const cardVerso$ = this.api
+        .downloadFile(person.id, token, 'carteirinha', true)
+        .pipe(catchError(() => of(null)));
+
+      forkJoin({
+        facial: facial$,
+        docFrente: docFrente$,
+        docVerso: docVerso$,
+        cardFrente: cardFrente$,
+        cardVerso: cardVerso$,
+      }).subscribe({
+        // ... dentro do next do forkJoin
+        next: (res) => {
+          // 1. Facial
+          this.arquivosTodos.facial = res.facial?.base64 ?? '';
+
+          // 2. Documento Frente
+          if (res.docFrente instanceof Blob && res.docFrente.size > 0) {
+            console.log('docuemnto fnrete', res.docFrente);
+            this.arquivosTodos.isDocumentoPdf = res.docFrente.type === 'application/pdf';
+            this.arquivosTodos.urlDocFrente = URL.createObjectURL(res.docFrente);
+          }
+
+          // 2.1 Documento Verso (Independente da frente existir ou não)
+          if (res.docVerso instanceof Blob && res.docVerso.size > 0) {
+            console.log('docuemnto verso', res.docVerso);
+            // Só mostramos o verso se não for PDF (PDFs costumam ter tudo em um arquivo só)
+            if (!this.arquivosTodos.isDocumentoPdf) {
+              this.arquivosTodos.urlDocVerso = URL.createObjectURL(res.docVerso);
+            }
+          }
+
+          // 3. Carteirinha Frente
+          if (res.cardFrente instanceof Blob && res.cardFrente.size > 0) {
+            console.log('carteirinha frente', res.cardFrente);
+
+            this.arquivosTodos.isCarteirinhaPdf = res.cardFrente.type === 'application/pdf';
+            this.arquivosTodos.urlCardFrente = URL.createObjectURL(res.cardFrente);
+          }
+
+          // 3.1 Carteirinha Verso
+          if (res.cardVerso instanceof Blob && res.cardVerso.size > 0) {
+            console.log('carteirinha verso', res.cardVerso);
+            if (!this.arquivosTodos.isCarteirinhaPdf) {
+              this.arquivosTodos.urlCardVerso = URL.createObjectURL(res.cardVerso);
+            }
+          }
+
+          this.showModalAllDocument = true;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.toastr.error('Erro ao buscar pacote de documentos');
+          console.error(err);
+        },
+      });
+    } // Chave de fechamento do if (value === 'visualizar-tudo') corrigida
   }
 
   onAction(action: string, id: string) {

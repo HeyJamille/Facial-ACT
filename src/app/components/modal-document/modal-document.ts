@@ -75,13 +75,11 @@ export class ModalDocument {
     if (isApprove) {
       payload = {
         aprovado: true,
-        validade: event.validade,
         motivoRejeicao: '',
       };
     } else {
       payload = {
         aprovado: false,
-        validade: '',
         motivoRejeicao: event.motivo,
       };
     }

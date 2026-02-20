@@ -18,6 +18,7 @@ export class ConfirmationModal {
   @Input() showModal: boolean = false; // visibilyty of the modal
   @Input() title: string = ''; // Title: Aprovar / Reprovar / Excluir
   @Input() subtitle: string = '';
+  @Input() hasCard: boolean = false; // visibilyty of the modal
   @Input() personName: string = '';
   @Input() person: string = '';
   @Input() loading: boolean = false;
@@ -39,7 +40,8 @@ export class ConfirmationModal {
     if (
       this.actionType === 'approve' &&
       this.documentType !== 'facial' &&
-      this.documentType !== 'documento'
+      this.documentType !== 'documento' &&
+      this.hasCard === true
     ) {
       if (!this.validade) {
         this.toastr.error('Selecione a data de validade');

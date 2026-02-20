@@ -19,9 +19,9 @@
         {{ subtitle }} <strong>{{ personName }}</strong>{{ subtitle.startsWith('Deseja') ? '?' : '' }}
       </p>
     </div>
-    
+
     <div class="px-6 py-4 ">
-      <div *ngIf="actionType === 'approve' && documentType !== 'facial' && documentType !== 'documento'" class="flex flex-col gap-2">
+      <div *ngIf="(actionType === 'approve' && documentType !== 'facial' && documentType !== 'documento') && hasCard === true" class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-500 uppercase">Data de Validade</label>
         <input 
           type="date" 

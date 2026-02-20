@@ -89,6 +89,7 @@
                 <option [disabled]="!person.arquivoFacial" value="visualizar-facial">Ver Facial</option>
                 <option [disabled]="!person.arquivoDocumento" value="visualizar-documento">Ver Documento</option>
                 <option [disabled]="!person.arquivoCarteirinha" value="visualizar-carteirinha">Ver Carteirinha</option>
+                <option [disabled]="!person.arquivoCarteirinha && !person.arquivoDocumento" value="visualizar-tudo">Ver Tudo</option>
               </select>
             </ng-container>
 
@@ -146,11 +147,10 @@
 ></app-modal-card>
 }
 
-@if (selectPerson) {
-<app-modal-all-document
-  *ngIf="showModalAllDocument"
-  [arquivosTodos]="arquivosTodos"
-  [person]="selectPerson"
- (close)="fecharModais()"
-></app-modal-all-document>
+@if (showModalAllDocument && selectPerson) {
+  <app-modal-all-document 
+    [arquivosTodos]="arquivosTodos"
+    [person]="selectPerson"
+    (close)="fecharModais()">
+  </app-modal-all-document>
 }

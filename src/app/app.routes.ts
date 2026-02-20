@@ -19,6 +19,7 @@ import { FaceCapturePage } from './pages/public/face-capture-page/face-capture-p
 import { Documents } from './pages/public/documents/documents';
 import { ReviewPeople } from './pages/public/review-people/review-people';
 import { IframeFacial } from './pages/public/iframe-facial/iframe-facial';
+import { Chatbot } from './pages/public/chatbot/chatbot';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'VerificarFacial', pathMatch: 'full' },
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'Auth/login', component: Signin },
   { path: 'Captura/Facial/:id/:arquivo', component: IframeFacial },
   { path: 'Captura/Facial/:id', component: IframeFacial },
+  { path: 'Chatbot', component: Chatbot },
 
   /* PUBLIC */
   {

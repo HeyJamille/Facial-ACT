@@ -108,7 +108,7 @@ export class ApiService {
 
   approvarOrDesapproveDocument(
     personId: string,
-    dados: { aprovado: boolean; validade: string; motivoRejeicao: string },
+    dados: { aprovado: boolean; motivoRejeicao: string },
   ): Observable<any> {
     const token = this.auth.getToken();
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
@@ -193,6 +193,7 @@ export class ApiService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
+    console.log('aaaaaaaaaa');
 
     return this.http.get(
       `${this.baseUrl}Pessoa/DownloadArquivo/${personId}?tipo=${tipo}&verso=${verso}`,

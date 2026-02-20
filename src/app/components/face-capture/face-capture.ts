@@ -260,6 +260,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       this.person.statusFacial === 'Facial Não enviado(a)' &&
       this.person.arquivoFacial === null
     ) {
+      console.log('CASO 1');
       return {
         showSend: true,
         showRepeat: false,
@@ -275,6 +276,8 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       this.person.statusFacial === 'Facial Não enviado(a)' &&
       this.person.arquivoFacial === null
     ) {
+      console.log('CASO 2');
+
       return {
         showSend: false,
         showRepeat: false,
@@ -289,7 +292,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       this.person.statusFacial === 'Facial Não enviado(a)' &&
       this.person.arquivoFacial === null
     ) {
-      //console.log('CASO 1');
+      console.log('CASO 3');
       return {
         showSend: true,
         showRepeat: true,
@@ -301,7 +304,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     }
 
     if (this.person.statusFacial === 'Facial Pendente' && this.person.arquivoFacial !== null) {
-      //console.log('CASO 3');
+      console.log('CASO 4');
       return {
         showSend: false,
         showRepeat: false,
@@ -312,8 +315,24 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       };
     }
 
+    if (
+      (this.person.statusFacial === 'Facial Aprovada' && this.person.arquivoFacial !== null) ||
+      (this.person.facialIntegrada === 'S' &&
+        this.person.integracaoOcorrencia !== 'Aguardando Validação')
+    ) {
+      console.log('CASO 5');
+      return {
+        showSend: false,
+        showRepeat: false,
+        showDelete: false,
+        message: this.person.statusFacial || 'Facial integrada com sucesso',
+        disabled: true,
+        type: 'success',
+      };
+    }
+
     if (this.integracaoOcorrencia === 'Aguardando Validação') {
-      //console.log('CASO 4 FACIAL');
+      console.log('CASO 6');
       return {
         showSend: false,
         showRepeat: false,
@@ -328,7 +347,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       this.person.arquivoFacial !== null &&
       this.person.motivoRejeicaoFacial !== null
     ) {
-      //console.log('CASO 4 facial');
+      console.log('CASO 7');
       return {
         showSend: true,
         showRepeat: true,
@@ -340,7 +359,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     }
 
     if (this.person.facialIntegrada !== 'S' && this.person.integracaoOcorrencia !== '') {
-      //console.log('CASO 5 facial');
+      console.log('CASO 8');
       return {
         showSend: true,
         showRepeat: true,
@@ -351,21 +370,6 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       };
     }
 
-    if (
-      (this.person.statusFacial === 'Facial Aprovada' && this.person.arquivoFacial !== null) ||
-      (this.person.facialIntegrada === 'S' && this.person.integracaoOcorrencia !== '')
-    ) {
-      //console.log('CASO 2');
-      return {
-        showSend: false,
-        showRepeat: false,
-        showDelete: false,
-        message: this.person.statusFacial || this.person.integracaoOcorrencia,
-        disabled: true,
-        type: 'success',
-      };
-    }
-
     /*
     if (this.fileUploaded === true && this.person.statusFacial !== 'Facial Rejeitado') {
       console.log('CASO 4');
@@ -373,7 +377,7 @@ export class FaceCapture implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     }
     */
 
-    //console.log('CASO 7');
+    console.log('CASO 9');
     return {
       showSend: true,
       showRepeat: true,
